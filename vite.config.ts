@@ -21,3 +21,9 @@ export default defineConfig(({ mode }) => {
       }
     };
 });
+js
+export default defineConfig({
+  base: '/virtssoft/', // très important pour GitHub Pages
+  plugins: [react()],
+})
+
