@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { PROJECTS, TESTIMONIALS } from '../constants';
+import { PROJECTS, TESTIMONIALS } from './constants';
 import { useLanguage } from '../context/LanguageContext';
 import { ArrowRight, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 

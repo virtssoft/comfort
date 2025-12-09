@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { DOMAINS, TEAM_MEMBERS, PARTNERS, CONTACT_INFO } from '../constants';
+import { DOMAINS, TEAM_MEMBERS, PARTNERS, CONTACT_INFO } from './constants';
 import { Heart, BookOpen, HandCoins, Wheat, Palette, Shield, Activity, TrendingUp, Users, MapPin, Mail, Phone, Clock, ArrowRight } from 'lucide-react';
 
 const About: React.FC = () => {
@@ -25,7 +25,7 @@ const About: React.FC = () => {
       <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <img 
-            src="https://picsum.photos/seed/humanitarian/1920/1080" 
+            src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=2070&auto=format&fit=crop" 
             alt="Humanitarian Work" 
             className="w-full h-full object-cover"
           />
@@ -55,7 +55,7 @@ const About: React.FC = () => {
             <div className="relative group">
               <div className="absolute -inset-4 bg-gray-100 rounded-2xl transform rotate-2 group-hover:rotate-1 transition-all duration-500"></div>
               <img 
-                src="https://picsum.photos/seed/community2/800/1000" 
+                src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?q=80&w=2074&auto=format&fit=crop" 
                 alt="Community Support" 
                 className="relative z-10 rounded-2xl shadow-xl w-full object-cover h-[500px] transform group-hover:scale-[1.01] transition-transform duration-500"
               />
@@ -157,7 +157,7 @@ const About: React.FC = () => {
               <p className="text-lg text-gray-700 leading-relaxed mb-8">
                  {t('about_page.approach_text')}
               </p>
-              <img src="https://picsum.photos/seed/planning/600/400" alt="Approach" className="rounded-xl shadow-lg w-full" />
+              <img src="https://images.unsplash.com/photo-1573164574572-cb89e39749b4?q=80&w=2069&auto=format&fit=crop" alt="Approach" className="rounded-xl shadow-lg w-full" />
             </div>
 
             <div className="space-y-0 relative pl-8 border-l-2 border-comfort-blue/20">
@@ -286,6 +286,20 @@ const About: React.FC = () => {
                           <p className="text-gray-600">{CONTACT_INFO.hours}</p>
                        </div>
                     </div>
+                 </div>
+
+                 {/* Google Maps Integrated */}
+                 <div className="mt-10 h-64 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 relative">
+                    <iframe 
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.1161023288914!2d29.208470799999997!3d-1.6737250000000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x19dd0f26ed024195%3A0x41de59a10eb8289!2sHibaigle%20SAS!5e0!3m2!1sfr!2scd!4v1765191811649!5m2!1sfr!2scd" 
+                      width="100%" 
+                      height="100%" 
+                      style={{ border: 0 }} 
+                      allowFullScreen 
+                      loading="lazy" 
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Google Map"
+                    ></iframe>
                  </div>
               </div>
 

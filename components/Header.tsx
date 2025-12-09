@@ -1,9 +1,15 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Phone, Mail, ChevronDown, Menu, X, Facebook, Twitter, Linkedin, Search, User } from 'lucide-react';
-import { CONTACT_INFO } from '../constants';
+import { Phone, Mail, ChevronDown, Menu, X, Facebook, Linkedin, Search, User } from 'lucide-react';
+import { CONTACT_INFO } from '../pages/constants';
 import { useLanguage } from '../context/LanguageContext';
+
+const XIcon = ({ size = 14, className = "" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className}>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </svg>
+);
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -39,9 +45,9 @@ const Header: React.FC = () => {
           </div>
           <div className="flex items-center space-x-6">
             {/* Social Icons - Monochrome Blue */}
-            <div className="flex space-x-4">
-              <a href="#" className="text-comfort-blue hover:opacity-80 transition-opacity"><Facebook size={14} /></a>
-              <a href="#" className="text-comfort-blue hover:opacity-80 transition-opacity"><Twitter size={14} /></a>
+            <div className="flex space-x-4 items-center">
+              <a href="https://www.facebook.com/photo/?fbid=122103347780826664&set=a.122103344876826664" target="_blank" rel="noopener noreferrer" className="text-comfort-blue hover:opacity-80 transition-opacity"><Facebook size={14} /></a>
+              <a href="https://x.com/AsblComfor44668" target="_blank" rel="noopener noreferrer" className="text-comfort-blue hover:opacity-80 transition-opacity"><XIcon size={13} /></a>
               <a href="#" className="text-comfort-blue hover:opacity-80 transition-opacity"><Linkedin size={14} /></a>
             </div>
             

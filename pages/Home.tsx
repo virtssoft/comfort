@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Heart, BookOpen, HandCoins, Wheat, Palette, MapPin, Mail, Phone, Clock, ChevronLeft, ChevronRight, Eye, Handshake, Info, Calendar, User } from 'lucide-react';
-import { PROJECTS, DOMAINS, TESTIMONIALS, CONTACT_INFO, BLOG_POSTS, PARTNERS } from '../constants';
+import { PROJECTS, DOMAINS, TESTIMONIALS, CONTACT_INFO, BLOG_POSTS, PARTNERS } from './constants';
 import { useLanguage } from '../context/LanguageContext';
 
 const Home: React.FC = () => {
@@ -41,18 +41,22 @@ const Home: React.FC = () => {
       
       {/* 🟦 1. SECTION HERO - Le cœur émotionnel */}
       <section className="relative h-[650px] md:h-[800px] flex items-center overflow-hidden">
-        {/* Background Video */}
-        <video 
-          className="absolute inset-0 w-full h-full object-cover"
-          autoPlay 
-          muted 
-          loop 
-          playsInline
-          poster="https://picsum.photos/seed/hope/1920/1080"
-        >
-          <source src="https://assets.mixkit.co/videos/preview/mixkit-children-playing-with-a-kite-on-a-hill-4444-large.mp4" type="video/mp4" />
-          <img src="https://picsum.photos/seed/hope/1920/1080" alt="Hope and Impact" className="w-full h-full object-cover grayscale" />
-        </video>
+        {/* Background YouTube Video */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+           <iframe 
+             className="absolute top-1/2 left-1/2 w-[300%] h-[300%] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 object-cover"
+             src="https://www.youtube.com/embed/WSQy9aNGcnw?autoplay=1&mute=1&controls=0&loop=1&playlist=WSQy9aNGcnw&showinfo=0&rel=0&iv_load_policy=3&disablekb=1&modestbranding=1&playsinline=1&enablejsapi=1" 
+             title="Hero Video"
+             frameBorder="0"
+             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+           ></iframe>
+           {/* Fallback image if video fails to load or for mobile low-data modes */}
+           <img 
+             src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop" 
+             alt="Background Fallback" 
+             className="absolute inset-0 w-full h-full object-cover -z-10" 
+           />
+        </div>
 
         {/* Filters for readability & mood */}
         <div className="absolute inset-0 bg-black/40 z-0"></div>
@@ -127,7 +131,7 @@ const Home: React.FC = () => {
                     <div className="relative">
                         <div className="absolute -inset-4 bg-comfort-blue/10 rounded-3xl transform rotate-2"></div>
                         <img 
-                            src="https://picsum.photos/seed/teamwork/800/600" 
+                            src="https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop" 
                             alt="Communauté et entraide" 
                             className="rounded-3xl shadow-2xl w-full object-cover h-auto lg:h-[500px] relative z-10"
                             loading="lazy"
@@ -148,10 +152,9 @@ const Home: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
              {DOMAINS.map((domain, idx) => (
-               <Link 
-                to="/domains" 
+               <div 
                 key={domain.id} 
-                className="group flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+                className="group flex flex-col items-center text-center p-6 bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 cursor-default"
                >
                   <div className="h-20 w-20 rounded-full bg-gray-50 flex items-center justify-center mb-6 text-gray-400 group-hover:bg-comfort-blue group-hover:text-white transition-colors shadow-sm">
                      {getIcon(domain.icon, 32)}
@@ -160,7 +163,7 @@ const Home: React.FC = () => {
                   <p className="text-sm text-gray-500 leading-relaxed">
                     {t(`domains.${domain.id}.desc`)}
                   </p>
-               </Link>
+               </div>
              ))}
           </div>
         </div>
@@ -376,7 +379,7 @@ const Home: React.FC = () => {
       {/* 🟩 8. SECTION - CTA Premium */}
       <section className="py-32 relative flex items-center justify-center">
          <img 
-            src="https://picsum.photos/seed/community/1920/600" 
+            src="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=2070&auto=format&fit=crop" 
             alt="Community" 
             className="absolute inset-0 w-full h-full object-cover"
          />
@@ -439,11 +442,18 @@ const Home: React.FC = () => {
                     </div>
                  </div>
 
-                 {/* Google Maps Placeholder */}
+                 {/* Google Maps Integrated */}
                  <div className="mt-10 h-64 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 relative">
-                    <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                       <span className="flex items-center"><MapPin size={18} className="mr-2"/> Google Map Integrated</span>
-                    </div>
+                    <iframe 
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.1161023288914!2d29.208470799999997!3d-1.6737250000000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x19dd0f26ed024195%3A0x41de59a10eb8289!2sHibaigle%20SAS!5e0!3m2!1sfr!2scd!4v1765191811649!5m2!1sfr!2scd" 
+                      width="100%" 
+                      height="100%" 
+                      style={{ border: 0 }} 
+                      allowFullScreen 
+                      loading="lazy" 
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Google Map"
+                    ></iframe>
                  </div>
               </div>
 

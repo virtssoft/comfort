@@ -1,41 +1,42 @@
-import { Project, BlogPost, Domain, Testimonial, Partner } from './types';
+
+import { Project, BlogPost, Domain, Testimonial, Partner, TeamMember } from '../types';
 
 export const CONTACT_INFO = {
-  phone: "+243 999 000 000",
+  phone: "+243 994 280 037",
   email: "contact@comfort-asbl.org",
-  address: "123 Avenue de la Paix, Goma, RDC",
+  address: "Katindo Beni 108, Goma, RDC",
   hours: "Lun - Ven: 8h00 - 17h00"
 };
 
 export const DOMAINS: Domain[] = [
   { 
     id: 'health', 
-    title: 'Santé & Bien-être', 
-    description: 'Fournir des soins essentiels et renforcer la résilience des communautés.', 
+    title: '', // Loaded via translation
+    description: '', // Loaded via translation
     icon: 'Heart' 
   },
   { 
     id: 'education', 
-    title: 'Éducation', 
-    description: 'Soutenir l’apprentissage, l’accès scolaire et l’émancipation intellectuelle.', 
+    title: '', 
+    description: '', 
     icon: 'BookOpen' 
   },
   { 
-    id: 'socio-eco', 
-    title: 'Dév. Socio-économique', 
-    description: 'Encourager l’autonomie et la dignité à long terme.', 
+    id: 'socio_eco', 
+    title: '', 
+    description: '', 
     icon: 'HandCoins' 
   },
   { 
     id: 'food', 
-    title: 'Sécurité Alimentaire', 
-    description: 'Garantir un accès durable à une alimentation saine.', 
+    title: '', 
+    description: '', 
     icon: 'Wheat' 
   },
   { 
     id: 'culture', 
-    title: 'Culture & Art', 
-    description: 'Promouvoir l’expression créative et l’identité locale.', 
+    title: '', 
+    description: '', 
     icon: 'Palette' 
   },
 ];
@@ -46,7 +47,7 @@ export const PROJECTS: Project[] = [
     title: "Construction d'une école à Masisi",
     category: "Éducation",
     description: "Un projet ambitieux pour offrir un cadre d'apprentissage sécurisé à 500 enfants déplacés, garantissant leur droit fondamental à l'éducation.",
-    image: "https://picsum.photos/seed/school/800/600",
+    image: "https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=2070&auto=format&fit=crop",
     date: "2023-10-15",
     status: "Ongoing",
     goal: 50000,
@@ -57,7 +58,7 @@ export const PROJECTS: Project[] = [
     title: "Eau potable pour Kibumba",
     category: "Santé & Eau",
     description: "Installation de 5 bornes fontaines alimentées par l'énergie solaire pour éradiquer les maladies hydriques dans la région.",
-    image: "https://picsum.photos/seed/water/800/600",
+    image: "https://images.unsplash.com/photo-1538300342682-cf57afb97285?q=80&w=2070&auto=format&fit=crop",
     date: "2023-08-01",
     status: "Completed",
     goal: 15000,
@@ -68,7 +69,7 @@ export const PROJECTS: Project[] = [
     title: "Autonomisation des femmes",
     category: "Dév. Économique",
     description: "Programme de formation professionnelle et micro-crédit pour 200 femmes chefs de ménage.",
-    image: "https://picsum.photos/seed/women/800/600",
+    image: "https://images.unsplash.com/photo-1505312891961-456cbef10c26?q=80&w=2070&auto=format&fit=crop",
     date: "2023-12-01",
     status: "Ongoing",
     goal: 25000,
@@ -84,7 +85,7 @@ export const BLOG_POSTS: BlogPost[] = [
     author: "Dr. Jean Amani",
     date: "12 Oct 2023",
     category: "Analyse",
-    image: "https://picsum.photos/seed/blog1/800/400"
+    image: "https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?q=80&w=2070&auto=format&fit=crop"
   },
   {
     id: '2',
@@ -93,7 +94,7 @@ export const BLOG_POSTS: BlogPost[] = [
     author: "COMFORT Team",
     date: "05 Nov 2023",
     category: "News",
-    image: "https://picsum.photos/seed/blog2/800/400"
+    image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=2070&auto=format&fit=crop"
   }
 ];
 
@@ -103,21 +104,21 @@ export const TESTIMONIALS: Testimonial[] = [
     name: "Marie Kahindo",
     role: "Bénéficiaire, Masisi",
     content: "Grâce à COMFORT, mes enfants peuvent enfin aller à l'école en toute sécurité. C'est un espoir qui renaît pour toute notre famille.",
-    image: "https://picsum.photos/seed/person1/200/200"
+    image: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1000&auto=format&fit=crop"
   },
   {
     id: '2',
     name: "Dr. Pierre Dubois",
     role: "Partenaire International",
     content: "Une organisation transparente et efficace sur le terrain. COMFORT Asbl est un modèle de gestion humanitaire locale.",
-    image: "https://picsum.photos/seed/person2/200/200"
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop"
   },
   {
     id: '3',
     name: "Sarah M.",
     role: "Bénévole",
     content: "Voir l'impact direct de nos actions sur les sourires des enfants est la plus belle des récompenses. Rejoignez-nous !",
-    image: "https://picsum.photos/seed/person3/200/200"
+    image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?q=80&w=1000&auto=format&fit=crop"
   }
 ];
 
@@ -163,5 +164,36 @@ export const PARTNERS: Partner[] = [
     logo: 'https://placehold.co/300x150/16a34a/ffffff?text=Banque',
     description: "Mécénat d'entreprise soutenant nos initiatives de micro-crédit.",
     type: 'Corporate'
+  }
+];
+
+export const TEAM_MEMBERS: TeamMember[] = [
+  {
+    id: '1',
+    name: 'Dr. Jean Amani',
+    role: 'Directeur Exécutif',
+    bio: 'Médecin de santé publique avec 15 ans d\'expérience dans l\'humanitaire en RDC.',
+    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1000&auto=format&fit=crop'
+  },
+  {
+    id: '2',
+    name: 'Sarah Kabuya',
+    role: 'Responsable Programmes',
+    bio: 'Experte en développement communautaire et gestion de projets éducatifs.',
+    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1000&auto=format&fit=crop'
+  },
+  {
+    id: '3',
+    name: 'Michel Kasongo',
+    role: 'Coordinateur Logistique',
+    bio: 'Spécialiste de la chaîne d\'approvisionnement en zones difficiles d\'accès.',
+    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=1000&auto=format&fit=crop'
+  },
+  {
+    id: '4',
+    name: 'Aline Mwamba',
+    role: 'Responsable Partenariats',
+    bio: 'Passionnée par la mobilisation de ressources et le plaidoyer international.',
+    image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1000&auto=format&fit=crop'
   }
 ];

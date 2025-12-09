@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { HashRouter as Router, Routes, Route, useParams, Link } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useParams, Link, useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -10,8 +10,9 @@ import Projects from './pages/Projects';
 import Blog from './pages/Blog'; // Consolidated Page
 import Account from './pages/Account'; // New Page
 import GenericPage from './pages/GenericPage';
-import { PROJECTS } from './constants';
+import { PROJECTS, BLOG_POSTS } from './pages/constants';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { ArrowLeft, Calendar, User } from 'lucide-react';
 
 /* --- Inline Components for simpler pages --- */
 
@@ -63,6 +64,56 @@ const ProjectDetails = () => {
   );
 };
 
+const BlogPostDetails = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const post = BLOG_POSTS.find(p => p.id === id);
+
+    if (!post) return <div className="p-20 text-center">Article non trouvé</div>;
+
+    return (
+        <div className="py-20 bg-white font-sans">
+            <div className="container mx-auto px-4 md:px-6 max-w-3xl">
+                <button onClick={() => navigate(-1)} className="flex items-center text-gray-500 hover:text-comfort-blue mb-8 transition-colors font-medium">
+                    <ArrowLeft size={20} className="mr-2" /> Retour
+                </button>
+
+                <div className="mb-8">
+                    <span className="bg-blue-50 text-comfort-blue px-3 py-1 rounded text-xs font-bold uppercase tracking-wider mb-4 inline-block">{post.category}</span>
+                    <h1 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 mb-6 leading-tight">{post.title}</h1>
+                    <div className="flex items-center text-gray-500 text-sm space-x-6">
+                        <span className="flex items-center"><Calendar size={16} className="mr-2"/> {post.date}</span>
+                        <span className="flex items-center"><User size={16} className="mr-2"/> {post.author}</span>
+                    </div>
+                </div>
+
+                <div className="rounded-xl overflow-hidden mb-10 shadow-lg">
+                    <img src={post.image} alt={post.title} className="w-full h-auto object-cover" />
+                </div>
+
+                <div className="prose prose-lg text-gray-700 leading-relaxed max-w-none">
+                    <p className="font-bold text-xl text-gray-900 mb-6">{post.excerpt}</p>
+                    <p>
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada. 
+                        Nullam ac odio et magna facilisis blandit. Nam nec nunc tellus. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, 
+                        eget egestas libero turpis vel mi.
+                    </p>
+                    <p>
+                        Proin tincidunt metus vel nunc tincidunt, a tempus diam facilisis. Sed lacinia, nisi sit amet condimentum cursus, massa justo placerat est, 
+                        at elementum felis enim vitae nisi. Curabitur convallis, lacus in commodo tincidunt, urna turpis viverra magna, ut pretium ligula sem a dui.
+                    </p>
+                    <h3>Impact attendu</h3>
+                    <p>
+                        Suspendisse potenti. In hac habitasse platea dictumst. Vestibulum tristique sem id ligula accumsan, nec feugiat justo facilisis. 
+                        Integer at lorem eget diam imperdiet efficitur.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
 const NotFound = () => {
   const { t } = useLanguage();
   return (
@@ -107,7 +158,7 @@ const App: React.FC = () => {
               <Route path="/projects/:id" element={<ProjectDetails />} />
               {/* Blog includes Partners & Contact */}
               <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:id" element={<GenericPage title="Article"><p>Contenu...</p></GenericPage>} />
+              <Route path="/blog/:id" element={<BlogPostDetails />} />
               
               <Route path="/donate" element={<Donate />} />
               <Route path="/account" element={<Account />} />

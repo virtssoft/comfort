@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { PARTNERS } from '../constants';
+import { PARTNERS } from './constants';
 import { useLanguage } from '../context/LanguageContext';
 
 type FilterType = 'All' | 'Corporate' | 'NGO' | 'Volunteer' | 'Government';

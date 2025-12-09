@@ -1,9 +1,15 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { CONTACT_INFO } from '../constants';
-import { Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { CONTACT_INFO } from '../pages/constants';
+import { Facebook, Linkedin, Instagram } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+
+const XIcon = ({ size = 18, className = "" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className}>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </svg>
+);
 
 const Footer: React.FC = () => {
   const { t } = useLanguage();
@@ -64,8 +70,8 @@ const Footer: React.FC = () => {
           <div>
              <h3 className="text-xl font-serif font-bold mb-6 text-white pl-4">{t('footer.follow_title')}</h3>
              <div className="flex space-x-4 pl-4 mb-8">
-               <a href="#" className="bg-gray-800 p-3 rounded-full hover:bg-comfort-blue hover:text-white transition-all text-gray-400"><Facebook size={18} /></a>
-               <a href="#" className="bg-gray-800 p-3 rounded-full hover:bg-comfort-blue hover:text-white transition-all text-gray-400"><Twitter size={18} /></a>
+               <a href="https://www.facebook.com/photo/?fbid=122103347780826664&set=a.122103344876826664" target="_blank" rel="noopener noreferrer" className="bg-gray-800 p-3 rounded-full hover:bg-comfort-blue hover:text-white transition-all text-gray-400"><Facebook size={18} /></a>
+               <a href="https://x.com/AsblComfor44668" target="_blank" rel="noopener noreferrer" className="bg-gray-800 p-3 rounded-full hover:bg-comfort-blue hover:text-white transition-all text-gray-400"><XIcon size={18} /></a>
                <a href="#" className="bg-gray-800 p-3 rounded-full hover:bg-comfort-blue hover:text-white transition-all text-gray-400"><Linkedin size={18} /></a>
                <a href="#" className="bg-gray-800 p-3 rounded-full hover:bg-comfort-blue hover:text-white transition-all text-gray-400"><Instagram size={18} /></a>
              </div>

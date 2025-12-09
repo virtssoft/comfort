@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BLOG_POSTS, PARTNERS, CONTACT_INFO } from '../constants';
+import { BLOG_POSTS, PARTNERS, CONTACT_INFO } from './constants';
 import { useLanguage } from '../context/LanguageContext';
 import { ArrowRight, Mail, Phone, MapPin, Clock } from 'lucide-react';
 
@@ -160,6 +160,20 @@ const Blog: React.FC = () => {
                        </div>
                     </div>
                  </div>
+
+                 {/* Google Maps Integrated */}
+                 <div className="mt-10 h-64 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 relative">
+                    <iframe 
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.1161023288914!2d29.208470799999997!3d-1.6737250000000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x19dd0f26ed024195%3A0x41de59a10eb8289!2sHibaigle%20SAS!5e0!3m2!1sfr!2scd!4v1765191811649!5m2!1sfr!2scd" 
+                      width="100%" 
+                      height="100%" 
+                      style={{ border: 0 }} 
+                      allowFullScreen 
+                      loading="lazy" 
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Google Map"
+                    ></iframe>
+                 </div>
               </div>
 
               {/* Colonne Droite - Formulaire */}
@@ -202,6 +216,7 @@ const Blog: React.FC = () => {
            </div>
         </div>
       </section>
+
     </div>
   );
 };
