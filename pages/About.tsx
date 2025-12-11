@@ -25,7 +25,8 @@ const About: React.FC = () => {
       <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <img 
-            src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=2070&auto=format&fit=crop" 
+            src="http://localhost/api/assets/images/about-hero.jpg"
+            onError={(e) => e.currentTarget.src = "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=2070&auto=format&fit=crop"}
             alt="Humanitarian Work" 
             className="w-full h-full object-cover"
           />
@@ -55,7 +56,8 @@ const About: React.FC = () => {
             <div className="relative group">
               <div className="absolute -inset-4 bg-gray-100 rounded-2xl transform rotate-2 group-hover:rotate-1 transition-all duration-500"></div>
               <img 
-                src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?q=80&w=2074&auto=format&fit=crop" 
+                src="http://localhost/api/assets/images/about-who.jpg"
+                onError={(e) => e.currentTarget.src = "https://images.unsplash.com/photo-1559027615-cd4628902d4a?q=80&w=2074&auto=format&fit=crop"}
                 alt="Community Support" 
                 className="relative z-10 rounded-2xl shadow-xl w-full object-cover h-[500px] transform group-hover:scale-[1.01] transition-transform duration-500"
               />
@@ -157,7 +159,12 @@ const About: React.FC = () => {
               <p className="text-lg text-gray-700 leading-relaxed mb-8">
                  {t('about_page.approach_text')}
               </p>
-              <img src="https://images.unsplash.com/photo-1573164574572-cb89e39749b4?q=80&w=2069&auto=format&fit=crop" alt="Approach" className="rounded-xl shadow-lg w-full" />
+              <img 
+                  src="http://localhost/api/assets/images/about-approach.jpg"
+                  onError={(e) => e.currentTarget.src = "https://images.unsplash.com/photo-1573164574572-cb89e39749b4?q=80&w=2069&auto=format&fit=crop"}
+                  alt="Approach" 
+                  className="rounded-xl shadow-lg w-full" 
+              />
             </div>
 
             <div className="space-y-0 relative pl-8 border-l-2 border-comfort-blue/20">
