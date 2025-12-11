@@ -147,7 +147,7 @@ export const api = {
         id: p.id,
         name: p.nom,
         // Override API logo_url to match the specific file convention requested (partners1.jpg -> partners6.jpg)
-        logo: `${API_BASE_URL}/assets/images/partners/partners${(index % 6) + 1}.jpg`,
+        logo: `${API_BASE_URL}/assets/images/partners/partner${(index % 6) + 1}.jpg`,
         description: p.description,
         type: 'Corporate' // Default type
       }));
