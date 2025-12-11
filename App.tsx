@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, useParams, Link, useNavigate } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -7,12 +7,12 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Donate from './pages/Donate';
 import Projects from './pages/Projects';
-import Blog from './pages/Blog'; // Consolidated Page
-import Account from './pages/Account'; // New Page
-import AdminDashboard from './pages/AdminDashboard'; // New Admin Page
+import Blog from './pages/Blog'; 
+import Account from './pages/Account'; 
+import AdminDashboard from './pages/AdminDashboard'; 
 import GenericPage from './pages/GenericPage';
-import { PROJECTS, BLOG_POSTS } from './pages/constants';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { DataProvider, useData } from './context/DataContext'; // Import Data Context
 import { ArrowLeft, Calendar, User } from 'lucide-react';
 
 /* --- Inline Components for simpler pages --- */
@@ -20,7 +20,8 @@ import { ArrowLeft, Calendar, User } from 'lucide-react';
 const ProjectDetails = () => {
   const { id } = useParams();
   const { t } = useLanguage();
-  const project = PROJECTS.find(p => p.id === id);
+  const { projects } = useData(); // Use dynamic data
+  const project = projects.find(p => p.id === id);
 
   if (!project) return (
     <div className="py-20 text-center">
@@ -68,7 +69,8 @@ const ProjectDetails = () => {
 const BlogPostDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const post = BLOG_POSTS.find(p => p.id === id);
+    const { blogPosts } = useData(); // Use dynamic data
+    const post = blogPosts.find(p => p.id === id);
 
     if (!post) return <div className="p-20 text-center">Article non trouvé</div>;
 
@@ -143,11 +145,27 @@ const SearchResults = () => {
   );
 };
 
-const AppRoutes = () => {
-    // We separate this to allow Header/Footer logic conditional rendering if needed
-    // But currently, the design implies AdminDashboard is a standalone page or has its own layout.
-    // We'll wrap AdminDashboard without Header/Footer or let it handle its own full screen layout.
-    
+const AppContent = () => {
+    // Logic to update Favicon dynamically
+    const { settings } = useData();
+
+    useEffect(() => {
+        if (settings?.faviconUrl) {
+            const link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
+            if (link) {
+                link.href = settings.faviconUrl;
+            } else {
+                const newLink = document.createElement('link');
+                newLink.rel = 'icon';
+                newLink.href = settings.faviconUrl;
+                document.head.appendChild(newLink);
+            }
+        }
+        if (settings?.siteName) {
+            document.title = settings.siteName;
+        }
+    }, [settings]);
+
     return (
         <Routes>
             <Route path="/" element={<><Header /><Home /><Footer /></>} />
@@ -159,7 +177,7 @@ const AppRoutes = () => {
             <Route path="/donate" element={<><Header /><Donate /><Footer /></>} />
             <Route path="/account" element={<><Header /><Account /><Footer /></>} />
             
-            {/* Admin Route - No public Header/Footer */}
+            {/* Admin Route */}
             <Route path="/admin" element={<AdminDashboard />} />
 
             <Route path="/privacy" element={<><Header /><GenericPage title="Politique de confidentialité"><p>Texte légal...</p></GenericPage><Footer /></>} />
@@ -173,11 +191,13 @@ const AppRoutes = () => {
 const App: React.FC = () => {
   return (
     <LanguageProvider>
-      <Router>
-        <div className="flex flex-col min-h-screen font-sans antialiased text-gray-800">
-            <AppRoutes />
-        </div>
-      </Router>
+      <DataProvider>
+        <Router>
+            <div className="flex flex-col min-h-screen font-sans antialiased text-gray-800">
+                <AppContent />
+            </div>
+        </Router>
+      </DataProvider>
     </LanguageProvider>
   );
 };

@@ -1,28 +1,31 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { PROJECTS, TESTIMONIALS } from './constants';
 import { useLanguage } from '../context/LanguageContext';
+import { useData } from '../context/DataContext';
 import { ArrowRight, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const Projects: React.FC = () => {
   const { t } = useLanguage();
+  const { projects, testimonials } = useData();
   
   // Testimonial Logic reused
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   const nextTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev + 1) % TESTIMONIALS.length);
+    if (testimonials.length === 0) return;
+    setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
   };
 
   const prevTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
+    if (testimonials.length === 0) return;
+    setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
   useEffect(() => {
     const timer = setInterval(nextTestimonial, 6000);
     return () => clearInterval(timer);
-  }, []);
+  }, [testimonials]);
 
   return (
     <div className="bg-white">
@@ -39,8 +42,9 @@ const Projects: React.FC = () => {
       {/* PROJECTS GRID */}
       <div className="py-16 bg-white">
         <div className="container mx-auto px-4 md:px-6">
+            {projects.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {PROJECTS.map((project) => (
+            {projects.map((project) => (
                 <div key={project.id} className="border border-gray-100 rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
                 <div className="relative h-48 overflow-hidden">
                     <img 
@@ -85,10 +89,16 @@ const Projects: React.FC = () => {
                 </div>
             ))}
             </div>
+            ) : (
+                <div className="text-center py-10 text-gray-500">
+                    Chargement des projets...
+                </div>
+            )}
         </div>
       </div>
 
       {/* 🟧 TESTIMONIALS SECTION (Merged) */}
+      {testimonials.length > 0 && (
       <section className="py-24 bg-comfort-blue text-white relative overflow-hidden">
         {/* Decorative circle */}
         <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
@@ -104,16 +114,16 @@ const Projects: React.FC = () => {
                  {/* Slider Content */}
                  <div className="px-8 md:px-16 animate-in fade-in duration-500 key={currentTestimonial}">
                     <p className="text-xl md:text-3xl font-serif leading-relaxed italic mb-8 opacity-90">
-                      "{TESTIMONIALS[currentTestimonial].content}"
+                      "{testimonials[currentTestimonial].content}"
                     </p>
                     <div className="flex flex-col items-center justify-center">
                        <img 
-                        src={TESTIMONIALS[currentTestimonial].image} 
-                        alt={TESTIMONIALS[currentTestimonial].name} 
+                        src={testimonials[currentTestimonial].image} 
+                        alt={testimonials[currentTestimonial].name} 
                         className="w-16 h-16 rounded-full border-2 border-white/30 object-cover mb-4"
                        />
-                       <h4 className="font-bold text-lg">{TESTIMONIALS[currentTestimonial].name}</h4>
-                       <span className="text-sm text-blue-200 uppercase tracking-widest">{TESTIMONIALS[currentTestimonial].role}</span>
+                       <h4 className="font-bold text-lg">{testimonials[currentTestimonial].name}</h4>
+                       <span className="text-sm text-blue-200 uppercase tracking-widest">{testimonials[currentTestimonial].role}</span>
                     </div>
                  </div>
 
@@ -127,7 +137,7 @@ const Projects: React.FC = () => {
                  
                  {/* Dots */}
                  <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 flex space-x-2">
-                    {TESTIMONIALS.map((_, idx) => (
+                    {testimonials.map((_, idx) => (
                       <button 
                         key={idx}
                         onClick={() => setCurrentTestimonial(idx)}
@@ -139,6 +149,7 @@ const Projects: React.FC = () => {
            </div>
         </div>
       </section>
+      )}
     </div>
   );
 };

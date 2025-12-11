@@ -2,27 +2,32 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Heart, BookOpen, HandCoins, Wheat, Palette, MapPin, Mail, Phone, Clock, ChevronLeft, ChevronRight, Eye, Handshake, Info, Calendar, User } from 'lucide-react';
-import { PROJECTS, DOMAINS, TESTIMONIALS, CONTACT_INFO, BLOG_POSTS, PARTNERS } from './constants';
+import { DOMAINS, CONTACT_INFO } from './constants';
 import { useLanguage } from '../context/LanguageContext';
+import { useData } from '../context/DataContext';
 
 const Home: React.FC = () => {
   const { t } = useLanguage();
+  const { projects, testimonials, blogPosts, partners, settings } = useData();
+  
   // Simple state for Testimonial Slider
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   const nextTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev + 1) % TESTIMONIALS.length);
+    if (testimonials.length === 0) return;
+    setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
   };
 
   const prevTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length);
+    if (testimonials.length === 0) return;
+    setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
 
   // Auto-advance testimonials
   useEffect(() => {
     const timer = setInterval(nextTestimonial, 6000);
     return () => clearInterval(timer);
-  }, []);
+  }, [testimonials]);
 
   // Icon mapping helper
   const getIcon = (iconName: string, size = 24, className = "") => {
@@ -35,6 +40,11 @@ const Home: React.FC = () => {
       default: return <Heart size={size} className={className} />;
     }
   };
+
+  // Dynamic Settings
+  const contactEmail = settings?.contactEmail || CONTACT_INFO.email;
+  const contactPhone = settings?.contactPhone || CONTACT_INFO.phone;
+  const contactAddress = settings?.contactAddress || CONTACT_INFO.address;
 
   return (
     <div className="flex flex-col min-h-screen font-sans">
@@ -52,7 +62,8 @@ const Home: React.FC = () => {
            ></iframe>
            {/* Fallback image if video fails to load or for mobile low-data modes */}
            <img 
-             src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop" 
+             src="http://localhost/api/assets/images/hero-bg.jpg"
+             onError={(e) => e.currentTarget.src = "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop"}
              alt="Background Fallback" 
              className="absolute inset-0 w-full h-full object-cover -z-10" 
            />
@@ -131,7 +142,8 @@ const Home: React.FC = () => {
                     <div className="relative">
                         <div className="absolute -inset-4 bg-comfort-blue/10 rounded-3xl transform rotate-2"></div>
                         <img 
-                            src="https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop" 
+                            src="/assets/images/home-about.jpg"
+                            onError={(e) => e.currentTarget.src = "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop"}
                             alt="Communauté et entraide" 
                             className="rounded-3xl shadow-2xl w-full object-cover h-auto lg:h-[500px] relative z-10"
                             loading="lazy"
@@ -169,7 +181,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 4. SECTION - Objectifs (Simplified since Vision/Mission is now above) */}
+      {/* 4. SECTION - Objectifs */}
       <section className="py-20 bg-white border-b border-gray-100">
         <div className="container mx-auto px-4 md:px-6">
              <div className="max-w-4xl mx-auto text-center">
@@ -206,7 +218,7 @@ const Home: React.FC = () => {
            </div>
 
            <div className="grid md:grid-cols-3 gap-8">
-              {PROJECTS.map((project) => (
+              {projects.slice(0, 3).map((project) => (
                 <div key={project.id} className="group cursor-pointer">
                    <div className="overflow-hidden rounded-xl mb-6 relative">
                       <img 
@@ -239,6 +251,7 @@ const Home: React.FC = () => {
       </section>
 
       {/* 🟧 6. SECTION - Témoignages */}
+      {testimonials.length > 0 && (
       <section className="py-24 bg-comfort-blue text-white relative overflow-hidden">
         {/* Decorative circle */}
         <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
@@ -254,16 +267,16 @@ const Home: React.FC = () => {
                  {/* Slider Content */}
                  <div className="px-8 md:px-16 animate-in fade-in duration-500 key={currentTestimonial}">
                     <p className="text-xl md:text-3xl font-serif leading-relaxed italic mb-8 opacity-90">
-                      "{TESTIMONIALS[currentTestimonial].content}"
+                      "{testimonials[currentTestimonial].content}"
                     </p>
                     <div className="flex flex-col items-center justify-center">
                        <img 
-                        src={TESTIMONIALS[currentTestimonial].image} 
-                        alt={TESTIMONIALS[currentTestimonial].name} 
+                        src={testimonials[currentTestimonial].image} 
+                        alt={testimonials[currentTestimonial].name} 
                         className="w-16 h-16 rounded-full border-2 border-white/30 object-cover mb-4"
                        />
-                       <h4 className="font-bold text-lg">{TESTIMONIALS[currentTestimonial].name}</h4>
-                       <span className="text-sm text-blue-200 uppercase tracking-widest">{TESTIMONIALS[currentTestimonial].role}</span>
+                       <h4 className="font-bold text-lg">{testimonials[currentTestimonial].name}</h4>
+                       <span className="text-sm text-blue-200 uppercase tracking-widest">{testimonials[currentTestimonial].role}</span>
                     </div>
                  </div>
 
@@ -277,7 +290,7 @@ const Home: React.FC = () => {
                  
                  {/* Dots */}
                  <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 flex space-x-2">
-                    {TESTIMONIALS.map((_, idx) => (
+                    {testimonials.map((_, idx) => (
                       <button 
                         key={idx}
                         onClick={() => setCurrentTestimonial(idx)}
@@ -289,6 +302,7 @@ const Home: React.FC = () => {
            </div>
         </div>
       </section>
+      )}
 
       {/* 🟦 7. SECTION - ACTUALITÉS (NEW) */}
       <section className="py-20 bg-gray-50">
@@ -304,7 +318,7 @@ const Home: React.FC = () => {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {BLOG_POSTS.slice(0, 3).map((post) => (
+                {blogPosts.slice(0, 3).map((post) => (
                     <div key={post.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group">
                         <div className="relative h-48 overflow-hidden">
                             <img src={post.image} alt={post.title} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
@@ -327,6 +341,11 @@ const Home: React.FC = () => {
                         </div>
                     </div>
                 ))}
+                {blogPosts.length === 0 && (
+                  <div className="col-span-3 text-center py-10 text-gray-400">
+                    Aucune actualité récente.
+                  </div>
+                )}
             </div>
         </div>
       </section>
@@ -336,11 +355,12 @@ const Home: React.FC = () => {
          <div className="container mx-auto px-4 mb-8 text-center">
              <h3 className="text-lg font-serif font-bold text-gray-400 uppercase tracking-widest">{t('partners.title')}</h3>
          </div>
+         {partners.length > 0 && (
          <div className="w-full relative overflow-hidden">
             <div className="flex w-max animate-marquee hover:[animation-play-state:paused] items-center">
               {/* Loop 1 */}
               <div className="flex shrink-0 items-center justify-around gap-12 md:gap-16 px-4">
-                {PARTNERS.map((partner) => (
+                {partners.map((partner) => (
                     <div key={`p1-${partner.id}`} className="w-32 md:w-48 flex items-center justify-center shrink-0">
                         <img 
                             src={partner.logo} 
@@ -352,7 +372,7 @@ const Home: React.FC = () => {
               </div>
               {/* Loop 2 (for seamless infinite scroll) */}
               <div className="flex shrink-0 items-center justify-around gap-12 md:gap-16 px-4">
-                {PARTNERS.map((partner) => (
+                {partners.map((partner) => (
                     <div key={`p2-${partner.id}`} className="w-32 md:w-48 flex items-center justify-center shrink-0">
                         <img 
                             src={partner.logo} 
@@ -364,6 +384,7 @@ const Home: React.FC = () => {
               </div>
             </div>
          </div>
+         )}
          {/* Inline style for the keyframe animation to keep file structure simple */}
          <style>{`
             @keyframes marquee {
@@ -379,7 +400,8 @@ const Home: React.FC = () => {
       {/* 🟩 8. SECTION - CTA Premium */}
       <section className="py-32 relative flex items-center justify-center">
          <img 
-            src="https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=2070&auto=format&fit=crop" 
+            src="/assets/images/cta-bg.jpg"
+            onError={(e) => e.currentTarget.src = "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=2070&auto=format&fit=crop"}
             alt="Community" 
             className="absolute inset-0 w-full h-full object-cover"
          />
@@ -413,7 +435,7 @@ const Home: React.FC = () => {
                        <MapPin className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
                        <div>
                           <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.address')}</h4>
-                          <p className="text-gray-600">{CONTACT_INFO.address}</p>
+                          <p className="text-gray-600">{contactAddress}</p>
                        </div>
                     </div>
                     
@@ -421,7 +443,7 @@ const Home: React.FC = () => {
                        <Mail className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
                        <div>
                           <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.email')}</h4>
-                          <p className="text-gray-600">{CONTACT_INFO.email}</p>
+                          <p className="text-gray-600">{contactEmail}</p>
                        </div>
                     </div>
 
@@ -429,7 +451,7 @@ const Home: React.FC = () => {
                        <Phone className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
                        <div>
                           <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.phone')}</h4>
-                          <p className="text-gray-600">{CONTACT_INFO.phone}</p>
+                          <p className="text-gray-600">{contactPhone}</p>
                        </div>
                     </div>
 

@@ -1,19 +1,26 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BLOG_POSTS, PARTNERS, CONTACT_INFO } from './constants';
+import { CONTACT_INFO } from './constants';
 import { useLanguage } from '../context/LanguageContext';
+import { useData } from '../context/DataContext';
 import { ArrowRight, Mail, Phone, MapPin, Clock } from 'lucide-react';
 
 type FilterType = 'All' | 'Corporate' | 'NGO' | 'Volunteer' | 'Government';
 
 const Blog: React.FC = () => {
   const { t } = useLanguage();
+  const { blogPosts, partners, settings } = useData();
   const [filter, setFilter] = useState<FilterType>('All');
 
   const filteredPartners = filter === 'All' 
-    ? PARTNERS 
-    : PARTNERS.filter(p => p.type === filter);
+    ? partners 
+    : partners.filter(p => p.type === filter);
+
+  // Use dynamic settings if available, fallback to constants
+  const contactEmail = settings?.contactEmail || CONTACT_INFO.email;
+  const contactPhone = settings?.contactPhone || CONTACT_INFO.phone;
+  const contactAddress = settings?.contactAddress || CONTACT_INFO.address;
 
   return (
     <div className="flex flex-col min-h-screen font-sans bg-white">
@@ -29,28 +36,34 @@ const Blog: React.FC = () => {
       {/* 🟩 1. BLOG GRID */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 md:px-6">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {BLOG_POSTS.map(post => (
-                <div key={post.id} className="bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 group">
-                <div className="overflow-hidden h-56">
-                    <img src={post.image} alt={post.title} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
-                </div>
-                <div className="p-8">
-                    <div className="flex justify-between text-xs text-gray-500 mb-4 font-medium uppercase tracking-wide">
-                    <span>{post.date}</span>
-                    <span className="text-comfort-blue">{post.category}</span>
+            {blogPosts.length > 0 ? (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+                {blogPosts.map(post => (
+                    <div key={post.id} className="bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 group">
+                    <div className="overflow-hidden h-56">
+                        <img src={post.image} alt={post.title} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3 hover:text-comfort-blue cursor-pointer transition-colors leading-snug">
-                    <Link to={`/blog/${post.id}`}>{post.title}</Link>
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-6 leading-relaxed">{post.excerpt}</p>
-                    <Link to={`/blog/${post.id}`} className="text-comfort-blue font-bold text-sm uppercase hover:underline flex items-center">
-                    {t('blog_page.read_more')} <ArrowRight size={14} className="ml-2"/>
-                    </Link>
+                    <div className="p-8">
+                        <div className="flex justify-between text-xs text-gray-500 mb-4 font-medium uppercase tracking-wide">
+                        <span>{post.date}</span>
+                        <span className="text-comfort-blue">{post.category}</span>
+                        </div>
+                        <h3 className="text-xl font-bold mb-3 hover:text-comfort-blue cursor-pointer transition-colors leading-snug">
+                        <Link to={`/blog/${post.id}`}>{post.title}</Link>
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-6 leading-relaxed">{post.excerpt}</p>
+                        <Link to={`/blog/${post.id}`} className="text-comfort-blue font-bold text-sm uppercase hover:underline flex items-center">
+                        {t('blog_page.read_more')} <ArrowRight size={14} className="ml-2"/>
+                        </Link>
+                    </div>
+                    </div>
+                ))}
                 </div>
+            ) : (
+                <div className="text-center py-20 bg-gray-50 rounded-lg">
+                    <p className="text-gray-500 text-lg">Aucun article trouvé. Vérifiez la connexion API.</p>
                 </div>
-            ))}
-            </div>
+            )}
         </div>
       </section>
 
@@ -106,7 +119,7 @@ const Blog: React.FC = () => {
             
             <div className="text-center">
                 <a 
-                    href="mailto:partenariat@comfort-asbl.org" 
+                    href={`mailto:${contactEmail}`} 
                     className="inline-block border-2 border-comfort-blue text-comfort-blue px-8 py-3 rounded-sm font-bold uppercase tracking-wide hover:bg-comfort-blue hover:text-white transition-colors"
                 >
                     {t('partners.become')}
@@ -132,7 +145,7 @@ const Blog: React.FC = () => {
                        <MapPin className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
                        <div>
                           <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.address')}</h4>
-                          <p className="text-gray-600">{CONTACT_INFO.address}</p>
+                          <p className="text-gray-600">{contactAddress}</p>
                        </div>
                     </div>
                     
@@ -140,7 +153,7 @@ const Blog: React.FC = () => {
                        <Mail className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
                        <div>
                           <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.email')}</h4>
-                          <p className="text-gray-600">{CONTACT_INFO.email}</p>
+                          <p className="text-gray-600">{contactEmail}</p>
                        </div>
                     </div>
 
@@ -148,7 +161,7 @@ const Blog: React.FC = () => {
                        <Phone className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
                        <div>
                           <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.phone')}</h4>
-                          <p className="text-gray-600">{CONTACT_INFO.phone}</p>
+                          <p className="text-gray-600">{contactPhone}</p>
                        </div>
                     </div>
 

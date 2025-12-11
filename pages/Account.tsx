@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { User, Lock, Mail, ArrowLeft, Heart, History, Settings, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
 
 type ViewState = 'login' | 'register' | 'forgot';
 
@@ -14,43 +15,55 @@ const Account: React.FC = () => {
   // State for login form
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   
   // State for Logged In User
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Check for Admin
-    if (email === 'admin@comfort-asbl.com') {
-        // Open admin dashboard in a new window/tab
-        window.open('#/admin', '_blank');
-    } else {
-        // Mock Login for regular user
-        setIsLoggedIn(true);
+    setError('');
+    setLoading(true);
+
+    try {
+        const result = await api.login(email, password);
+        
+        if (result.success) {
+            setUser(result.user);
+            setIsLoggedIn(true);
+
+            // Check for Admin Role
+            if (result.user?.role === 'superadmin' || email === 'admin@comfort-asbl.com') {
+                // Open admin dashboard in a new window/tab
+                window.open('#/admin', '_blank');
+            }
+        } else {
+            setError(result.error || 'Échec de la connexion');
+        }
+    } catch (err) {
+        setError('Erreur de connexion au serveur');
+    } finally {
+        setLoading(false);
     }
   };
 
   const handleGoogleLogin = () => {
-      // API call to Google would go here
       console.log('Logging in with Google');
       alert('Connexion avec Google (Simulation)');
-      // Simulate success for user
       setIsLoggedIn(true);
   };
 
   const handleOneAccountLogin = () => {
-      // API call to Oneaccount would go here
       console.log('Logging in with Oneaccount');
       alert('Connexion avec Oneaccount (Simulation)');
-      // Simulate success for user
       setIsLoggedIn(true);
   };
 
   const handleResetPassword = (e: React.FormEvent) => {
       e.preventDefault();
-      // Logic to send reset email to admins/user
-      alert('Un lien de réinitialisation a été envoyé à votre adresse email (et aux administrateurs).');
+      alert('Un lien de réinitialisation a été envoyé à votre adresse email.');
       setView('login');
   };
 
@@ -58,6 +71,7 @@ const Account: React.FC = () => {
       setIsLoggedIn(false);
       setEmail('');
       setPassword('');
+      setUser(null);
   };
 
   /* --- LOGGED IN USER DASHBOARD --- */
@@ -75,7 +89,7 @@ const Account: React.FC = () => {
                               <div>
                                   <h1 className="text-2xl font-serif font-bold">{t('account.my_space')}</h1>
                                   <p className="opacity-80">{email || "Utilisateur"}</p>
-                                  <span className="text-xs bg-white/20 px-2 py-1 rounded mt-2 inline-block uppercase tracking-wider">{t('account.role_user')}</span>
+                                  <span className="text-xs bg-white/20 px-2 py-1 rounded mt-2 inline-block uppercase tracking-wider">{user?.role || t('account.role_user')}</span>
                               </div>
                           </div>
                           <button onClick={handleLogout} className="flex items-center text-sm font-bold bg-white/10 hover:bg-white/20 px-4 py-2 rounded transition-colors">
@@ -102,7 +116,7 @@ const Account: React.FC = () => {
                                   <h2 className="text-xl font-bold text-gray-800">{t('account.my_info')}</h2>
                               </div>
                               <div className="space-y-2 text-sm text-gray-600">
-                                  <p><span className="font-bold">Email:</span> {email || "user@example.com"}</p>
+                                  <p><span className="font-bold">Email:</span> {email}</p>
                                   <p><span className="font-bold">{t('account.member_since')}:</span> 2024</p>
                               </div>
                               <button className="mt-4 text-comfort-blue text-sm font-bold hover:underline">{t('account.edit_profile')} →</button>
@@ -141,6 +155,7 @@ const Account: React.FC = () => {
           {/* LOGIN VIEW */}
           {view === 'login' && (
             <form className="space-y-6" onSubmit={handleLogin}>
+                {error && <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</div>}
                 <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                     {t('account.email_label')}
@@ -193,8 +208,8 @@ const Account: React.FC = () => {
                 </div>
 
                 <div>
-                <button type="submit" className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-comfort-blue hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-comfort-blue uppercase tracking-wide">
-                    {t('account.login_button')}
+                <button type="submit" disabled={loading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-comfort-blue hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-comfort-blue uppercase tracking-wide disabled:opacity-50">
+                    {loading ? 'Connexion...' : t('account.login_button')}
                 </button>
                 </div>
             </form>
@@ -240,7 +255,7 @@ const Account: React.FC = () => {
               </form>
           )}
 
-          {/* Social Logins (Visible on Login & Register) */}
+          {/* Social Logins */}
           {view !== 'forgot' && (
             <>
                 <div className="mt-6">
@@ -255,16 +270,15 @@ const Account: React.FC = () => {
 
                     <div className="mt-6 grid grid-cols-2 gap-3">
                     <div>
-                        <button onClick={handleGoogleLogin} className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <button onClick={handleGoogleLogin} type="button" className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                             <span className="sr-only">Sign in with Google</span>
                             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.48 10.92v3.28h7.88c-.3 1.6-1.2 2.92-2.52 3.84v.04l3.6 2.8A11.96 11.96 0 0 0 24 12.56c0-.96-.08-1.72-.24-2.48H12.48z" fill="#4285F4"/><path d="M5.64 14.56a6.8 6.8 0 0 1-.36-2.08c0-.76.12-1.48.36-2.16l-3.92-3.04A11.84 11.84 0 0 0 .56 12.48c0 1.96.48 3.8 1.28 5.4l3.8-3.32z" fill="#FBBC05"/><path d="M12.48 5.24c1.64 0 3.12.56 4.28 1.64l3.16-3.16C17.92 1.92 15.4.88 12.48.88 7.92.88 3.96 3.48 2 7.28l3.96 3.08C7 7.76 9.48 5.24 12.48 5.24z" fill="#EA4335"/><path d="M12.48 24.12a11.56 11.56 0 0 0 8.04-2.84l-3.8-3.04c-1.12.76-2.6 1.24-4.24 1.24-2.96 0-5.48-2.04-6.4-4.8L2.08 17.6a11.84 11.84 0 0 0 10.4 6.52z" fill="#34A853"/></svg>
                         </button>
                     </div>
 
                     <div>
-                        <button onClick={handleOneAccountLogin} className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                        <button onClick={handleOneAccountLogin} type="button" className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                         <span className="sr-only">Sign in with Oneaccount</span>
-                        {/* Placeholder Icon for OneAccount */}
                         <div className="w-5 h-5 bg-indigo-600 rounded-full flex items-center justify-center text-white text-[10px] font-bold">1</div>
                         </button>
                     </div>

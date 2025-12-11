@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Phone, Mail, ChevronDown, Menu, X, Facebook, Linkedin, Search, User } from 'lucide-react';
-import { CONTACT_INFO } from '../pages/constants';
 import { useLanguage } from '../context/LanguageContext';
+import { useData } from '../context/DataContext';
 
 const XIcon = ({ size = 14, className = "" }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className}>
@@ -16,15 +16,20 @@ const Header: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { language, setLanguage, t } = useLanguage();
+  const { settings } = useData();
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Combined Menu Order based on new specification
+  // Fallback defaults if settings not loaded yet
+  const contactEmail = settings?.contactEmail || "contact@comfort-asbl.org";
+  const contactPhone = settings?.contactPhone || "+243 999 000 000";
+  const logoUrl = settings?.logoUrl || "http://localhost/api/assets/images/logo1.png";
+
   const navLinks = [
     { name: t('nav.home'), path: '/' },
-    { name: t('nav.about'), path: '/about' }, // About + Domains
-    { name: t('nav.projects'), path: '/projects' }, // Projects + Testimonials
-    { name: t('nav.blog'), path: '/blog' }, // Blog + Partners + Contact
+    { name: t('nav.about'), path: '/about' },
+    { name: t('nav.projects'), path: '/projects' },
+    { name: t('nav.blog'), path: '/blog' },
     { name: t('nav.account'), path: '/account', icon: <User size={16} className="inline-block mr-1" /> },
   ];
 
@@ -34,21 +39,21 @@ const Header: React.FC = () => {
       <div className="bg-white border-b border-gray-100 py-2 hidden md:block">
         <div className="container mx-auto px-4 md:px-6 flex justify-between items-center text-xs text-gray-500 font-medium">
           <div className="flex items-center space-x-6">
-            <a href={`mailto:${CONTACT_INFO.email}`} className="flex items-center hover:text-comfort-blue transition-colors">
+            <a href={`mailto:${contactEmail}`} className="flex items-center hover:text-comfort-blue transition-colors">
               <Mail size={14} className="mr-2" />
-              {CONTACT_INFO.email}
+              {contactEmail}
             </a>
-            <a href={`tel:${CONTACT_INFO.phone}`} className="flex items-center hover:text-comfort-blue transition-colors">
+            <a href={`tel:${contactPhone}`} className="flex items-center hover:text-comfort-blue transition-colors">
               <Phone size={14} className="mr-2" />
-              {CONTACT_INFO.phone}
+              {contactPhone}
             </a>
           </div>
           <div className="flex items-center space-x-6">
             {/* Social Icons - Monochrome Blue */}
             <div className="flex space-x-4 items-center">
-              <a href="https://www.facebook.com/photo/?fbid=122103347780826664&set=a.122103344876826664" target="_blank" rel="noopener noreferrer" className="text-comfort-blue hover:opacity-80 transition-opacity"><Facebook size={14} /></a>
-              <a href="https://x.com/AsblComfor44668" target="_blank" rel="noopener noreferrer" className="text-comfort-blue hover:opacity-80 transition-opacity"><XIcon size={13} /></a>
-              <a href="#" className="text-comfort-blue hover:opacity-80 transition-opacity"><Linkedin size={14} /></a>
+              <a href={settings?.socialLinks?.facebook || "#"} target="_blank" rel="noopener noreferrer" className="text-comfort-blue hover:opacity-80 transition-opacity"><Facebook size={14} /></a>
+              <a href={settings?.socialLinks?.twitter || "#"} target="_blank" rel="noopener noreferrer" className="text-comfort-blue hover:opacity-80 transition-opacity"><XIcon size={13} /></a>
+              <a href={settings?.socialLinks?.linkedin || "#"} className="text-comfort-blue hover:opacity-80 transition-opacity"><Linkedin size={14} /></a>
             </div>
             
             {/* Language Selector */}
@@ -77,7 +82,7 @@ const Header: React.FC = () => {
           {/* LOGO */}
           <Link to="/" className="flex items-center space-x-3 z-50 group">
             <img 
-              src="https://placehold.co/120x120/01217d/ffffff/png?text=Logo" 
+              src={logoUrl} 
               alt="COMFORT Asbl Logo" 
               className="h-14 w-auto object-contain" 
             />

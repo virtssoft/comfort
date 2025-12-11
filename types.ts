@@ -1,3 +1,4 @@
+
 export interface Project {
   id: string;
   title: string;
@@ -49,4 +50,19 @@ export interface TeamMember {
   role: string;
   bio: string;
   image: string;
+}
+
+export interface SiteSettings {
+  logoUrl: string;
+  faviconUrl: string;
+  siteName: string;
+  contactEmail: string;
+  contactPhone: string;
+  contactAddress: string;
+  socialLinks: {
+    facebook?: string;
+    twitter?: string;
+    linkedin?: string;
+    instagram?: string;
+  };
 }
