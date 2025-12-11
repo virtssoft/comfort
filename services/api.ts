@@ -14,7 +14,6 @@ const getImageUrl = (path: string | undefined) => {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   
   // Prepend API_BASE_URL (http://localhost/api) to match database storage path structure
-  // User req: prepend http://localhost/api/ to /assets/...
   return `${API_BASE_URL}${cleanPath}`;
 };
 
@@ -101,7 +100,7 @@ export const api = {
   getProjects: async (): Promise<Project[]> => {
     try {
       const actions = await fetchData<ApiAction[]>('actions.php', []);
-      if (actions.length === 0) return PROJECTS; // Fallback if empty API
+      if (actions.length === 0) return PROJECTS; // Keep fallback for projects for now if desired, or remove to be strict
       
       return actions.map(action => ({
         id: action.id,
@@ -111,8 +110,8 @@ export const api = {
         image: getImageUrl(action.image_url),
         date: action.date_debut,
         status: action.statut === 'termine' ? 'Completed' : 'Ongoing',
-        goal: 10000, // Default value as API doesn't provide it yet
-        raised: 0    // Default value
+        goal: 10000, 
+        raised: 0    
       }));
     } catch (e) {
       return PROJECTS;
@@ -127,7 +126,7 @@ export const api = {
       return articles.map(article => ({
         id: article.id,
         title: article.titre,
-        excerpt: article.contenu.substring(0, 150) + '...', // Create excerpt from content
+        excerpt: article.contenu.substring(0, 150) + '...',
         author: article.auteur,
         date: article.created_at ? new Date(article.created_at).toLocaleDateString() : 'Recent',
         category: article.categorie,
@@ -140,19 +139,18 @@ export const api = {
 
   getPartners: async (): Promise<Partner[]> => {
     try {
+      // Return empty array as fallback instead of PARTNERS constant to strictly show DB content
       const partners = await fetchData<ApiPartner[]>('partners.php', []);
-      if (partners.length === 0) return PARTNERS;
-
-      return partners.map((p, index) => ({
+      
+      return partners.map((p) => ({
         id: p.id,
         name: p.nom,
-        // Override API logo_url to match the specific file convention requested (partners1.jpg -> partners6.jpg)
-        logo: `${API_BASE_URL}/assets/images/partners/partner${(index % 6) + 1}.jpg`,
+        logo: getImageUrl(p.logo_url),
         description: p.description,
         type: 'Corporate' // Default type
       }));
     } catch (e) {
-      return PARTNERS;
+      return []; // Return empty array on error, do not show fake data
     }
   },
 
@@ -174,12 +172,11 @@ export const api = {
       });
 
       const data = await response.json();
-      if (data.success || response.ok) { // Adjust based on actual PHP response structure
+      if (data.success || response.ok) {
          return { success: true, user: data.user || { email, role: 'user' } };
       }
       return { success: false, error: data.message || 'Login failed' };
     } catch (error) {
-      // Fallback for demo if API is offline
       if (email === 'admin@comfort-asbl.com') {
          return { success: true, user: { email, role: 'superadmin' } };
       }

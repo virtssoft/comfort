@@ -1,17 +1,20 @@
 
 import React, { useState } from 'react';
-import { PARTNERS } from './constants';
 import { useLanguage } from '../context/LanguageContext';
+import { useData } from '../context/DataContext';
 
 type FilterType = 'All' | 'Corporate' | 'NGO' | 'Volunteer' | 'Government';
 
 const Partners: React.FC = () => {
   const { t } = useLanguage();
+  const { partners } = useData(); // Use dynamic partners from API
   const [filter, setFilter] = useState<FilterType>('All');
 
+  // Since API might not return a 'type', we treat them all as 'Corporate' or 'NGO' by default in mapping, 
+  // or you can adjust the filter logic to be more permissive.
   const filteredPartners = filter === 'All' 
-    ? PARTNERS 
-    : PARTNERS.filter(p => p.type === filter);
+    ? partners 
+    : partners.filter(p => p.type === filter);
 
   return (
     <div className="py-20 bg-gray-50 min-h-screen font-sans">
@@ -68,7 +71,7 @@ const Partners: React.FC = () => {
                 partner.type === 'Corporate' ? 'bg-blue-100 text-blue-700' :
                 'bg-orange-100 text-orange-700'
               }`}>
-                {partner.type}
+                {partner.type || 'Partner'}
               </span>
 
               <h3 className="text-xl font-bold text-gray-900 mb-3">{partner.name}</h3>
@@ -82,7 +85,7 @@ const Partners: React.FC = () => {
         {/* Empty State */}
         {filteredPartners.length === 0 && (
            <div className="text-center py-12 text-gray-400">
-             <p>Aucun partenaire trouvé dans cette catégorie.</p>
+             <p>Aucun partenaire trouvé.</p>
            </div>
         )}
 
