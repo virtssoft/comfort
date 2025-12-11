@@ -51,20 +51,12 @@ const Home: React.FC = () => {
       
       {/* 🟦 1. SECTION HERO - Le cœur émotionnel */}
       <section className="relative h-[650px] md:h-[800px] flex items-center overflow-hidden">
-        {/* Background YouTube Video */}
+        {/* Background Image from API */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-           <iframe 
-             className="absolute top-1/2 left-1/2 w-[300%] h-[300%] min-w-full min-h-full -translate-x-1/2 -translate-y-1/2 object-cover"
-             src="https://www.youtube.com/embed/WSQy9aNGcnw?autoplay=1&mute=1&controls=0&loop=1&playlist=WSQy9aNGcnw&showinfo=0&rel=0&iv_load_policy=3&disablekb=1&modestbranding=1&playsinline=1&enablejsapi=1" 
-             title="Hero Video"
-             frameBorder="0"
-             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-           ></iframe>
-           {/* Fallback image if video fails to load or for mobile low-data modes */}
            <img 
              src="http://localhost/api/assets/images/hero-bg.jpg"
              onError={(e) => e.currentTarget.src = "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop"}
-             alt="Background Fallback" 
+             alt="Hero Background" 
              className="absolute inset-0 w-full h-full object-cover -z-10" 
            />
         </div>
