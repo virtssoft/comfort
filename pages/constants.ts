@@ -2,9 +2,9 @@
 import { Project, BlogPost, Domain, Testimonial, Partner, TeamMember } from './types';
 
 export const CONTACT_INFO = {
-  phone: "+243 999 000 000",
+  phone: "+243 994 280 037",
   email: "contact@comfort-asbl.org",
-  address: "123 Avenue de la Paix, Goma, RDC",
+  address: "Katindo Beni 108, Goma, RDC",
   hours: "Lun - Ven: 8h00 - 17h00"
 };
 
@@ -47,7 +47,7 @@ export const PROJECTS: Project[] = [
     title: "Construction d'une école à Masisi",
     category: "Éducation",
     description: "Un projet ambitieux pour offrir un cadre d'apprentissage sécurisé à 500 enfants déplacés, garantissant leur droit fondamental à l'éducation.",
-    image: "https://drive.google.com/file/d/1x16mtkYU7QwQv8yUeHRQDQVp0xXLqmtC/view?usp=drive_link, ",
+    image: "/assets/images/project-1.jpg",
     date: "2023-10-15",
     status: "Ongoing",
     goal: 50000,
@@ -58,7 +58,7 @@ export const PROJECTS: Project[] = [
     title: "Eau potable pour Kibumba",
     category: "Santé & Eau",
     description: "Installation de 5 bornes fontaines alimentées par l'énergie solaire pour éradiquer les maladies hydriques dans la région.",
-    image: "https://lh3.googleusercontent.com/d/1Jzx0_losVW1JqbjVmKUWX6TZLeaCXDEl",
+    image: "/assets/images/project-2.jpg",
     date: "2023-08-01",
     status: "Completed",
     goal: 15000,
@@ -69,7 +69,7 @@ export const PROJECTS: Project[] = [
     title: "Autonomisation des femmes",
     category: "Dév. Économique",
     description: "Programme de formation professionnelle et micro-crédit pour 200 femmes chefs de ménage.",
-    image: "https://lh3.googleusercontent.com/d/1W798svhjcGI1lex5RxaWc5L9Lu5gpdX1",
+    image: "/assets/images/project-3.jpg",
     date: "2023-12-01",
     status: "Ongoing",
     goal: 25000,
@@ -85,7 +85,7 @@ export const BLOG_POSTS: BlogPost[] = [
     author: "Dr. Jean Amani",
     date: "12 Oct 2023",
     category: "Analyse",
-    image: "https://lh3.googleusercontent.com/d/1CFNrGbElT6Hf66r2lXpSzWypeCEX8-hy"
+    image: "/assets/images/blog-1.jpg"
   },
   {
     id: '2',
@@ -94,7 +94,7 @@ export const BLOG_POSTS: BlogPost[] = [
     author: "COMFORT Team",
     date: "05 Nov 2023",
     category: "News",
-    image: "https://lh3.googleusercontent.com/d/1VVxbR50Ltfdm47uGcfFH4cXEqse4dzUx"
+    image: "/assets/images/blog-2.jpg"
   }
 ];
 
@@ -170,30 +170,31 @@ export const PARTNERS: Partner[] = [
 export const TEAM_MEMBERS: TeamMember[] = [
   {
     id: '1',
-    name: 'Dr. Jean Amani',
-    role: 'Directeur Exécutif',
-    bio: 'Médecin de santé publique avec 15 ans d\'expérience dans l\'humanitaire en RDC.',
-    image: 'https://picsum.photos/seed/team1/300/300'
+    name: 'Athanase Habimana',
+    role: 'Conseiller',
+    bio: "Membre expérimenté apportant une vision stratégique à l'organisation.",
+    image: 'http://localhost/api/assets/images/teams/athanase.jpg'
   },
   {
     id: '2',
-    name: 'Sarah Kabuya',
-    role: 'Responsable Programmes',
-    bio: 'Experte en développement communautaire et gestion de projets éducatifs.',
-    image: 'https://picsum.photos/seed/team2/300/300'
+    name: 'Luris Rachidi',
+    role: 'Trésorière',
+    bio: "Gestionnaire rigoureuse assurant la transparence financière de nos actions.",
+    image: 'http://localhost/api/assets/images/teams/luris.jpg'
   },
   {
     id: '3',
-    name: 'Michel Kasongo',
-    role: 'Coordinateur Logistique',
-    bio: 'Spécialiste de la chaîne d\'approvisionnement en zones difficiles d\'accès.',
-    image: 'https://picsum.photos/seed/team3/300/300'
+    name: 'Celine Ndemesi',
+    role: 'Responsable Média et Communication',
+    bio: "Experte en communication, elle porte la voix de nos bénéficiaires vers le monde.",
+    image: 'http://localhost/api/assets/images/teams/celine.jpg'
   },
   {
     id: '4',
-    name: 'Aline Mwamba',
-    role: 'Responsable Partenariats',
-    bio: 'Passionnée par la mobilisation de ressources et le plaidoyer international.',
-    image: 'https://picsum.photos/seed/team4/300/300'
+    name: 'Divani Mwimanyi',
+    role: 'Superviseur Médical',
+    bio: "Professionnel de santé coordonnant nos interventions médicales sur le terrain.",
+    image: 'http://localhost/api/assets/images/teams/divani.jpg'
   }
 ];
+    

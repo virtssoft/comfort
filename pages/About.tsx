@@ -1,11 +1,18 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { DOMAINS, TEAM_MEMBERS, PARTNERS, CONTACT_INFO } from './constants';
-import { Heart, BookOpen, HandCoins, Wheat, Palette, Shield, Activity, TrendingUp, Users, MapPin, Mail, Phone, Clock, ArrowRight } from 'lucide-react';
+import { useData } from '../context/DataContext';
+import { DOMAINS, TEAM_MEMBERS, CONTACT_INFO } from './constants';
+import { Heart, BookOpen, HandCoins, Wheat, Palette, Shield, Activity, TrendingUp, Users, MapPin, Mail, Phone, Clock, ArrowRight, Facebook } from 'lucide-react';
 
 const About: React.FC = () => {
   const { t } = useLanguage();
+  const { partners, settings } = useData();
+
+  // Use dynamic settings if available, fallback to constants
+  const contactEmail = settings?.contactEmail || CONTACT_INFO.email;
+  const contactPhone = settings?.contactPhone || CONTACT_INFO.phone;
+  const contactAddress = settings?.contactAddress || CONTACT_INFO.address;
 
   const getIcon = (iconName: string, size = 32) => {
     switch (iconName) {
@@ -212,10 +219,11 @@ const About: React.FC = () => {
          <div className="container mx-auto px-4 mb-10 text-center">
              <h3 className="text-xl font-serif font-bold text-white uppercase tracking-widest opacity-80">{t('about_page.partners_title')}</h3>
          </div>
+         {partners.length > 0 && (
          <div className="w-full relative">
             <div className="flex w-max animate-marquee hover:[animation-play-state:paused] items-center">
               <div className="flex shrink-0 items-center justify-around gap-12 md:gap-16 px-4">
-                {PARTNERS.map((partner) => (
+                {partners.map((partner) => (
                     <div key={`ab-p1-${partner.id}`} className="w-32 md:w-48 flex items-center justify-center shrink-0 opacity-60 hover:opacity-100 transition-opacity">
                         <img 
                             src={partner.logo} 
@@ -226,7 +234,7 @@ const About: React.FC = () => {
                 ))}
               </div>
               <div className="flex shrink-0 items-center justify-around gap-12 md:gap-16 px-4">
-                {PARTNERS.map((partner) => (
+                {partners.map((partner) => (
                     <div key={`ab-p2-${partner.id}`} className="w-32 md:w-48 flex items-center justify-center shrink-0 opacity-60 hover:opacity-100 transition-opacity">
                         <img 
                             src={partner.logo} 
@@ -238,6 +246,7 @@ const About: React.FC = () => {
               </div>
             </div>
          </div>
+         )}
           <style>{`
             @keyframes marquee {
               0% { transform: translateX(0); }
@@ -266,7 +275,7 @@ const About: React.FC = () => {
                        <MapPin className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
                        <div>
                           <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.address')}</h4>
-                          <p className="text-gray-600">{CONTACT_INFO.address}</p>
+                          <p className="text-gray-600">{contactAddress}</p>
                        </div>
                     </div>
                     
@@ -274,7 +283,7 @@ const About: React.FC = () => {
                        <Mail className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
                        <div>
                           <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.email')}</h4>
-                          <p className="text-gray-600">{CONTACT_INFO.email}</p>
+                          <p className="text-gray-600">{contactEmail}</p>
                        </div>
                     </div>
 
@@ -282,7 +291,7 @@ const About: React.FC = () => {
                        <Phone className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
                        <div>
                           <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.phone')}</h4>
-                          <p className="text-gray-600">{CONTACT_INFO.phone}</p>
+                          <p className="text-gray-600">{contactPhone}</p>
                        </div>
                     </div>
 
@@ -310,41 +319,29 @@ const About: React.FC = () => {
                  </div>
               </div>
 
-              {/* Colonne Droite - Formulaire */}
-              <div className="bg-gray-50 p-8 md:p-12 rounded-lg border border-gray-100 shadow-sm">
-                 <h3 className="text-xl font-bold mb-8 text-gray-900">{t('contact.form_title')}</h3>
-                 <form className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                       <div>
-                          <label className="block text-xs font-bold uppercase text-gray-500 mb-2">{t('contact.name')}</label>
-                          <input type="text" className="w-full bg-white border border-gray-200 p-3 rounded-sm focus:border-comfort-blue focus:outline-none transition-colors" />
-                       </div>
-                       <div>
-                          <label className="block text-xs font-bold uppercase text-gray-500 mb-2">{t('contact.email')}</label>
-                          <input type="email" className="w-full bg-white border border-gray-200 p-3 rounded-sm focus:border-comfort-blue focus:outline-none transition-colors" />
-                       </div>
-                    </div>
-                    <div>
-                       <label className="block text-xs font-bold uppercase text-gray-500 mb-2">{t('contact.phone')}</label>
-                       <input type="tel" className="w-full bg-white border border-gray-200 p-3 rounded-sm focus:border-comfort-blue focus:outline-none transition-colors" />
-                    </div>
-                    <div>
-                       <label className="block text-xs font-bold uppercase text-gray-500 mb-2">{t('contact.subject')}</label>
-                       <select className="w-full bg-white border border-gray-200 p-3 rounded-sm focus:border-comfort-blue focus:outline-none transition-colors text-gray-600">
-                          <option>Renseignement général</option>
-                          <option>Devenir bénévole</option>
-                          <option>Partenariat</option>
-                          <option>Presse</option>
-                       </select>
-                    </div>
-                    <div>
-                       <label className="block text-xs font-bold uppercase text-gray-500 mb-2">{t('contact.message')}</label>
-                       <textarea rows={5} className="w-full bg-white border border-gray-200 p-3 rounded-sm focus:border-comfort-blue focus:outline-none transition-colors"></textarea>
-                    </div>
-                    <button className="w-full bg-comfort-blue text-white font-bold py-4 rounded-sm uppercase tracking-wider hover:bg-[#001860] transition-colors shadow-lg">
-                       {t('contact.send')}
-                    </button>
-                 </form>
+              {/* Colonne Droite - Direct Contact Replacement */}
+              <div className="bg-gray-50 p-8 md:p-12 rounded-lg border border-gray-100 shadow-sm flex flex-col justify-center text-center">
+                  <h3 className="text-2xl font-bold mb-6 text-gray-900">Préférez-vous un contact direct ?</h3>
+                  <p className="text-gray-600 mb-8">
+                      Nous n'utilisons pas de formulaires pour garantir une réponse plus rapide et personnelle. Écrivez-nous ou appelez-nous directement.
+                  </p>
+                  <div className="space-y-4">
+                      <a href={`mailto:${contactEmail}`} className="block w-full bg-comfort-blue text-white font-bold py-4 rounded-sm uppercase tracking-wider hover:bg-[#001860] transition-colors shadow-lg flex items-center justify-center">
+                          <Mail className="mr-2" size={20} />
+                          Envoyer un Email
+                      </a>
+                      <a href={`tel:${contactPhone}`} className="block w-full bg-white text-comfort-blue border-2 border-comfort-blue font-bold py-4 rounded-sm uppercase tracking-wider hover:bg-blue-50 transition-colors shadow-sm flex items-center justify-center">
+                          <Phone className="mr-2" size={20} />
+                          Appeler : {contactPhone}
+                      </a>
+                  </div>
+                  <div className="mt-8 pt-8 border-t border-gray-200">
+                      <p className="text-sm text-gray-500 mb-4">Suivez nos actions au quotidien</p>
+                      <div className="flex justify-center space-x-6">
+                           <a href="https://x.com/AsblComfor44668" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-comfort-blue"><span className="sr-only">X</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+                           <a href="https://www.facebook.com/photo/?fbid=122103347780826664&set=a.122103344876826664" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-comfort-blue"><Facebook size={24} /></a>
+                      </div>
+                  </div>
               </div>
 
            </div>
@@ -356,3 +353,4 @@ const About: React.FC = () => {
 };
 
 export default About;
+    

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { CONTACT_INFO } from './constants';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
-import { ArrowRight, Mail, Phone, MapPin, Clock } from 'lucide-react';
+import { ArrowRight, Mail, Phone, MapPin, Clock, Facebook } from 'lucide-react';
 
 type FilterType = 'All' | 'Corporate' | 'NGO' | 'Volunteer' | 'Government';
 
@@ -185,41 +185,29 @@ const Blog: React.FC = () => {
                  </div>
               </div>
 
-              {/* Colonne Droite - Formulaire */}
-              <div className="bg-gray-50 p-8 md:p-12 rounded-lg border border-gray-100 shadow-sm">
-                 <h3 className="text-xl font-bold mb-8 text-gray-900">{t('contact.form_title')}</h3>
-                 <form className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                       <div>
-                          <label className="block text-xs font-bold uppercase text-gray-500 mb-2">{t('contact.name')}</label>
-                          <input type="text" className="w-full bg-white border border-gray-200 p-3 rounded-sm focus:border-comfort-blue focus:outline-none transition-colors" />
-                       </div>
-                       <div>
-                          <label className="block text-xs font-bold uppercase text-gray-500 mb-2">{t('contact.email')}</label>
-                          <input type="email" className="w-full bg-white border border-gray-200 p-3 rounded-sm focus:border-comfort-blue focus:outline-none transition-colors" />
-                       </div>
-                    </div>
-                    <div>
-                       <label className="block text-xs font-bold uppercase text-gray-500 mb-2">{t('contact.phone')}</label>
-                       <input type="tel" className="w-full bg-white border border-gray-200 p-3 rounded-sm focus:border-comfort-blue focus:outline-none transition-colors" />
-                    </div>
-                    <div>
-                       <label className="block text-xs font-bold uppercase text-gray-500 mb-2">{t('contact.subject')}</label>
-                       <select className="w-full bg-white border border-gray-200 p-3 rounded-sm focus:border-comfort-blue focus:outline-none transition-colors text-gray-600">
-                          <option>Renseignement général</option>
-                          <option>Devenir bénévole</option>
-                          <option>Partenariat</option>
-                          <option>Presse</option>
-                       </select>
-                    </div>
-                    <div>
-                       <label className="block text-xs font-bold uppercase text-gray-500 mb-2">{t('contact.message')}</label>
-                       <textarea rows={5} className="w-full bg-white border border-gray-200 p-3 rounded-sm focus:border-comfort-blue focus:outline-none transition-colors"></textarea>
-                    </div>
-                    <button className="w-full bg-comfort-blue text-white font-bold py-4 rounded-sm uppercase tracking-wider hover:bg-[#001860] transition-colors shadow-lg">
-                       {t('contact.send')}
-                    </button>
-                 </form>
+              {/* Colonne Droite - Direct Contact Replacement */}
+              <div className="bg-gray-50 p-8 md:p-12 rounded-lg border border-gray-100 shadow-sm flex flex-col justify-center text-center">
+                  <h3 className="text-2xl font-bold mb-6 text-gray-900">Préférez-vous un contact direct ?</h3>
+                  <p className="text-gray-600 mb-8">
+                      Nous n'utilisons pas de formulaires pour garantir une réponse plus rapide et personnelle. Écrivez-nous ou appelez-nous directement.
+                  </p>
+                  <div className="space-y-4">
+                      <a href={`mailto:${contactEmail}`} className="block w-full bg-comfort-blue text-white font-bold py-4 rounded-sm uppercase tracking-wider hover:bg-[#001860] transition-colors shadow-lg flex items-center justify-center">
+                          <Mail className="mr-2" size={20} />
+                          Envoyer un Email
+                      </a>
+                      <a href={`tel:${contactPhone}`} className="block w-full bg-white text-comfort-blue border-2 border-comfort-blue font-bold py-4 rounded-sm uppercase tracking-wider hover:bg-blue-50 transition-colors shadow-sm flex items-center justify-center">
+                          <Phone className="mr-2" size={20} />
+                          Appeler : {contactPhone}
+                      </a>
+                  </div>
+                  <div className="mt-8 pt-8 border-t border-gray-200">
+                      <p className="text-sm text-gray-500 mb-4">Suivez nos actions au quotidien</p>
+                      <div className="flex justify-center space-x-6">
+                           <a href="https://x.com/AsblComfor44668" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-comfort-blue"><span className="sr-only">X</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+                           <a href="https://www.facebook.com/photo/?fbid=122103347780826664&set=a.122103344876826664" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-comfort-blue"><Facebook size={24} /></a>
+                      </div>
+                  </div>
               </div>
 
            </div>
