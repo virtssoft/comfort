@@ -9,8 +9,13 @@ const API_BASE_URL = `${API_DOMAIN}/api`;
 const getImageUrl = (path: string | undefined) => {
   if (!path) return 'https://placehold.co/600x400?text=No+Image';
   if (path.startsWith('http')) return path;
-  if (path.startsWith('/')) return `${API_DOMAIN}${path}`;
-  return `${API_DOMAIN}/${path}`;
+  
+  // Ensure path starts with /
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  
+  // Prepend API_BASE_URL (http://localhost/api) to match database storage path structure
+  // User req: prepend http://localhost/api/ to /assets/...
+  return `${API_BASE_URL}${cleanPath}`;
 };
 
 // Helper for Fetching
@@ -81,8 +86,8 @@ export const api = {
   // --- PUBLIC DATA ---
 
   getSettings: () => fetchData<SiteSettings>('settings.php', {
-    logoUrl: `${API_DOMAIN}/api/assets/images/logo1.png`, 
-    faviconUrl: `${API_DOMAIN}/api/assets/images/favicon.ico`,
+    logoUrl: `${API_BASE_URL}/assets/images/logo1.png`, 
+    faviconUrl: `${API_BASE_URL}/assets/images/favicon.ico`,
     siteName: 'COMFORT Asbl',
     contactEmail: 'contact@comfort-asbl.org',
     contactPhone: '+243 994 280 037',
