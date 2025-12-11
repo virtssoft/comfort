@@ -134,7 +134,7 @@ const Home: React.FC = () => {
                     <div className="relative">
                         <div className="absolute -inset-4 bg-comfort-blue/10 rounded-3xl transform rotate-2"></div>
                         <img 
-                            src="/assets/images/home-about.jpg"
+                            src="http://localhost/api/assets/images/about-hero.jpg"
                             onError={(e) => e.currentTarget.src = "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop"}
                             alt="Communauté et entraide" 
                             className="rounded-3xl shadow-2xl w-full object-cover h-auto lg:h-[500px] relative z-10"
