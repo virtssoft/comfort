@@ -2,29 +2,26 @@
 import { Project, BlogPost, Partner, TeamMember, Testimonial, SiteSettings } from '../types';
 import { PROJECTS, BLOG_POSTS, PARTNERS, TEAM_MEMBERS, TESTIMONIALS, CONTACT_INFO } from '../pages/constants';
 
-// DYNAMIC URL DETECTION to avoid CORS issues between localhost and 127.0.0.1
+// DYNAMIC URL DETECTION
+// This ensures that if you are on localhost, 127.0.0.1 or a network IP, the API calls the same host.
 const getBaseUrl = () => {
-    // If running locally, assume standard PHP server on port 80
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return `http://${window.location.hostname}/api`;
-    }
-    // In production, use relative path
-    return '/api';
+    const host = window.location.hostname;
+    // Assume API is always at /api on the same server (port 80)
+    return `http://${host}/api`;
 };
 
 const API_BASE_URL = getBaseUrl();
 
-// Helper to fix image URLs (prepend domain if relative path)
+// Helper to fix image URLs
 const getImageUrl = (path: string | undefined) => {
   if (!path) return 'https://placehold.co/600x400?text=No+Image';
   if (path.startsWith('http')) return path;
   
-  // Ensure path starts with /
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   return `${API_BASE_URL}${cleanPath}`;
 };
 
-// Helper for Fetching
+// Helper for Fetching Public Data
 async function fetchData<T>(endpoint: string, fallback: T): Promise<T> {
   try {
     const response = await fetch(`${API_BASE_URL}/${endpoint}`);
@@ -36,7 +33,7 @@ async function fetchData<T>(endpoint: string, fallback: T): Promise<T> {
   }
 }
 
-// Interfaces for API Responses
+// Interfaces
 interface ApiArticle {
   id: string;
   titre: string;
@@ -169,12 +166,9 @@ export const api = {
   // POST login.php
   login: async (emailOrUsername: string, password: string): Promise<{ success: boolean; user?: ApiUser; error?: string }> => {
     try {
-      console.log(`[API] Attempting login to ${API_BASE_URL}/login.php`);
-      
+      // Matching your working snippet structure EXACTLY
       const response = await fetch(`${API_BASE_URL}/login.php`, {
         method: 'POST',
-        // Simplified headers to reduce Preflight issues. PHP json_decode handles body regardless of header usually, 
-        // but 'application/json' is standard for getJsonInput helper.
         headers: {
             'Content-Type': 'application/json'
         },
@@ -184,41 +178,29 @@ export const api = {
         }),
       });
 
-      const text = await response.text();
-      let data;
-      try {
-          data = JSON.parse(text);
-      } catch (e) {
-          console.error("[API] Invalid JSON response:", text);
-          return { success: false, error: `Erreur serveur (Réponse invalide: ${response.status})` };
-      }
+      const data = await response.json();
 
-      if (!response.ok) {
-          return { success: false, error: data.error || data.message || `Erreur HTTP ${response.status}` };
+      if (response.ok) {
+         // Assuming PHP returns { user: ... } on success
+         if (data.user) {
+             return { success: true, user: data.user };
+         } else {
+             // Fallback if data structure is different but still 200 OK
+             return { success: true, user: data }; 
+         }
+      } else {
+          return { success: false, error: data.error || data.message || `Erreur serveur (${response.status})` };
       }
-      
-      if (data.user) {
-         return { success: true, user: data.user };
-      }
-      
-      if (data.error) {
-          return { success: false, error: data.error };
-      }
-      
-      return { success: false, error: data.message || 'Identifiants incorrects' };
 
     } catch (error: any) {
       console.error("[API] Login Fetch Error:", error);
       
-      if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-         return { success: false, error: `Serveur injoignable sur ${API_BASE_URL}. Vérifiez votre serveur PHP.` };
-      }
-
-      // Admin fallback backdoor for testing when server is down
+      // Admin fallback backdoor for demo/testing if server is completely down
       if (emailOrUsername === 'admin@comfort.org' && password === 'admin') {
          return { success: true, user: { id: '1', username: 'admin1', email: 'admin1@comfort.org', role: 'superadmin', created_at: '2025-01-01' } };
       }
-      return { success: false, error: error.message || 'Erreur de connexion' };
+      
+      return { success: false, error: "Impossible de se connecter au serveur. Vérifiez que l'API est accessible." };
     }
   },
 
@@ -231,15 +213,12 @@ export const api = {
             body: JSON.stringify({ ...userData, role: userData.role || 'user' })
         });
 
-        const text = await response.text();
-        let data;
-        try { data = JSON.parse(text); } catch (e) { return { success: false, error: `Erreur serveur (${response.status})` }; }
+        const data = await response.json();
 
-        if (response.ok || data.success) return { success: true };
+        if (response.ok) return { success: true };
         return { success: false, error: data.message || data.error || 'Erreur lors de l\'inscription' };
     } catch (error: any) {
-        if (error.name === 'TypeError' && error.message === 'Failed to fetch') return { success: false, error: 'Serveur injoignable.' };
-        return { success: false, error: 'Erreur réseau' };
+        return { success: false, error: 'Erreur réseau ou serveur injoignable' };
     }
   },
 
