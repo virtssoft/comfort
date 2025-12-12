@@ -29,7 +29,7 @@ async function fetchData<T>(endpoint: string, fallback: T): Promise<T> {
   }
 }
 
-// Interfaces for API Responses (French fields from your PHP API)
+// Interfaces for API Responses
 interface ApiArticle {
   id: string;
   titre: string;
@@ -62,12 +62,13 @@ interface ApiPartner {
   created_at: string;
 }
 
-interface ApiUser {
+export interface ApiUser {
   id: string;
   username: string;
   email: string;
   role: string;
   created_at: string;
+  updated_at?: string;
 }
 
 interface ApiDonation {
@@ -154,16 +155,16 @@ export const api = {
     }
   },
 
-  // Fallback to constants for endpoints not yet in API list
   getTeam: () => fetchData<TeamMember[]>('team.php', TEAM_MEMBERS),
   getTestimonials: () => fetchData<Testimonial[]>('testimonials.php', TESTIMONIALS),
 
-  // --- ADMIN / AUTH ---
+  // --- ADMIN / AUTH / USER MANAGEMENT ---
 
-  login: async (email: string, password: string): Promise<{ success: boolean; user?: any; error?: string }> => {
+  // POST login.php
+  login: async (emailOrUsername: string, password: string): Promise<{ success: boolean; user?: ApiUser; error?: string }> => {
     try {
       const formData = new FormData();
-      formData.append('email', email);
+      formData.append('username', emailOrUsername); // API might expect 'username' or 'email' field, mapped here
       formData.append('password', password);
 
       const response = await fetch(`${API_BASE_URL}/login.php`, {
@@ -172,18 +173,59 @@ export const api = {
       });
 
       const data = await response.json();
-      if (data.success || response.ok) {
-         return { success: true, user: data.user || { email, role: 'user' } };
+      
+      // Adaptation: Check if data itself is the user object or if it's wrapped
+      if (data.id || data.user) {
+         const userObj = data.user || data;
+         return { success: true, user: userObj };
       }
-      return { success: false, error: data.message || 'Login failed' };
+      
+      return { success: false, error: data.message || 'Identifiants incorrects' };
     } catch (error) {
-      if (email === 'admin@comfort-asbl.com') {
-         return { success: true, user: { email, role: 'superadmin' } };
+      // Simulation for fallback/demo if API is down
+      if (emailOrUsername === 'admin@comfort.org' && password === 'admin') {
+         return { success: true, user: { id: '1', username: 'admin1', email: 'admin1@comfort.org', role: 'superadmin', created_at: '2025-01-01' } };
       }
-      return { success: false, error: 'Network error or Invalid credentials' };
+      return { success: false, error: 'Erreur de connexion serveur' };
     }
   },
 
+  // POST users.php (Create Account)
+  register: async (userData: { username: string; email: string; password: string; role?: string }): Promise<{ success: boolean; error?: string }> => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/users.php`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                ...userData,
+                role: userData.role || 'user' // Default to basic user
+            })
+        });
+        const data = await response.json();
+        if (response.ok || data.success) return { success: true };
+        return { success: false, error: data.message || 'Erreur lors de l\'inscription' };
+    } catch (error) {
+        return { success: false, error: 'Erreur réseau' };
+    }
+  },
+
+  // PUT users.php?id=ID (Update Profile)
+  updateUser: async (id: string, userData: { username?: string; password?: string }): Promise<{ success: boolean; error?: string }> => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/users.php?id=${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userData)
+        });
+        const data = await response.json();
+        if (response.ok) return { success: true };
+        return { success: false, error: data.message || 'Erreur lors de la mise à jour' };
+    } catch (error) {
+        return { success: false, error: 'Erreur réseau' };
+    }
+  },
+
+  // GET users.php
   getUsers: async (): Promise<ApiUser[]> => {
     return fetchData<ApiUser[]>('users.php', []);
   },

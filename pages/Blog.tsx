@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { CONTACT_INFO } from './constants';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
-import { ArrowRight, Mail, Phone, MapPin, Clock, Facebook } from 'lucide-react';
+import { ArrowRight, Mail, Phone, MapPin, Clock, Facebook, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const Blog: React.FC = () => {
   const { t } = useLanguage();
@@ -14,6 +14,17 @@ const Blog: React.FC = () => {
   const contactEmail = settings?.contactEmail || CONTACT_INFO.email;
   const contactPhone = settings?.contactPhone || CONTACT_INFO.phone;
   const contactAddress = settings?.contactAddress || CONTACT_INFO.address;
+
+  // Pagination Logic
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 6;
+
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = blogPosts.slice(indexOfFirstPost, indexOfLastPost);
+  const totalPages = Math.ceil(blogPosts.length / postsPerPage);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <div className="flex flex-col min-h-screen font-sans bg-white">
@@ -26,32 +37,71 @@ const Blog: React.FC = () => {
          </div>
       </section>
 
-      {/* 🟩 1. BLOG GRID */}
+      {/* 🟩 1. BLOG GRID WITH PAGINATION */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 md:px-6">
-            {blogPosts.length > 0 && (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-                {blogPosts.map(post => (
-                    <div key={post.id} className="bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 group">
-                    <div className="overflow-hidden h-56">
-                        <img src={post.image} alt={post.title} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
-                    </div>
-                    <div className="p-8">
-                        <div className="flex justify-between text-xs text-gray-500 mb-4 font-medium uppercase tracking-wide">
-                        <span>{post.date}</span>
-                        <span className="text-comfort-blue">{post.category}</span>
+            {currentPosts.length > 0 ? (
+                <>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10 mb-16">
+                    {currentPosts.map(post => (
+                        <div key={post.id} className="bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 group">
+                        <div className="overflow-hidden h-56">
+                            <img src={post.image} alt={post.title} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
                         </div>
-                        <h3 className="text-xl font-bold mb-3 hover:text-comfort-blue cursor-pointer transition-colors leading-snug">
-                        <Link to={`/blog/${post.id}`}>{post.title}</Link>
-                        </h3>
-                        <p className="text-gray-600 text-sm mb-6 leading-relaxed">{post.excerpt}</p>
-                        <Link to={`/blog/${post.id}`} className="text-comfort-blue font-bold text-sm uppercase hover:underline flex items-center">
-                        {t('blog_page.read_more')} <ArrowRight size={14} className="ml-2"/>
-                        </Link>
+                        <div className="p-8">
+                            <div className="flex justify-between text-xs text-gray-500 mb-4 font-medium uppercase tracking-wide">
+                            <span>{post.date}</span>
+                            <span className="text-comfort-blue">{post.category}</span>
+                            </div>
+                            <h3 className="text-xl font-bold mb-3 hover:text-comfort-blue cursor-pointer transition-colors leading-snug">
+                            <Link to={`/blog/${post.id}`}>{post.title}</Link>
+                            </h3>
+                            <p className="text-gray-600 text-sm mb-6 leading-relaxed">{post.excerpt}</p>
+                            <Link to={`/blog/${post.id}`} className="text-comfort-blue font-bold text-sm uppercase hover:underline flex items-center">
+                            {t('blog_page.read_more')} <ArrowRight size={14} className="ml-2"/>
+                            </Link>
+                        </div>
+                        </div>
+                    ))}
                     </div>
-                    </div>
-                ))}
-                </div>
+
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="flex justify-center items-center space-x-2">
+                            <button 
+                                onClick={() => paginate(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className={`p-2 rounded border ${currentPage === 1 ? 'text-gray-300 border-gray-200 cursor-not-allowed' : 'text-comfort-blue border-comfort-blue hover:bg-blue-50'}`}
+                            >
+                                <ChevronLeft size={20} />
+                            </button>
+                            
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
+                                <button
+                                    key={number}
+                                    onClick={() => paginate(number)}
+                                    className={`w-10 h-10 rounded font-bold transition-colors ${
+                                        currentPage === number
+                                            ? 'bg-comfort-blue text-white'
+                                            : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {number}
+                                </button>
+                            ))}
+
+                            <button 
+                                onClick={() => paginate(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className={`p-2 rounded border ${currentPage === totalPages ? 'text-gray-300 border-gray-200 cursor-not-allowed' : 'text-comfort-blue border-comfort-blue hover:bg-blue-50'}`}
+                            >
+                                <ChevronRight size={20} />
+                            </button>
+                        </div>
+                    )}
+                </>
+            ) : (
+                <div className="text-center py-10 text-gray-500">Aucun article disponible pour le moment.</div>
             )}
         </div>
       </section>
@@ -64,7 +114,7 @@ const Blog: React.FC = () => {
                 <p className="text-lg text-gray-600 leading-relaxed">{t('partners.subtitle')}</p>
             </div>
 
-            {/* Partners Grid */}
+            {/* Partners Grid - No Category Filters */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             {partners.map((partner) => (
                 <div key={partner.id} className="bg-white rounded-lg p-8 shadow-sm hover:shadow-xl transition-shadow border border-gray-100 flex flex-col items-center text-center">

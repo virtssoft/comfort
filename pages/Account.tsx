@@ -1,9 +1,9 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { User, Lock, Mail, ArrowLeft, Heart, History, Settings, LogOut } from 'lucide-react';
+import { User, Lock, Mail, ArrowLeft, Heart, History, Settings, LogOut, Edit2, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../services/api';
+import { api, ApiUser } from '../services/api';
 
 type ViewState = 'login' | 'register' | 'forgot';
 
@@ -12,16 +12,24 @@ const Account: React.FC = () => {
   const navigate = useNavigate();
   const [view, setView] = useState<ViewState>('login');
   
-  // State for login form
+  // State for forms
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
   
   // State for Logged In User
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<ApiUser | null>(null);
 
+  // Edit Profile State
+  const [isEditing, setIsEditing] = useState(false);
+  const [editUsername, setEditUsername] = useState('');
+  const [editPassword, setEditPassword] = useState('');
+
+  // LOGIN Logic
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -30,13 +38,13 @@ const Account: React.FC = () => {
     try {
         const result = await api.login(email, password);
         
-        if (result.success) {
+        if (result.success && result.user) {
             setUser(result.user);
             setIsLoggedIn(true);
 
-            // Check for Admin Role
-            if (result.user?.role === 'superadmin' || email === 'admin@comfort-asbl.com') {
-                // Open admin dashboard in a new window/tab
+            // Redirect if Superadmin
+            if (result.user.role === 'superadmin') {
+                // Open admin dashboard in a new window/tab as requested
                 window.open('#/admin', '_blank');
             }
         } else {
@@ -49,22 +57,74 @@ const Account: React.FC = () => {
     }
   };
 
-  const handleGoogleLogin = () => {
-      console.log('Logging in with Google');
-      alert('Connexion avec Google (Simulation)');
-      setIsLoggedIn(true);
-  };
-
-  const handleOneAccountLogin = () => {
-      console.log('Logging in with Oneaccount');
-      alert('Connexion avec Oneaccount (Simulation)');
-      setIsLoggedIn(true);
-  };
-
-  const handleResetPassword = (e: React.FormEvent) => {
+  // REGISTER Logic (POST users.php)
+  const handleRegister = async (e: React.FormEvent) => {
       e.preventDefault();
-      alert('Un lien de réinitialisation a été envoyé à votre adresse email.');
-      setView('login');
+      setError('');
+      setLoading(true);
+      
+      if (!username || !email || !password) {
+          setError("Tous les champs sont requis.");
+          setLoading(false);
+          return;
+      }
+
+      try {
+          const result = await api.register({
+              username,
+              email,
+              password,
+              role: 'user' // Default role
+          });
+
+          if (result.success) {
+              setSuccessMsg("Compte créé avec succès ! Vous pouvez maintenant vous connecter.");
+              setView('login');
+              // Clear fields
+              setPassword('');
+          } else {
+              setError(result.error || "Erreur lors de l'inscription.");
+          }
+      } catch (err) {
+          setError("Erreur réseau.");
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  // UPDATE PROFILE Logic (PUT users.php)
+  const handleUpdateProfile = async () => {
+      if (!user) return;
+      setLoading(true);
+      setError('');
+      setSuccessMsg('');
+
+      try {
+          const payload: any = {};
+          if (editUsername && editUsername !== user.username) payload.username = editUsername;
+          if (editPassword) payload.password = editPassword;
+
+          if (Object.keys(payload).length === 0) {
+              setIsEditing(false);
+              setLoading(false);
+              return;
+          }
+
+          const result = await api.updateUser(user.id, payload);
+
+          if (result.success) {
+              setUser({ ...user, username: editUsername || user.username });
+              setIsEditing(false);
+              setEditPassword('');
+              setSuccessMsg("Profil mis à jour avec succès.");
+          } else {
+              setError(result.error || "Erreur lors de la mise à jour.");
+          }
+      } catch (err) {
+          setError("Erreur lors de la mise à jour.");
+      } finally {
+          setLoading(false);
+      }
   };
 
   const handleLogout = () => {
@@ -72,10 +132,14 @@ const Account: React.FC = () => {
       setEmail('');
       setPassword('');
       setUser(null);
+      setEditUsername('');
+      setEditPassword('');
+      setError('');
+      setSuccessMsg('');
   };
 
   /* --- LOGGED IN USER DASHBOARD --- */
-  if (isLoggedIn) {
+  if (isLoggedIn && user) {
       return (
           <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
               <div className="max-w-4xl mx-auto">
@@ -88,8 +152,8 @@ const Account: React.FC = () => {
                               </div>
                               <div>
                                   <h1 className="text-2xl font-serif font-bold">{t('account.my_space')}</h1>
-                                  <p className="opacity-80">{email || "Utilisateur"}</p>
-                                  <span className="text-xs bg-white/20 px-2 py-1 rounded mt-2 inline-block uppercase tracking-wider">{user?.role || t('account.role_user')}</span>
+                                  <p className="opacity-80">{user.email}</p>
+                                  <span className="text-xs bg-white/20 px-2 py-1 rounded mt-2 inline-block uppercase tracking-wider">{user.role}</span>
                               </div>
                           </div>
                           <button onClick={handleLogout} className="flex items-center text-sm font-bold bg-white/10 hover:bg-white/20 px-4 py-2 rounded transition-colors">
@@ -97,29 +161,85 @@ const Account: React.FC = () => {
                           </button>
                       </div>
 
+                      {/* Flash Messages */}
+                      {successMsg && <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 m-6">{successMsg}</div>}
+                      {error && <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 m-6">{error}</div>}
+
                       {/* Content Grid */}
                       <div className="p-8 grid md:grid-cols-2 gap-8">
-                          {/* Donations History */}
+                          {/* Donations History (Static for now as per prompt instructions, or fetching from context) */}
                           <div className="border border-gray-100 rounded-lg p-6 hover:shadow-md transition-shadow">
                               <div className="flex items-center mb-4 text-comfort-blue">
                                   <Heart size={24} className="mr-3" />
                                   <h2 className="text-xl font-bold text-gray-800">{t('account.my_donations')}</h2>
                               </div>
-                              <p className="text-gray-500 mb-4 text-sm">{t('account.no_donations')}</p>
-                              <button className="text-comfort-blue text-sm font-bold hover:underline">{t('account.make_donation')} →</button>
+                              <div className="text-gray-500 mb-4 text-sm min-h-[100px] flex items-center justify-center bg-gray-50 rounded">
+                                  <div className="text-center">
+                                      <History className="mx-auto mb-2 opacity-50" />
+                                      {t('account.no_donations')}
+                                  </div>
+                              </div>
+                              <button onClick={() => navigate('/donate')} className="text-comfort-blue text-sm font-bold hover:underline">{t('account.make_donation')} →</button>
                           </div>
 
                           {/* Profile Settings */}
                           <div className="border border-gray-100 rounded-lg p-6 hover:shadow-md transition-shadow">
-                              <div className="flex items-center mb-4 text-comfort-blue">
-                                  <Settings size={24} className="mr-3" />
-                                  <h2 className="text-xl font-bold text-gray-800">{t('account.my_info')}</h2>
+                              <div className="flex items-center justify-between mb-4">
+                                  <div className="flex items-center text-comfort-blue">
+                                      <Settings size={24} className="mr-3" />
+                                      <h2 className="text-xl font-bold text-gray-800">{t('account.my_info')}</h2>
+                                  </div>
+                                  {!isEditing && (
+                                    <button onClick={() => { setIsEditing(true); setEditUsername(user.username); }} className="text-xs text-gray-500 hover:text-comfort-blue flex items-center">
+                                        <Edit2 size={12} className="mr-1"/> Modifier
+                                    </button>
+                                  )}
                               </div>
-                              <div className="space-y-2 text-sm text-gray-600">
-                                  <p><span className="font-bold">Email:</span> {email}</p>
-                                  <p><span className="font-bold">{t('account.member_since')}:</span> 2024</p>
-                              </div>
-                              <button className="mt-4 text-comfort-blue text-sm font-bold hover:underline">{t('account.edit_profile')} →</button>
+
+                              {!isEditing ? (
+                                  <div className="space-y-3 text-sm text-gray-600">
+                                      <p><span className="font-bold block text-gray-400 text-xs uppercase">Nom d'utilisateur</span> {user.username}</p>
+                                      <p><span className="font-bold block text-gray-400 text-xs uppercase">Email</span> {user.email}</p>
+                                      <p><span className="font-bold block text-gray-400 text-xs uppercase">Inscrit le</span> {new Date(user.created_at).toLocaleDateString()}</p>
+                                  </div>
+                              ) : (
+                                  <div className="space-y-4">
+                                      <div>
+                                          <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Nouveau nom d'utilisateur</label>
+                                          <input 
+                                            type="text" 
+                                            value={editUsername} 
+                                            onChange={(e) => setEditUsername(e.target.value)}
+                                            className="w-full border border-gray-300 rounded p-2 text-sm focus:border-comfort-blue focus:ring-1 focus:ring-comfort-blue outline-none"
+                                          />
+                                      </div>
+                                      <div>
+                                          <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Nouveau mot de passe (optionnel)</label>
+                                          <input 
+                                            type="password" 
+                                            value={editPassword} 
+                                            onChange={(e) => setEditPassword(e.target.value)}
+                                            placeholder="Laisser vide pour ne pas changer"
+                                            className="w-full border border-gray-300 rounded p-2 text-sm focus:border-comfort-blue focus:ring-1 focus:ring-comfort-blue outline-none"
+                                          />
+                                      </div>
+                                      <div className="flex space-x-2 pt-2">
+                                          <button 
+                                            onClick={handleUpdateProfile} 
+                                            disabled={loading}
+                                            className="bg-comfort-blue text-white px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wide flex items-center"
+                                          >
+                                              <Check size={12} className="mr-1"/> {loading ? '...' : 'Sauvegarder'}
+                                          </button>
+                                          <button 
+                                            onClick={() => setIsEditing(false)} 
+                                            className="bg-gray-200 text-gray-700 px-3 py-1.5 rounded text-xs font-bold uppercase tracking-wide"
+                                          >
+                                              Annuler
+                                          </button>
+                                      </div>
+                                  </div>
+                              )}
                           </div>
                       </div>
                   </div>
@@ -152,20 +272,22 @@ const Account: React.FC = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-200">
           
+          {successMsg && <div className="text-green-600 text-sm text-center bg-green-50 p-2 rounded mb-4">{successMsg}</div>}
+
           {/* LOGIN VIEW */}
           {view === 'login' && (
             <form className="space-y-6" onSubmit={handleLogin}>
                 {error && <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</div>}
                 <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                    {t('account.email_label')}
+                    Email ou Nom d'utilisateur
                 </label>
                 <div className="mt-1 relative">
                     <input 
                         id="email" 
                         name="email" 
-                        type="email" 
-                        autoComplete="email" 
+                        type="text" 
+                        autoComplete="username" 
                         required 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -217,28 +339,29 @@ const Account: React.FC = () => {
 
           {/* REGISTER VIEW */}
           {view === 'register' && (
-             <form className="space-y-6" action="#" method="POST">
+             <form className="space-y-6" onSubmit={handleRegister}>
+                 {error && <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</div>}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">{t('account.fullname_label')}</label>
-                    <div className="mt-1"><input type="text" required className="block w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-comfort-blue focus:border-comfort-blue sm:text-sm" /></div>
+                    <label className="block text-sm font-medium text-gray-700">{t('account.fullname_label')} (Username)</label>
+                    <div className="mt-1"><input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required className="block w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-comfort-blue focus:border-comfort-blue sm:text-sm" /></div>
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">{t('account.email_label')}</label>
-                    <div className="mt-1"><input type="email" required className="block w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-comfort-blue focus:border-comfort-blue sm:text-sm" /></div>
+                    <div className="mt-1"><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="block w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-comfort-blue focus:border-comfort-blue sm:text-sm" /></div>
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700">{t('account.password_label')}</label>
-                    <div className="mt-1"><input type="password" required className="block w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-comfort-blue focus:border-comfort-blue sm:text-sm" /></div>
+                    <div className="mt-1"><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="block w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-comfort-blue focus:border-comfort-blue sm:text-sm" /></div>
                 </div>
-                <button type="submit" className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-comfort-blue hover:bg-blue-900 uppercase tracking-wide">
-                    {t('account.register')}
+                <button type="submit" disabled={loading} className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-comfort-blue hover:bg-blue-900 uppercase tracking-wide disabled:opacity-50">
+                    {loading ? 'Inscription...' : t('account.register')}
                 </button>
              </form>
           )}
 
           {/* FORGOT PASSWORD VIEW */}
           {view === 'forgot' && (
-              <form className="space-y-6" onSubmit={handleResetPassword}>
+              <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); alert("Fonctionnalité à venir"); }}>
                   <div className="text-sm text-gray-500 mb-4 text-center">
                       {t('account.reset_subtitle')}
                   </div>
@@ -255,55 +378,24 @@ const Account: React.FC = () => {
               </form>
           )}
 
-          {/* Social Logins */}
-          {view !== 'forgot' && (
-            <>
-                <div className="mt-6">
-                    <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-300" />
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                        <span className="px-2 bg-white text-gray-500">Or continue with</span>
-                    </div>
-                    </div>
-
-                    <div className="mt-6 grid grid-cols-2 gap-3">
-                    <div>
-                        <button onClick={handleGoogleLogin} type="button" className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                            <span className="sr-only">Sign in with Google</span>
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.48 10.92v3.28h7.88c-.3 1.6-1.2 2.92-2.52 3.84v.04l3.6 2.8A11.96 11.96 0 0 0 24 12.56c0-.96-.08-1.72-.24-2.48H12.48z" fill="#4285F4"/><path d="M5.64 14.56a6.8 6.8 0 0 1-.36-2.08c0-.76.12-1.48.36-2.16l-3.92-3.04A11.84 11.84 0 0 0 .56 12.48c0 1.96.48 3.8 1.28 5.4l3.8-3.32z" fill="#FBBC05"/><path d="M12.48 5.24c1.64 0 3.12.56 4.28 1.64l3.16-3.16C17.92 1.92 15.4.88 12.48.88 7.92.88 3.96 3.48 2 7.28l3.96 3.08C7 7.76 9.48 5.24 12.48 5.24z" fill="#EA4335"/><path d="M12.48 24.12a11.56 11.56 0 0 0 8.04-2.84l-3.8-3.04c-1.12.76-2.6 1.24-4.24 1.24-2.96 0-5.48-2.04-6.4-4.8L2.08 17.6a11.84 11.84 0 0 0 10.4 6.52z" fill="#34A853"/></svg>
+          {/* Toggle Login/Register */}
+          <div className="mt-6 text-center">
+                {view === 'login' ? (
+                    <p className="text-sm text-gray-600">
+                        {t('account.no_account')}{' '}
+                        <button onClick={() => { setView('register'); setError(''); }} className="font-medium text-comfort-blue hover:text-blue-900">
+                            {t('account.register')}
                         </button>
-                    </div>
-
-                    <div>
-                        <button onClick={handleOneAccountLogin} type="button" className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                        <span className="sr-only">Sign in with Oneaccount</span>
-                        <div className="w-5 h-5 bg-indigo-600 rounded-full flex items-center justify-center text-white text-[10px] font-bold">1</div>
-                        </button>
-                    </div>
-                    </div>
-                </div>
-
-                <div className="mt-6 text-center">
-                    {view === 'login' ? (
+                    </p>
+                ) : view === 'register' ? (
                         <p className="text-sm text-gray-600">
-                            {t('account.no_account')}{' '}
-                            <button onClick={() => setView('register')} className="font-medium text-comfort-blue hover:text-blue-900">
-                                {t('account.register')}
-                            </button>
-                        </p>
-                    ) : (
-                         <p className="text-sm text-gray-600">
-                            Déjà un compte ?{' '}
-                            <button onClick={() => setView('login')} className="font-medium text-comfort-blue hover:text-blue-900">
-                                {t('account.login_button')}
-                            </button>
-                        </p>
-                    )}
-                </div>
-            </>
-          )}
+                        Déjà un compte ?{' '}
+                        <button onClick={() => { setView('login'); setError(''); }} className="font-medium text-comfort-blue hover:text-blue-900">
+                            {t('account.login_button')}
+                        </button>
+                    </p>
+                ) : null}
+            </div>
         </div>
       </div>
     </div>
