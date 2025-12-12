@@ -2,147 +2,138 @@
 import { Project, BlogPost, Partner, TeamMember, Testimonial, SiteSettings } from '../types';
 import { PROJECTS, BLOG_POSTS, PARTNERS, TEAM_MEMBERS, TESTIMONIALS } from '../pages/constants';
 
-// --- CONFIGURATION SIMPLE ---
-// C'est l'adresse unique de votre serveur.
+// --- CONFIGURATION ---
 const API_BASE_URL = 'http://localhost/api'; 
 
-// Fonction simple pour lire les données
-async function fetchData<T>(endpoint: string, fallback: T): Promise<T> {
-  const url = `${API_BASE_URL}/${endpoint}`;
-  
-  try {
-    const response = await fetch(url);
-
-    // Si le serveur répond une erreur (ex: 404 fichier introuvable), on le dit
-    if (!response.ok) {
-        console.error(`[API ERROR] Le serveur a répondu ${response.status} pour ${url}`);
-        return fallback;
-    }
-
-    const text = await response.text();
-    
-    // On essaie de transformer la réponse en JSON
-    try {
-        return JSON.parse(text);
-    } catch (e) {
-        console.error(`[API ERROR] Le serveur n'a pas renvoyé du JSON valide pour ${url}. Réponse reçue :`, text);
-        return fallback;
-    }
-
-  } catch (error) {
-    console.error(`[API ERROR] Impossible de contacter le serveur sur ${url}. Vérifiez que XAMPP est allumé.`, error);
-    return fallback;
-  }
-}
-
-// Interfaces API
+// --- TYPES API (Correspondance exacte avec la BDD/PHP) ---
 export interface ApiUser {
   id: string;
   username: string;
   email: string;
-  role: string;
-  created_at: string;
+  role: 'user' | 'admin' | 'superadmin' | 'editor';
+  created_at?: string;
 }
 
-interface ApiAction {
+export interface ApiAction { // Projets
   id: string;
   titre: string;
   description: string;
   categorie: string;
-  statut: string;
+  statut: 'en_cours' | 'termine' | 'a_venir';
   image_url: string;
   date_debut: string;
-  date_fin: string;
+  date_fin?: string;
+  created_at?: string;
 }
 
-interface ApiArticle {
+export interface ApiArticle { // Blog
   id: string;
   titre: string;
+  slug?: string;
   contenu: string;
   image_url: string;
   auteur: string;
   categorie: string;
+  status?: 'publié' | 'brouillon';
   created_at: string;
 }
 
-interface ApiPartner {
+export interface ApiPartner {
   id: string;
   nom: string;
   logo_url: string;
-  site_web: string;
+  site_web?: string;
   description: string;
+  type?: string; // Ajouté pour compatibilité frontend si stocké en BD
 }
 
-interface ApiDonation {
+export interface ApiDonation {
   id: string;
   donateur_nom: string;
   email: string;
   montant: string;
   methode: string;
-  status: string;
+  message?: string;
+  status: 'en_attente' | 'confirmé' | 'annulé';
+  created_at?: string;
+}
+
+// --- HELPER FETCH ---
+async function fetchData<T>(endpoint: string, fallback: T): Promise<T> {
+  const url = `${API_BASE_URL}/${endpoint}`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+        console.warn(`[API] Erreur ${response.status} sur ${url}`);
+        return fallback;
+    }
+    const text = await response.text();
+    try {
+        return JSON.parse(text);
+    } catch (e) {
+        console.error(`[API] JSON Invalide sur ${url}:`, text);
+        return fallback;
+    }
+  } catch (error) {
+    console.error(`[API] Connexion échouée sur ${url}`);
+    return fallback;
+  }
+}
+
+async function sendData(endpoint: string, method: 'POST' | 'PUT' | 'DELETE', data?: any) {
+    const url = `${API_BASE_URL}/${endpoint}`;
+    const options: RequestInit = {
+        method,
+        headers: { 'Content-Type': 'application/json' }
+    };
+    if (data) options.body = JSON.stringify(data);
+
+    try {
+        const response = await fetch(url, options);
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch {
+            return { success: response.ok, message: text };
+        }
+    } catch (e) {
+        return { success: false, error: "Erreur connexion serveur" };
+    }
 }
 
 export const api = {
   
-  // --- LOGIN (Simplifié) ---
-  login: async (loginInput: string, passwordInput: string): Promise<{ success: boolean; user?: ApiUser; error?: string }> => {
+  // --- AUTHENTIFICATION ---
+  login: async (loginInput: string, passwordInput: string) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/login.php`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ login: loginInput, password: passwordInput })
-        });
-
-        const text = await response.text();
-        
-        try {
-            const data = JSON.parse(text);
-            if (data.success && data.user) {
-                return { success: true, user: data.user };
-            } else {
-                return { success: false, error: data.message || "Identifiants incorrects" };
-            }
-        } catch (e) {
-            console.error("Erreur JSON Login:", text);
-            // BACKDOOR LOCALE : Si le serveur plante mais que vous tapez admin/password, on vous laisse entrer pour tester le design
-            if (loginInput === 'admin' && passwordInput === 'password') {
-                 return { 
-                    success: true, 
-                    user: { id: 'dev', username: 'Admin Local', email: 'admin@local', role: 'superadmin', created_at: new Date().toISOString() } 
-                 };
-            }
-            return { success: false, error: "Erreur du serveur (voir console)" };
-        }
+        const res = await sendData('login.php', 'POST', { login: loginInput, password: passwordInput });
+        if (res.success || res.user) return { success: true, user: res.user };
+        return { success: false, error: res.message || "Identifiants incorrects" };
     } catch (err) {
-        console.error("Erreur Réseau Login:", err);
-        // BACKDOOR LOCALE
+        // Backdoor Dev Local UNIQUEMENT si serveur éteint
         if (loginInput === 'admin' && passwordInput === 'password') {
-             return { 
-                success: true, 
-                user: { id: 'dev', username: 'Admin Local', email: 'admin@local', role: 'superadmin', created_at: new Date().toISOString() } 
-             };
+             return { success: true, user: { id: 'dev', username: 'Admin Local', email: 'admin@local', role: 'superadmin' } };
         }
         return { success: false, error: "Serveur injoignable" };
     }
   },
 
-  // --- GET DATA (Mappage direct) ---
+  // --- PUBLIC GETTERS (Mapping pour le Frontend) ---
 
   getProjects: async (): Promise<Project[]> => {
     const actions = await fetchData<ApiAction[]>('actions.php', []);
     if (actions.length === 0) return PROJECTS;
     
-    return actions.map(action => ({
-      id: action.id,
-      title: action.titre,
-      category: action.categorie,
-      description: action.description,
-      image: action.image_url?.startsWith('http') ? action.image_url : `${API_BASE_URL}/${action.image_url}`,
-      date: action.date_debut,
-      endDate: action.date_fin,
-      status: action.statut === 'termine' ? 'Completed' : 'Ongoing',
-      goal: 10000, 
-      raised: 0    
+    return actions.map(a => ({
+      id: a.id,
+      title: a.titre,
+      category: a.categorie,
+      description: a.description,
+      image: a.image_url?.startsWith('http') ? a.image_url : `${API_BASE_URL}/${a.image_url}`,
+      date: a.date_debut,
+      endDate: a.date_fin,
+      status: a.statut === 'termine' ? 'Completed' : 'Ongoing',
+      goal: 0, raised: 0 // Champs non gérés par l'API actuelle
     }));
   },
 
@@ -150,14 +141,14 @@ export const api = {
     const articles = await fetchData<ApiArticle[]>('articles.php', []);
     if (articles.length === 0) return BLOG_POSTS;
 
-    return articles.map(article => ({
-      id: article.id,
-      title: article.titre,
-      excerpt: article.contenu.substring(0, 150) + '...',
-      author: article.auteur,
-      date: article.created_at,
-      category: article.categorie,
-      image: article.image_url?.startsWith('http') ? article.image_url : `${API_BASE_URL}/${article.image_url}`
+    return articles.map(a => ({
+      id: a.id,
+      title: a.titre,
+      excerpt: a.contenu.substring(0, 150) + '...', // Génération extrait
+      author: a.auteur,
+      date: a.created_at?.split(' ')[0] || '', // Garder juste la date YYYY-MM-DD
+      category: a.categorie,
+      image: a.image_url?.startsWith('http') ? a.image_url : `${API_BASE_URL}/${a.image_url}`
     }));
   },
 
@@ -165,19 +156,49 @@ export const api = {
     const partners = await fetchData<ApiPartner[]>('partners.php', []);
     if (partners.length === 0) return PARTNERS;
 
-    return partners.map((p) => ({
+    return partners.map(p => ({
       id: p.id,
       name: p.nom,
       logo: p.logo_url?.startsWith('http') ? p.logo_url : `${API_BASE_URL}/${p.logo_url}`,
       description: p.description,
-      type: 'Corporate'
+      type: (p.type as any) || 'Corporate' // Fallback type
     }));
   },
 
-  // Ces fonctions sont requises par le AdminDashboard
-  getUsers: async (): Promise<ApiUser[]> => fetchData<ApiUser[]>('users.php', []),
-  getDonations: async (): Promise<ApiDonation[]> => fetchData<ApiDonation[]>('donations.php', []),
-  
+  // --- ADMIN CRUD (Méthodes brutes) ---
+
+  // Users
+  getUsers: () => fetchData<ApiUser[]>('users.php', []),
+  createUser: (data: any) => sendData('users.php', 'POST', data),
+  updateUser: (id: string, data: any) => sendData(`users.php?id=${id}`, 'PUT', data),
+  deleteUser: (id: string) => sendData(`users.php?id=${id}`, 'DELETE'),
+  register: (data: any) => sendData('users.php', 'POST', data), // Alias pour inscription publique
+
+  // Donations
+  getDonations: () => fetchData<ApiDonation[]>('donations.php', []),
+  sendDonation: (data: any) => sendData('donations.php', 'POST', data),
+  updateDonationStatus: (id: string, status: string) => sendData(`donations.php?id=${id}`, 'PUT', { status }),
+  deleteDonation: (id: string) => sendData(`donations.php?id=${id}`, 'DELETE'),
+
+  // Actions (Projets)
+  getRawActions: () => fetchData<ApiAction[]>('actions.php', []),
+  createAction: (data: any) => sendData('actions.php', 'POST', data),
+  updateAction: (id: string, data: any) => sendData(`actions.php?id=${id}`, 'PUT', data),
+  deleteAction: (id: string) => sendData(`actions.php?id=${id}`, 'DELETE'),
+
+  // Articles (Blog)
+  getRawArticles: () => fetchData<ApiArticle[]>('articles.php', []),
+  createArticle: (data: any) => sendData('articles.php', 'POST', data),
+  updateArticle: (id: string, data: any) => sendData(`articles.php?id=${id}`, 'PUT', data),
+  deleteArticle: (id: string) => sendData(`articles.php?id=${id}`, 'DELETE'),
+
+  // Partners
+  getRawPartners: () => fetchData<ApiPartner[]>('partners.php', []),
+  createPartner: (data: any) => sendData('partners.php', 'POST', data),
+  updatePartner: (id: string, data: any) => sendData(`partners.php?id=${id}`, 'PUT', data),
+  deletePartner: (id: string) => sendData(`partners.php?id=${id}`, 'DELETE'),
+
+  // Static / Mocked for now
   getSettings: () => fetchData<SiteSettings>('settings.php', {
     logoUrl: `${API_BASE_URL}/assets/images/logo1.png`, 
     faviconUrl: `${API_BASE_URL}/assets/images/favicon.ico`,
@@ -187,38 +208,6 @@ export const api = {
     contactAddress: 'Katindo Beni 108, Goma, RDC',
     socialLinks: { facebook: 'https://facebook.com', twitter: 'https://x.com' }
   }),
-
   getTeam: () => fetchData<TeamMember[]>('team.php', TEAM_MEMBERS),
   getTestimonials: () => fetchData<Testimonial[]>('testimonials.php', TESTIMONIALS),
-
-  // --- ACTIONS (Create/Update/Delete) ---
-  // Ces fonctions envoient les données au PHP.
-  
-  register: async (userData: any) => {
-    try {
-        await fetch(`${API_BASE_URL}/users.php`, { method: 'POST', body: JSON.stringify(userData) });
-        return { success: true };
-    } catch(e) { return { success: false, error: "Erreur" }; }
-  },
-
-  updateUser: async (id: string, userData: any) => {
-    try {
-        await fetch(`${API_BASE_URL}/users.php?id=${id}`, { method: 'PUT', body: JSON.stringify(userData) });
-        return { success: true };
-    } catch(e) { return { success: false, error: "Erreur lors de la mise à jour" }; }
-  },
-
-  deleteItem: async (endpoint: string, id: string) => {
-      try {
-        await fetch(`${API_BASE_URL}/${endpoint}.php?id=${id}`, { method: 'DELETE' });
-        return { success: true };
-      } catch (e) { return { success: false }; }
-  },
-
-  createItem: async (endpoint: string, data: any) => {
-      try {
-        await fetch(`${API_BASE_URL}/${endpoint}.php`, { method: 'POST', body: JSON.stringify(data) });
-       return { success: true, id: Math.random().toString() };
-      } catch (e) { return { success: false }; }
-  }
 };
