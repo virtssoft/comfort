@@ -3,13 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Users, FileText, Settings, LogOut, DollarSign, TrendingUp, Activity, Bell, Mail, Plus, Edit, Trash2 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-import { useData } from '../context/DataContext'; // Reuse projects/blogs from context
+import { useData } from '../context/DataContext'; 
+import { useAuth } from '../context/AuthContext'; // Security Check
 import { api } from '../services/api';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { projects, blogPosts, refreshData } = useData(); // Get dynamic content
+  const { projects, blogPosts } = useData();
+  const { user, isAuthenticated, logout } = useAuth(); // Auth
+
   const [activeTab, setActiveTab] = useState('dashboard');
 
   // Admin Specific Data State
@@ -17,33 +20,54 @@ const AdminDashboard: React.FC = () => {
   const [donations, setDonations] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Security Check: Redirect if not admin
   useEffect(() => {
-    // Fetch Admin Data
-    const fetchAdminData = async () => {
-        setLoading(true);
-        try {
-            const [fetchedUsers, fetchedDonations] = await Promise.all([
-                api.getUsers(),
-                api.getDonations()
-            ]);
-            setUsers(fetchedUsers);
-            setDonations(fetchedDonations);
-        } catch (e) {
-            console.error("Failed to load admin data");
-        } finally {
-            setLoading(false);
-        }
-    };
-    fetchAdminData();
-  }, []);
+     if (!isAuthenticated || user?.role !== 'superadmin') {
+         // Petite pause pour laisser le temps au AuthProvider de charger le localStorage
+         const timer = setTimeout(() => {
+             if (!isAuthenticated) {
+                 navigate('/account');
+             }
+         }, 500);
+         return () => clearTimeout(timer);
+     }
+  }, [isAuthenticated, user, navigate]);
+
+  useEffect(() => {
+    // Fetch Admin Data only if authorized
+    if (isAuthenticated && user?.role === 'superadmin') {
+        const fetchAdminData = async () => {
+            setLoading(true);
+            try {
+                const [fetchedUsers, fetchedDonations] = await Promise.all([
+                    api.getUsers(),
+                    api.getDonations()
+                ]);
+                setUsers(fetchedUsers);
+                setDonations(fetchedDonations);
+            } catch (e) {
+                console.error("Failed to load admin data");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchAdminData();
+    }
+  }, [isAuthenticated, user]);
 
   const handleLogout = () => {
-    if (window.opener) {
+    logout(); 
+    // Comme l'admin est dans un nouvel onglet, on ferme l'onglet ou on redirige
+    if (window.history.length > 1) {
         window.close();
     } else {
-        navigate('/account');
+        navigate('/');
     }
   };
+
+  if (!isAuthenticated || user?.role !== 'superadmin') {
+      return <div className="p-10 text-center">Vérification des droits...</div>;
+  }
 
   const renderContent = () => {
       switch(activeTab) {
@@ -320,7 +344,9 @@ const AdminDashboard: React.FC = () => {
               <button className="p-2 text-gray-400 hover:text-comfort-blue transition-colors relative">
                  <Bell size={20} />
               </button>
-              <div className="h-8 w-8 rounded-full bg-comfort-blue text-white flex items-center justify-center font-bold">A</div>
+              <div className="h-8 w-8 rounded-full bg-comfort-blue text-white flex items-center justify-center font-bold">
+                  {user?.username.charAt(0).toUpperCase() || 'A'}
+              </div>
            </div>
         </header>
         {renderContent()}

@@ -1,15 +1,18 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext'; // NEW
 import { User, Lock, Mail, ArrowLeft, Heart, History, Settings, LogOut, Edit2, Check, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { api, ApiUser } from '../services/api';
+import { api } from '../services/api';
 
 type ViewState = 'login' | 'register' | 'forgot';
 
 const Account: React.FC = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const { user, login, logout, isAuthenticated } = useAuth(); // Utilisation du contexte global
+
   const [view, setView] = useState<ViewState>('login');
   
   // State for forms
@@ -20,10 +23,6 @@ const Account: React.FC = () => {
   const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
   
-  // State for Logged In User
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<ApiUser | null>(null);
-
   // Edit Profile State
   const [isEditing, setIsEditing] = useState(false);
   const [editUsername, setEditUsername] = useState('');
@@ -36,19 +35,15 @@ const Account: React.FC = () => {
     setLoading(true);
 
     try {
-        // Appel simple à l'API selon la logique stricte demandée
         const result = await api.login(email, password);
         
         if (result.success && result.user) {
-            setUser(result.user);
-            setIsLoggedIn(true);
+            login(result.user); // Sauvegarde dans le contexte + localStorage
 
-            // Logique de redirection selon le rôle
             if (result.user.role === 'superadmin') {
-                navigate('/admin');
-            } else {
-                // editor ou user standard reste sur l'espace compte
-                // (L'affichage basculera automatiquement grâce à isLoggedIn = true)
+                // OUVERTURE DANS UNE NOUVELLE FENÊTRE/ONGLET
+                // Comme on utilise HashRouter, l'url est /#/admin
+                window.open('/#/admin', '_blank');
             }
         } else {
             setError(result.error || "Nom d'utilisateur ou mot de passe incorrect");
@@ -60,7 +55,7 @@ const Account: React.FC = () => {
     }
   };
 
-  // REGISTER Logic (POST users.php)
+  // REGISTER Logic
   const handleRegister = async (e: React.FormEvent) => {
       e.preventDefault();
       setError('');
@@ -77,7 +72,7 @@ const Account: React.FC = () => {
               username,
               email,
               password,
-              role: 'user' // Default role
+              role: 'user'
           });
 
           if (result.success) {
@@ -94,7 +89,7 @@ const Account: React.FC = () => {
       }
   };
 
-  // UPDATE PROFILE Logic (PUT users.php)
+  // UPDATE PROFILE Logic
   const handleUpdateProfile = async () => {
       if (!user) return;
       setLoading(true);
@@ -115,7 +110,9 @@ const Account: React.FC = () => {
           const result = await api.updateUser(user.id, payload);
 
           if (result.success) {
-              setUser({ ...user, username: editUsername || user.username });
+              // Mise à jour locale (idéalement on recharge le user depuis l'API, mais ici on update le contexte)
+              const updatedUser = { ...user, username: editUsername || user.username };
+              login(updatedUser); // Update context
               setIsEditing(false);
               setEditPassword('');
               setSuccessMsg("Profil mis à jour avec succès.");
@@ -130,18 +127,18 @@ const Account: React.FC = () => {
   };
 
   const handleLogout = () => {
-      setIsLoggedIn(false);
+      logout();
       setEmail('');
       setPassword('');
-      setUser(null);
       setEditUsername('');
       setEditPassword('');
       setError('');
       setSuccessMsg('');
+      navigate('/account'); // Reset view
   };
 
   /* --- LOGGED IN USER DASHBOARD --- */
-  if (isLoggedIn && user) {
+  if (isAuthenticated && user) {
       return (
           <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
               <div className="max-w-4xl mx-auto">
@@ -155,7 +152,14 @@ const Account: React.FC = () => {
                               <div>
                                   <h1 className="text-2xl font-serif font-bold">{t('account.my_space')}</h1>
                                   <p className="opacity-80">{user.email}</p>
-                                  <span className="text-xs bg-white/20 px-2 py-1 rounded mt-2 inline-block uppercase tracking-wider">{user.role}</span>
+                                  <div className="flex space-x-2 mt-2">
+                                     <span className="text-xs bg-white/20 px-2 py-1 rounded inline-block uppercase tracking-wider">{user.role}</span>
+                                     {user.role === 'superadmin' && (
+                                         <button onClick={() => window.open('/#/admin', '_blank')} className="text-xs bg-white text-comfort-blue font-bold px-2 py-1 rounded uppercase tracking-wider hover:bg-gray-200 transition-colors">
+                                             Ouvrir Admin
+                                         </button>
+                                     )}
+                                  </div>
                               </div>
                           </div>
                           <button onClick={handleLogout} className="flex items-center text-sm font-bold bg-white/10 hover:bg-white/20 px-4 py-2 rounded transition-colors">
