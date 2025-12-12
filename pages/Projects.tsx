@@ -27,6 +27,14 @@ const Projects: React.FC = () => {
     return () => clearInterval(timer);
   }, [testimonials]);
 
+  // Helper to get first sentence
+  const getFirstSentence = (text: string) => {
+      if (!text) return "";
+      // Match up to the first punctuation (. ! ?)
+      const match = text.match(/([^\.!\?]+[\.!\?]+)/);
+      return match ? match[1] : text;
+  };
+
   return (
     <div className="bg-white">
       {/* HEADER */}
@@ -70,8 +78,8 @@ const Projects: React.FC = () => {
                     <Link to={`/projects/${project.id}`}>{project.title}</Link>
                     </h3>
                     
-                    <p className="text-gray-600 text-sm mb-6 line-clamp-2 min-h-[40px]">
-                    {project.description}
+                    <p className="text-gray-600 text-sm mb-6 line-clamp-3 min-h-[40px]">
+                    {getFirstSentence(project.description)}
                     </p>
                     
                     <Link 

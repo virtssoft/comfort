@@ -30,6 +30,19 @@ const ProjectDetails = () => {
     </div>
   );
 
+  // Split description logic
+  const getDescParts = (text: string) => {
+      if (!text) return { intro: '', body: '' };
+      // Match first sentence ending with . ! ? followed by space or end of string
+      const match = text.match(/^(.+?[\.!\?])(?:\s+(.*))?$/s);
+      if (match) {
+          return { intro: match[1], body: match[2] || '' };
+      }
+      return { intro: text, body: '' };
+  };
+
+  const { intro, body } = getDescParts(project.description);
+
   return (
     <div className="py-20 bg-white">
        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
@@ -38,25 +51,28 @@ const ProjectDetails = () => {
          </div>
          <div className="flex items-center justify-between mb-6">
             <span className="bg-blue-50 text-comfort-blue px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wide border border-blue-100">{project.category}</span>
-            <span className="text-gray-500 text-sm font-medium">{project.date}</span>
+            <div className="flex items-center text-gray-500 text-sm font-medium">
+               <Calendar size={16} className="mr-2" />
+               {project.date} 
+               {project.endDate && ` - ${project.endDate}`}
+            </div>
          </div>
          <h1 className="text-3xl md:text-5xl font-serif font-bold text-comfort-blue mb-8 leading-tight">{project.title}</h1>
+         
          <div className="prose prose-lg text-gray-700 max-w-none mb-16 leading-relaxed">
-           <p className="text-xl font-light text-gray-800 mb-6 border-l-4 border-comfort-blue pl-6">{project.description}</p>
-           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-           <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+           {/* First sentence highlighted */}
+           <p className="text-xl font-light text-gray-800 mb-6 border-l-4 border-comfort-blue pl-6 italic">{intro}</p>
+           
+           {/* Rest of the description (replacing lorem ipsum) */}
+           {body && (
+               <div className="whitespace-pre-line">
+                   {body}
+               </div>
+           )}
          </div>
          
          <div className="bg-blue-50 p-10 rounded-2xl border border-blue-100 text-center shadow-sm">
             <h3 className="text-2xl font-bold mb-6 text-gray-900">{t('project_details.support_title')}</h3>
-            <div className="w-full bg-gray-200 rounded-full h-4 mb-6 overflow-hidden">
-                <div className="bg-green-500 h-4 rounded-full relative" style={{width: `${Math.min((project.raised / project.goal) * 100, 100)}%`}}>
-                   <div className="absolute inset-0 bg-white/20 animate-[pulse_2s_infinite]"></div>
-                </div>
-            </div>
-            <p className="mb-8 text-xl font-medium text-gray-800">
-              <span className="font-bold text-3xl text-comfort-blue">${project.raised.toLocaleString()}</span> {t('project_details.raised_of')} <span className="text-gray-500">${project.goal.toLocaleString()}</span>
-            </p>
             <Link to="/donate" className="inline-block bg-comfort-blue text-white font-bold py-4 px-10 rounded-sm hover:bg-blue-900 transition-all uppercase tracking-widest shadow-lg hover:-translate-y-1">
               {t('project_details.donate_button')}
             </Link>
