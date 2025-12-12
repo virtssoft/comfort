@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Phone, Mail, ChevronDown, Menu, X, Facebook, Twitter, Linkedin, Search, User } from 'lucide-react';
 import { CONTACT_INFO } from '../pages/constants';
 import { useLanguage } from '../context/LanguageContext';
@@ -8,7 +8,6 @@ import { useLanguage } from '../context/LanguageContext';
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
   const { language, setLanguage, t } = useLanguage();
 
   const isActive = (path: string) => location.pathname === path;

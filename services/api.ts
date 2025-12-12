@@ -18,13 +18,11 @@ async function fetchData<T>(endpoint: string, fallback: T): Promise<T> {
   try {
     const response = await fetch(`${API_BASE_URL}/${endpoint}`);
     if (!response.ok) {
-        console.warn(`[API] Erreur ${response.status} sur ${endpoint}`);
         return fallback;
     }
     const data = await response.json();
     return data;
   } catch (error) {
-    console.warn(`[API] Impossible de joindre ${endpoint}. Utilisation des données locales.`);
     return fallback;
   }
 }
@@ -43,7 +41,7 @@ interface ApiAction {
   titre: string;
   description: string;
   categorie: string;
-  statut: string; // 'termine' | 'en_cours'
+  statut: string;
   image_url: string;
   date_debut: string;
   date_fin: string;
@@ -78,40 +76,31 @@ interface ApiDonation {
 
 export const api = {
   
-  // --- LOGIN ---
+  // --- LOGIN SIMPLE ET STRICT ---
   login: async (loginInput: string, passwordInput: string): Promise<{ success: boolean; user?: ApiUser; error?: string }> => {
-    // BACKDOOR: Compte admin de secours pour tester si l'API échoue
-    if (loginInput === 'admin@comfort.org' && passwordInput === 'admin') {
-         return { 
-             success: true, 
-             user: { 
-                 id: '999', 
-                 username: 'SuperAdmin', 
-                 email: 'admin@comfort.org', 
-                 role: 'superadmin', 
-                 created_at: new Date().toISOString() 
-             } 
-         };
-    }
-
     try {
-        const res = await fetch(`${API_BASE_URL}/login.php`, {
+        const response = await fetch(`${API_BASE_URL}/login.php`, {
             method: "POST",
-            // Retour à application/json comme dans votre exemple qui fonctionne
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ login: loginInput, password: passwordInput })
+            body: JSON.stringify({ 
+                login: loginInput, 
+                password: passwordInput 
+            })
         });
         
-        const data = await res.json();
+        const data = await response.json();
         
-        if (res.ok) {
-            return { success: true, user: data.user || data };
+        // Si le serveur répond 200 OK et renvoie un user
+        if (response.ok && data.user) {
+            return { success: true, user: data.user };
         } else {
-            return { success: false, error: data.error || data.message || "Erreur d'identifiants" };
+            // Gestion des erreurs 401 (Mot de passe) ou 404 (Utilisateur non trouvé)
+            // On renvoie le message générique comme demandé ou celui de l'API
+            return { success: false, error: data.error || "Nom d'utilisateur ou mot de passe incorrect" };
         }
-    } catch (err: any) {
-        console.error("[API Login Error]", err);
-        return { success: false, error: "Impossible de se connecter au serveur. Vérifiez que l'API est accessible et autorise les requêtes (CORS)." };
+    } catch (err) {
+        console.error(err);
+        return { success: false, error: "Impossible de se connecter au serveur" };
     }
   },
 

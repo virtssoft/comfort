@@ -18,7 +18,7 @@ import { ArrowLeft, Calendar, User, Shield, Lock, Code, Globe, Lightbulb, Leaf, 
 /* --- Inline Components for simpler pages --- */
 
 const ProjectDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams<{id: string}>();
   const { t } = useLanguage();
   const { projects } = useData(); // Use dynamic data
   const project = projects.find(p => p.id === id);
@@ -83,7 +83,7 @@ const ProjectDetails = () => {
 };
 
 const BlogPostDetails = () => {
-    const { id } = useParams();
+    const { id } = useParams<{id: string}>();
     const navigate = useNavigate();
     const { blogPosts } = useData(); // Use dynamic data
     const post = blogPosts.find(p => p.id === id);

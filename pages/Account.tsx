@@ -36,21 +36,25 @@ const Account: React.FC = () => {
     setLoading(true);
 
     try {
+        // Appel simple à l'API selon la logique stricte demandée
         const result = await api.login(email, password);
         
         if (result.success && result.user) {
             setUser(result.user);
             setIsLoggedIn(true);
 
-            // Redirect if Superadmin
+            // Logique de redirection selon le rôle
             if (result.user.role === 'superadmin') {
-                window.open('#/admin', '_blank');
+                navigate('/admin');
+            } else {
+                // editor ou user standard reste sur l'espace compte
+                // (L'affichage basculera automatiquement grâce à isLoggedIn = true)
             }
         } else {
-            setError(result.error || 'Échec de la connexion');
+            setError(result.error || "Nom d'utilisateur ou mot de passe incorrect");
         }
     } catch (err) {
-        setError('Erreur inattendue.');
+        setError("Erreur inattendue.");
     } finally {
         setLoading(false);
     }
