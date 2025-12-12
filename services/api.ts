@@ -163,11 +163,11 @@ export const api = {
   // POST login.php
   login: async (emailOrUsername: string, password: string): Promise<{ success: boolean; user?: ApiUser; error?: string }> => {
     try {
-      // FIX: Use JSON body and 'login' key as per PHP backend expectation ($input['login'])
       const response = await fetch(`${API_BASE_URL}/login.php`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
         },
         body: JSON.stringify({
             login: emailOrUsername, 
@@ -175,25 +175,37 @@ export const api = {
         }),
       });
 
-      const data = await response.json();
+      // Handle non-200 responses specifically to avoid JSON parse errors on HTML 404/500 pages
+      const text = await response.text();
+      let data;
+      try {
+          data = JSON.parse(text);
+      } catch (e) {
+          console.error("Invalid JSON response:", text);
+          return { success: false, error: `Erreur serveur (Réponse invalide: ${response.status})` };
+      }
+
+      if (!response.ok) {
+          return { success: false, error: data.error || data.message || `Erreur HTTP ${response.status}` };
+      }
       
-      // Backend returns { "user": ... } on success
       if (data.user) {
          return { success: true, user: data.user };
       }
       
-      // Handle specific error messages from PHP { "error": "..." }
       if (data.error) {
           return { success: false, error: data.error };
       }
       
       return { success: false, error: data.message || 'Identifiants incorrects' };
-    } catch (error) {
-      // Simulation for fallback/demo if API is down
+
+    } catch (error: any) {
+      console.error("Login Fetch Error:", error);
+      // Fallback for admin demo only if explicitly requested or if network fails
       if (emailOrUsername === 'admin@comfort.org' && password === 'admin') {
          return { success: true, user: { id: '1', username: 'admin1', email: 'admin1@comfort.org', role: 'superadmin', created_at: '2025-01-01' } };
       }
-      return { success: false, error: 'Erreur de connexion serveur' };
+      return { success: false, error: error.message || 'Erreur de connexion au serveur' };
     }
   },
 
@@ -202,17 +214,28 @@ export const api = {
     try {
         const response = await fetch(`${API_BASE_URL}/users.php`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
             body: JSON.stringify({
                 ...userData,
-                role: userData.role || 'user' // Default to basic user
+                role: userData.role || 'user'
             })
         });
-        const data = await response.json();
+
+        const text = await response.text();
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+             return { success: false, error: `Erreur serveur (${response.status})` };
+        }
+
         if (response.ok || data.success) return { success: true };
-        return { success: false, error: data.message || 'Erreur lors de l\'inscription' };
-    } catch (error) {
-        return { success: false, error: 'Erreur réseau' };
+        return { success: false, error: data.message || data.error || 'Erreur lors de l\'inscription' };
+    } catch (error: any) {
+        return { success: false, error: error.message || 'Erreur réseau' };
     }
   },
 
@@ -221,14 +244,25 @@ export const api = {
     try {
         const response = await fetch(`${API_BASE_URL}/users.php?id=${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
             body: JSON.stringify(userData)
         });
-        const data = await response.json();
+
+        const text = await response.text();
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+             return { success: false, error: `Erreur serveur (${response.status})` };
+        }
+
         if (response.ok) return { success: true };
-        return { success: false, error: data.message || 'Erreur lors de la mise à jour' };
-    } catch (error) {
-        return { success: false, error: 'Erreur réseau' };
+        return { success: false, error: data.message || data.error || 'Erreur lors de la mise à jour' };
+    } catch (error: any) {
+        return { success: false, error: error.message || 'Erreur réseau' };
     }
   },
 
