@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { User, Lock, Mail, ArrowLeft, Heart, History, Settings, LogOut, Edit2, Check } from 'lucide-react';
+import { User, Lock, Mail, ArrowLeft, Heart, History, Settings, LogOut, Edit2, Check, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api, ApiUser } from '../services/api';
 
@@ -44,14 +44,13 @@ const Account: React.FC = () => {
 
             // Redirect if Superadmin
             if (result.user.role === 'superadmin') {
-                // Open admin dashboard in a new window/tab as requested
                 window.open('#/admin', '_blank');
             }
         } else {
             setError(result.error || 'Échec de la connexion');
         }
     } catch (err) {
-        setError('Erreur de connexion au serveur');
+        setError('Erreur inattendue.');
     } finally {
         setLoading(false);
     }
@@ -80,7 +79,6 @@ const Account: React.FC = () => {
           if (result.success) {
               setSuccessMsg("Compte créé avec succès ! Vous pouvez maintenant vous connecter.");
               setView('login');
-              // Clear fields
               setPassword('');
           } else {
               setError(result.error || "Erreur lors de l'inscription.");
@@ -162,12 +160,12 @@ const Account: React.FC = () => {
                       </div>
 
                       {/* Flash Messages */}
-                      {successMsg && <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 m-6">{successMsg}</div>}
-                      {error && <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 m-6">{error}</div>}
+                      {successMsg && <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 m-6 flex items-center"><Check size={20} className="mr-2"/> {successMsg}</div>}
+                      {error && <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 m-6 flex items-center"><AlertTriangle size={20} className="mr-2"/> {error}</div>}
 
                       {/* Content Grid */}
                       <div className="p-8 grid md:grid-cols-2 gap-8">
-                          {/* Donations History (Static for now as per prompt instructions, or fetching from context) */}
+                          {/* Donations History */}
                           <div className="border border-gray-100 rounded-lg p-6 hover:shadow-md transition-shadow">
                               <div className="flex items-center mb-4 text-comfort-blue">
                                   <Heart size={24} className="mr-3" />
@@ -272,12 +270,13 @@ const Account: React.FC = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-200">
           
-          {successMsg && <div className="text-green-600 text-sm text-center bg-green-50 p-2 rounded mb-4">{successMsg}</div>}
+          {successMsg && <div className="text-green-600 text-sm text-center bg-green-50 p-2 rounded mb-4 flex justify-center items-center"><Check size={16} className="mr-2"/> {successMsg}</div>}
+          
+          {error && <div className="text-red-600 text-sm bg-red-50 p-3 rounded mb-6 border border-red-100 flex items-start"><AlertTriangle size={18} className="mr-2 flex-shrink-0 mt-0.5"/> <span>{error}</span></div>}
 
           {/* LOGIN VIEW */}
           {view === 'login' && (
             <form className="space-y-6" onSubmit={handleLogin}>
-                {error && <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</div>}
                 <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                     Email ou Nom d'utilisateur
@@ -340,7 +339,6 @@ const Account: React.FC = () => {
           {/* REGISTER VIEW */}
           {view === 'register' && (
              <form className="space-y-6" onSubmit={handleRegister}>
-                 {error && <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</div>}
                 <div>
                     <label className="block text-sm font-medium text-gray-700">{t('account.fullname_label')} (Username)</label>
                     <div className="mt-1"><input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required className="block w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-comfort-blue focus:border-comfort-blue sm:text-sm" /></div>

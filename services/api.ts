@@ -2,8 +2,17 @@
 import { Project, BlogPost, Partner, TeamMember, Testimonial, SiteSettings } from '../types';
 import { PROJECTS, BLOG_POSTS, PARTNERS, TEAM_MEMBERS, TESTIMONIALS, CONTACT_INFO } from '../pages/constants';
 
-const API_DOMAIN = 'http://localhost';
-const API_BASE_URL = `${API_DOMAIN}/api`;
+// DYNAMIC URL DETECTION to avoid CORS issues between localhost and 127.0.0.1
+const getBaseUrl = () => {
+    // If running locally, assume standard PHP server on port 80
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return `http://${window.location.hostname}/api`;
+    }
+    // In production, use relative path
+    return '/api';
+};
+
+const API_BASE_URL = getBaseUrl();
 
 // Helper to fix image URLs (prepend domain if relative path)
 const getImageUrl = (path: string | undefined) => {
@@ -12,8 +21,6 @@ const getImageUrl = (path: string | undefined) => {
   
   // Ensure path starts with /
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  
-  // Prepend API_BASE_URL (http://localhost/api) to match database storage path structure
   return `${API_BASE_URL}${cleanPath}`;
 };
 
@@ -24,7 +31,7 @@ async function fetchData<T>(endpoint: string, fallback: T): Promise<T> {
     if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
     return await response.json();
   } catch (error) {
-    console.warn(`Failed to fetch ${endpoint}, using fallback data.`);
+    console.warn(`[API] Failed to fetch ${endpoint}. Using fallback data.`);
     return fallback;
   }
 }
@@ -142,13 +149,12 @@ export const api = {
   getPartners: async (): Promise<Partner[]> => {
     try {
       const partners = await fetchData<ApiPartner[]>('partners.php', []);
-      
       return partners.map((p) => ({
         id: p.id,
         name: p.nom,
         logo: getImageUrl(p.logo_url),
         description: p.description,
-        type: 'Corporate' // Default type
+        type: 'Corporate'
       }));
     } catch (e) {
       return []; 
@@ -163,11 +169,14 @@ export const api = {
   // POST login.php
   login: async (emailOrUsername: string, password: string): Promise<{ success: boolean; user?: ApiUser; error?: string }> => {
     try {
+      console.log(`[API] Attempting login to ${API_BASE_URL}/login.php`);
+      
       const response = await fetch(`${API_BASE_URL}/login.php`, {
         method: 'POST',
+        // Simplified headers to reduce Preflight issues. PHP json_decode handles body regardless of header usually, 
+        // but 'application/json' is standard for getJsonInput helper.
         headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({
             login: emailOrUsername, 
@@ -175,13 +184,12 @@ export const api = {
         }),
       });
 
-      // Handle non-200 responses specifically to avoid JSON parse errors on HTML 404/500 pages
       const text = await response.text();
       let data;
       try {
           data = JSON.parse(text);
       } catch (e) {
-          console.error("Invalid JSON response:", text);
+          console.error("[API] Invalid JSON response:", text);
           return { success: false, error: `Erreur serveur (Réponse invalide: ${response.status})` };
       }
 
@@ -200,12 +208,17 @@ export const api = {
       return { success: false, error: data.message || 'Identifiants incorrects' };
 
     } catch (error: any) {
-      console.error("Login Fetch Error:", error);
-      // Fallback for admin demo only if explicitly requested or if network fails
+      console.error("[API] Login Fetch Error:", error);
+      
+      if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+         return { success: false, error: `Serveur injoignable sur ${API_BASE_URL}. Vérifiez votre serveur PHP.` };
+      }
+
+      // Admin fallback backdoor for testing when server is down
       if (emailOrUsername === 'admin@comfort.org' && password === 'admin') {
          return { success: true, user: { id: '1', username: 'admin1', email: 'admin1@comfort.org', role: 'superadmin', created_at: '2025-01-01' } };
       }
-      return { success: false, error: error.message || 'Erreur de connexion au serveur' };
+      return { success: false, error: error.message || 'Erreur de connexion' };
     }
   },
 
@@ -214,28 +227,19 @@ export const api = {
     try {
         const response = await fetch(`${API_BASE_URL}/users.php`, {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                ...userData,
-                role: userData.role || 'user'
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...userData, role: userData.role || 'user' })
         });
 
         const text = await response.text();
         let data;
-        try {
-            data = JSON.parse(text);
-        } catch (e) {
-             return { success: false, error: `Erreur serveur (${response.status})` };
-        }
+        try { data = JSON.parse(text); } catch (e) { return { success: false, error: `Erreur serveur (${response.status})` }; }
 
         if (response.ok || data.success) return { success: true };
         return { success: false, error: data.message || data.error || 'Erreur lors de l\'inscription' };
     } catch (error: any) {
-        return { success: false, error: error.message || 'Erreur réseau' };
+        if (error.name === 'TypeError' && error.message === 'Failed to fetch') return { success: false, error: 'Serveur injoignable.' };
+        return { success: false, error: 'Erreur réseau' };
     }
   },
 
@@ -244,34 +248,18 @@ export const api = {
     try {
         const response = await fetch(`${API_BASE_URL}/users.php?id=${id}`, {
             method: 'PUT',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(userData)
         });
-
-        const text = await response.text();
-        let data;
-        try {
-            data = JSON.parse(text);
-        } catch (e) {
-             return { success: false, error: `Erreur serveur (${response.status})` };
-        }
-
+        const data = await response.json();
         if (response.ok) return { success: true };
-        return { success: false, error: data.message || data.error || 'Erreur lors de la mise à jour' };
-    } catch (error: any) {
-        return { success: false, error: error.message || 'Erreur réseau' };
+        return { success: false, error: data.message || data.error || 'Erreur maj' };
+    } catch (error) {
+        return { success: false, error: 'Erreur réseau' };
     }
   },
 
   // GET users.php
-  getUsers: async (): Promise<ApiUser[]> => {
-    return fetchData<ApiUser[]>('users.php', []);
-  },
-
-  getDonations: async (): Promise<ApiDonation[]> => {
-    return fetchData<ApiDonation[]>('donations.php', []);
-  }
+  getUsers: async (): Promise<ApiUser[]> => fetchData<ApiUser[]>('users.php', []),
+  getDonations: async (): Promise<ApiDonation[]> => fetchData<ApiDonation[]>('donations.php', [])
 };
