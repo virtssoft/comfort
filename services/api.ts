@@ -2,7 +2,7 @@ import { Project, BlogPost, Partner, TeamMember, Testimonial, SiteSettings } fro
 import { PROJECTS, BLOG_POSTS, PARTNERS, TEAM_MEMBERS, TESTIMONIALS } from '../pages/constants';
 
 // --- CONFIGURATION ---
-const API_BASE_URL = 'http://localhost/api'; 
+const API_BASE_URL = 'https://api.comfortasbl.org'; 
 
 // Helper to construct absolute image URLs from relative paths stored in DB
 const getAbsoluteUrl = (path: string | undefined): string => {

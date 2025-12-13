@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Phone, Mail, ChevronDown, Menu, X, Facebook, Linkedin, Search, User } from 'lucide-react';
@@ -22,7 +21,7 @@ const Header: React.FC = () => {
   // Fallback defaults if settings not loaded yet
   const contactEmail = settings?.contactEmail || "contact@comfort-asbl.org";
   const contactPhone = settings?.contactPhone || "+243 999 000 000";
-  const logoUrl = settings?.logoUrl || "http://localhost/api/assets/images/logo1.png";
+  const logoUrl = settings?.logoUrl || "https://api.comfortasbl.org/assets/images/logo1.png";
 
   const navLinks = [
     { name: t('nav.home'), path: '/' },

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Heart, BookOpen, HandCoins, Wheat, Palette, MapPin, Mail, Phone, Clock, ChevronLeft, ChevronRight, Eye, Handshake, Info, Calendar, User, Facebook } from 'lucide-react';
@@ -59,7 +58,7 @@ const Home: React.FC = () => {
         {/* Background Image from API with fallback */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
            <img 
-             src="http://localhost/api/assets/images/hero-bg.jpg"
+             src="https://api.comfortasbl.org/assets/images/hero-bg.jpg"
              onError={handleImageError}
              alt="Hero Background" 
              className="absolute inset-0 w-full h-full object-cover -z-10" 
@@ -139,7 +138,7 @@ const Home: React.FC = () => {
                     <div className="relative">
                         <div className="absolute -inset-4 bg-comfort-blue/10 rounded-3xl transform rotate-2"></div>
                         <img 
-                            src="http://localhost/api/assets/images/about-hero.jpg"
+                            src="https://api.comfortasbl.org/assets/images/about-hero.jpg"
                             onError={(e) => e.currentTarget.src = "https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2070&auto=format&fit=crop"}
                             alt="Communauté et entraide" 
                             className="rounded-3xl shadow-2xl w-full object-cover h-auto lg:h-[500px] relative z-10"
