@@ -193,11 +193,17 @@ const PrivacyPolicy = () => (
              <section>
                 <h3 className="text-xl font-bold text-gray-900 mb-4">4. Protection des informations</h3>
                 <p>
-                    Nous mettons en œuvre une variété de mesures de sécurité pour préserver la sécurité de vos informations personnelles. Nous utilisons un cryptage à la pointe de la technologie pour protéger les informations sensibles transmises en ligne. Nous protégeons également vos informations hors ligne. Seuls les employés qui ont besoin d’effectuer un travail spécifique (par exemple, la facturation ou le service à la clientèle) ont accès aux informations personnelles identifiables.
+                    Nous mettons en œuvre une variété de mesures de sécurité pour préserver la sécurité de vos informations personnelles. Nous utilisons un cryptage à la pointe de la technologie pour protéger les informations sensibles transmises en ligne. 
                 </p>
              </section>
              <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">5. Consentement</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">5. Partenaires Techniques et Sécurité</h3>
+                <p>
+                    La maintenance technique, la sécurité de l'infrastructure et l'optimisation des performances de ce site sont assurées par notre partenaire <strong><a href="https://virtssoft.com" target="_blank" rel="noopener noreferrer" className="text-comfort-blue hover:underline font-semibold">Virtssoft Technologies</a></strong>. Leur expertise garantit la protection de vos données et la fiabilité de nos services numériques.
+                </p>
+             </section>
+             <section>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">6. Consentement</h3>
                 <p>
                     En utilisant notre site, vous consentez à notre politique de confidentialité.
                 </p>
@@ -222,19 +228,34 @@ const LegalTerms = () => (
                 </ul>
              </section>
              <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">2. Propriété intellectuelle</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">2. Conception et Développement</h3>
+                <p>
+                    Ce site internet a été conçu et développé par <strong><a href="https://virtssoft.com" target="_blank" rel="noopener noreferrer" className="text-comfort-blue hover:underline font-semibold">Virtssoft Technologies</a></strong>.
+                </p>
+                <p className="mt-4">
+                    <strong>Virtssoft Technologies</strong> est une startup de sciences et technologies dont la mission est de rendre les technologies avancées accessibles et utiles, en accompagnant entreprises et professionnels dans l’automatisation de leurs processus grâce à l’Intelligence Artificielle, au Cloud et aux solutions innovantes.
+                </p>
+                <p className="mt-2">
+                    Ses activités couvrent la conception de produits IoT, les énergies renouvelables, le développement logiciel et mobile, la formation numérique, la maintenance et vente d’équipements technologiques, le déploiement de réseaux et la production de contenus médias.
+                </p>
+                <p className="mt-2">
+                    Avec une ambition de transformation numérique inclusive, Virtssoft aspire à devenir un acteur majeur en Afrique centrale, révélant les talents locaux et connectant les défis aux solutions durables.
+                </p>
+             </section>
+             <section>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">3. Propriété intellectuelle</h3>
                 <p>
                     L’ensemble de ce site relève de la législation congolaise et internationale sur le droit d’auteur et la propriété intellectuelle. Tous les droits de reproduction sont réservés, y compris pour les documents téléchargeables et les représentations iconographiques et photographiques. La reproduction de tout ou partie de ce site sur un support électronique quel qu’il soit est formellement interdite sauf autorisation expresse du directeur de la publication.
                 </p>
              </section>
              <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">3. Limitation de responsabilité</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">4. Limitation de responsabilité</h3>
                 <p>
                     COMFORT Asbl ne pourra être tenue responsable des dommages directs et indirects causés au matériel de l’utilisateur, lors de l’accès au site comfortasbl.org. COMFORT Asbl décline toute responsabilité quant à l’utilisation qui pourrait être faite des informations et contenus présents sur comfortasbl.org.
                 </p>
              </section>
              <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">4. Droit applicable</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">5. Droit applicable</h3>
                 <p>
                     Tout litige en relation avec l’utilisation du site comfortasbl.org est soumis au droit congolais. Il est fait attribution exclusive de juridiction aux tribunaux compétents de Goma.
                 </p>

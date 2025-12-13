@@ -248,15 +248,52 @@ const AdminDashboard: React.FC = () => {
   const handleSaveModal = async () => {
       const id = editingItem.id;
       let res;
+      
+      // Construire un payload strict pour éviter d'envoyer des champs undefined ou manquants
+      // Cela évite l'erreur "champs requis manquants" côté PHP
+      let payload: any = {};
 
       if (modalType === 'project') {
-          res = id ? await api.updateAction(id, editingItem) : await api.createAction(editingItem);
+          payload = {
+              titre: editingItem.titre || '',
+              description: editingItem.description || '',
+              categorie: editingItem.categorie || 'Éducation',
+              statut: editingItem.statut || 'en_cours',
+              image_url: editingItem.image_url || '',
+              date_debut: editingItem.date_debut || new Date().toISOString().split('T')[0],
+              date_fin: editingItem.date_fin || ''
+          };
+          res = id ? await api.updateAction(id, payload) : await api.createAction(payload);
       } else if (modalType === 'blog') {
-          res = id ? await api.updateArticle(id, editingItem) : await api.createArticle(editingItem);
+          payload = {
+              titre: editingItem.titre || '',
+              contenu: editingItem.contenu || '',
+              auteur: editingItem.auteur || 'Admin',
+              categorie: editingItem.categorie || 'Actualité',
+              image_url: editingItem.image_url || '',
+              status: editingItem.status || 'publié'
+          };
+          res = id ? await api.updateArticle(id, payload) : await api.createArticle(payload);
       } else if (modalType === 'partner') {
-          res = id ? await api.updatePartner(id, editingItem) : await api.createPartner(editingItem);
+          payload = {
+              nom: editingItem.nom || '',
+              description: editingItem.description || '',
+              site_web: editingItem.site_web || '',
+              logo_url: editingItem.logo_url || '',
+              type: editingItem.type || 'Corporate'
+          };
+          res = id ? await api.updatePartner(id, payload) : await api.createPartner(payload);
       } else if (modalType === 'user') {
-          res = id ? await api.updateUser(id, editingItem) : await api.createUser(editingItem);
+           payload = {
+              username: editingItem.username || '',
+              email: editingItem.email || '',
+              role: editingItem.role || 'user'
+           };
+           // Only add password if creating or if provided during update
+           if (!id || editingItem.password) {
+               payload.password = editingItem.password || '';
+           }
+          res = id ? await api.updateUser(id, payload) : await api.createUser(payload);
       } else if (modalType === 'donation') {
           res = await api.updateDonationStatus(id, editingItem.status);
       }
@@ -265,7 +302,7 @@ const AdminDashboard: React.FC = () => {
           setIsModalOpen(false);
           loadAllData();
       } else {
-          alert("Erreur lors de l'enregistrement: " + (res?.error || res?.message));
+          alert("Erreur lors de l'enregistrement: " + (res?.error || res?.message || "Erreur inconnue"));
       }
   };
 
