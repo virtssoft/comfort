@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Users, FileText, Settings, LogOut, DollarSign, Activity, Bell, Mail, Plus, Edit, Trash2, Handshake, Briefcase, X, Check, Eye, UploadCloud, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -17,9 +16,9 @@ interface ImageUploadProps {
 const ImageUploader: React.FC<ImageUploadProps> = ({ label, value, folder, onChange }) => {
     const [uploading, setUploading] = useState(false);
     
-    // Determine preview URL (handle relative vs absolute)
+    // Determine preview URL
     const previewUrl = value 
-        ? (value.startsWith('http') ? value : `http://localhost/api/${value}`) 
+        ? (value.startsWith('http') ? value : `http://localhost/api/${value.startsWith('/') ? value.substring(1) : value}`) 
         : null;
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,15 +26,15 @@ const ImageUploader: React.FC<ImageUploadProps> = ({ label, value, folder, onCha
             setUploading(true);
             const file = e.target.files[0];
             
-            // Appel API pour upload
+            // Call API
             const result = await api.uploadFile(file, folder);
             
             setUploading(false);
             if (result.success && result.path) {
-                // Le serveur doit renvoyer ex: "assets/images/actions/monfichier.jpg"
+                // Ensure path is consistent for storage (relative to api base)
                 onChange(result.path);
             } else {
-                alert("Erreur lors de l'upload : " + (result.error || "Inconnue"));
+                alert("Erreur lors de l'upload : " + (result.error || "Problème serveur"));
             }
         }
     };
@@ -43,16 +42,19 @@ const ImageUploader: React.FC<ImageUploadProps> = ({ label, value, folder, onCha
     return (
         <div className="mb-4">
             <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5">{label}</label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors relative">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors relative h-40 group">
                 {previewUrl ? (
-                    <div className="relative w-full h-32 mb-3 group">
+                    <div className="relative w-full h-full">
                         <img src={previewUrl} alt="Preview" className="w-full h-full object-contain rounded" />
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded">
-                            <span className="text-white text-xs font-bold">Changer l'image</span>
+                            <span className="text-white text-xs font-bold bg-black/50 px-3 py-1 rounded-full pointer-events-none">Changer l'image</span>
                         </div>
                     </div>
                 ) : (
-                    <UploadCloud className="text-gray-400 mb-2" size={32} />
+                    <div className="text-center">
+                        <UploadCloud className="text-gray-400 mx-auto mb-2" size={32} />
+                        <span className="text-gray-400 text-xs font-medium">Aucune image</span>
+                    </div>
                 )}
                 
                 <input 
@@ -63,10 +65,10 @@ const ImageUploader: React.FC<ImageUploadProps> = ({ label, value, folder, onCha
                     disabled={uploading}
                 />
                 
-                <p className="text-xs text-gray-500 font-medium">
-                    {uploading ? "Téléversement..." : (value ? "Cliquez pour remplacer" : "Cliquez ou glissez une image")}
+                <p className="text-xs text-gray-500 font-medium mt-2">
+                    {uploading ? "Téléversement..." : (value ? "" : "Cliquez ou glissez une image")}
                 </p>
-                {value && <p className="text-[10px] text-gray-400 mt-1 truncate w-full text-center">{value}</p>}
+                {value && <p className="text-[10px] text-gray-400 mt-1 truncate w-full text-center max-w-[200px]">{value}</p>}
             </div>
         </div>
     );
@@ -133,8 +135,8 @@ const AdminDashboard: React.FC = () => {
   // Data States
   const [users, setUsers] = useState<ApiUser[]>([]);
   const [donations, setDonations] = useState<ApiDonation[]>([]);
-  const [projects, setProjects] = useState<ApiAction[]>([]); // Actions.php
-  const [blogs, setBlogs] = useState<ApiArticle[]>([]); // Articles.php
+  const [projects, setProjects] = useState<ApiAction[]>([]);
+  const [blogs, setBlogs] = useState<ApiArticle[]>([]);
   const [partners, setPartners] = useState<ApiPartner[]>([]);
   
   // Carousel State
@@ -145,13 +147,6 @@ const AdminDashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'project'|'blog'|'partner'|'user'|'donation'>('project');
   const [editingItem, setEditingItem] = useState<any>(null); // null = create mode
-
-  // Security Check
-  useEffect(() => {
-     if (!isAuthenticated || user?.role !== 'superadmin') {
-         // Redirect handled by AuthContext or Component logic
-     }
-  }, [isAuthenticated, user]);
 
   // Load Data
   const loadAllData = async () => {
@@ -173,7 +168,7 @@ const AdminDashboard: React.FC = () => {
     if (activeTab === 'dashboard') {
         const timer = setInterval(() => {
             setCurrentGalleryIndex((prev) => (prev + 1) % galleryImages.length);
-        }, 4000);
+        }, 5000);
         return () => clearInterval(timer);
     }
   }, [activeTab, galleryImages.length]);
@@ -224,7 +219,6 @@ const AdminDashboard: React.FC = () => {
       } else if (modalType === 'user') {
           res = id ? await api.updateUser(id, editingItem) : await api.createUser(editingItem);
       } else if (modalType === 'donation') {
-          // Pour les dons, on modifie surtout le statut
           res = await api.updateDonationStatus(id, editingItem.status);
       }
 
@@ -475,7 +469,7 @@ const AdminDashboard: React.FC = () => {
                                     {projects.map(p => (
                                         <tr key={p.id}>
                                             <td className="px-6 py-4">
-                                                <img src={p.image_url?.startsWith('http') ? p.image_url : `http://localhost/api/${p.image_url}`} alt="" className="w-12 h-12 object-cover rounded bg-gray-100" />
+                                                <img src={p.image_url?.startsWith('http') ? p.image_url : `http://localhost/api/${p.image_url.startsWith('/') ? p.image_url.substring(1) : p.image_url}`} alt="" className="w-12 h-12 object-cover rounded bg-gray-100" />
                                             </td>
                                             <td className="px-6 py-4 text-sm font-medium text-gray-900">{p.titre}</td>
                                             <td className="px-6 py-4"><span className={`px-2 py-1 rounded text-xs font-bold uppercase ${p.statut === 'en_cours' ? 'bg-blue-100 text-blue-700' : p.statut === 'termine' ? 'bg-green-100 text-green-700' : 'bg-gray-100'}`}>{p.statut.replace('_', ' ')}</span></td>
@@ -503,7 +497,7 @@ const AdminDashboard: React.FC = () => {
                                     {blogs.map(b => (
                                         <tr key={b.id}>
                                             <td className="px-6 py-4">
-                                                <img src={b.image_url?.startsWith('http') ? b.image_url : `http://localhost/api/${b.image_url}`} alt="" className="w-12 h-12 object-cover rounded bg-gray-100" />
+                                                <img src={b.image_url?.startsWith('http') ? b.image_url : `http://localhost/api/${b.image_url.startsWith('/') ? b.image_url.substring(1) : b.image_url}`} alt="" className="w-12 h-12 object-cover rounded bg-gray-100" />
                                             </td>
                                             <td className="px-6 py-4 text-sm font-medium text-gray-900">{b.titre}</td>
                                             <td className="px-6 py-4 text-sm text-gray-500">{b.auteur}</td>
@@ -576,7 +570,7 @@ const AdminDashboard: React.FC = () => {
                                 {partners.map(p => (
                                     <tr key={p.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4">
-                                            <img src={p.logo_url?.startsWith('http') ? p.logo_url : `http://localhost/api/${p.logo_url}`} alt="" className="w-16 h-16 object-contain border rounded bg-gray-50" />
+                                            <img src={p.logo_url?.startsWith('http') ? p.logo_url : `http://localhost/api/${p.logo_url.startsWith('/') ? p.logo_url.substring(1) : p.logo_url}`} alt="" className="w-16 h-16 object-contain border rounded bg-gray-50" />
                                         </td>
                                         <td className="px-6 py-4 text-sm font-medium text-gray-900">
                                             {p.nom}

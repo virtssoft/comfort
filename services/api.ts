@@ -1,9 +1,17 @@
-
 import { Project, BlogPost, Partner, TeamMember, Testimonial, SiteSettings } from '../types';
 import { PROJECTS, BLOG_POSTS, PARTNERS, TEAM_MEMBERS, TESTIMONIALS } from '../pages/constants';
 
 // --- CONFIGURATION ---
 const API_BASE_URL = 'http://localhost/api'; 
+
+// Helper to construct absolute image URLs from relative paths stored in DB
+const getAbsoluteUrl = (path: string | undefined): string => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  // Ensure we don't double slash if path starts with /
+  const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+  return `${API_BASE_URL}/${cleanPath}`;
+};
 
 // --- TYPES API (Correspondance exacte avec la BDD/PHP) ---
 export interface ApiUser {
@@ -12,9 +20,10 @@ export interface ApiUser {
   email: string;
   role: 'user' | 'admin' | 'superadmin' | 'editor';
   created_at?: string;
+  updated_at?: string;
 }
 
-export interface ApiAction { // Projets
+export interface ApiAction { // Correspond à actions.php (Projets)
   id: string;
   titre: string;
   description: string;
@@ -24,9 +33,10 @@ export interface ApiAction { // Projets
   date_debut: string;
   date_fin?: string;
   created_at?: string;
+  updated_at?: string;
 }
 
-export interface ApiArticle { // Blog
+export interface ApiArticle { // Correspond à articles.php (Blog)
   id: string;
   titre: string;
   slug?: string;
@@ -36,18 +46,20 @@ export interface ApiArticle { // Blog
   categorie: string;
   status?: 'publié' | 'brouillon';
   created_at: string;
+  updated_at?: string;
 }
 
-export interface ApiPartner {
+export interface ApiPartner { // Correspond à partners.php
   id: string;
   nom: string;
   logo_url: string;
   site_web?: string;
   description: string;
-  type?: string; // Ajouté pour compatibilité frontend si stocké en BD
+  created_at?: string;
+  type?: string; // Optional in DB, mapped to frontend type
 }
 
-export interface ApiDonation {
+export interface ApiDonation { // Correspond à donations.php
   id: string;
   donateur_nom: string;
   email: string;
@@ -110,7 +122,7 @@ export const api = {
         if (res.success || res.user) return { success: true, user: res.user };
         return { success: false, error: res.message || "Identifiants incorrects" };
     } catch (err) {
-        // Backdoor Dev Local UNIQUEMENT si serveur éteint
+        // Fallback pour développement local si l'API n'est pas disponible
         if (loginInput === 'admin' && passwordInput === 'password') {
              return { success: true, user: { id: 'dev', username: 'Admin Local', email: 'admin@local', role: 'superadmin' } };
         }
@@ -122,26 +134,25 @@ export const api = {
   uploadFile: async (file: File, folder: string = 'uploads') => {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('folder', folder); // Le serveur PHP doit gérer ce dossier dans assets/images/
+      formData.append('folder', folder); 
 
       try {
           const response = await fetch(`${API_BASE_URL}/upload.php`, {
               method: 'POST',
-              body: formData // Pas de Content-Type header, fetch le met automatiquement pour multipart
+              body: formData 
           });
 
           if (!response.ok) return { success: false, error: "Erreur upload" };
           
           const data = await response.json();
-          // On attend que le serveur renvoie { success: true, path: 'assets/images/...' }
-          return data; 
+          return data; // Attend { success: true, path: 'assets/images/...' }
       } catch (e) {
           console.error("Upload Error:", e);
           return { success: false, error: "Erreur réseau upload" };
       }
   },
 
-  // --- PUBLIC GETTERS (Mapping pour le Frontend) ---
+  // --- PUBLIC GETTERS (Mapping Frontend) ---
 
   getProjects: async (): Promise<Project[]> => {
     const actions = await fetchData<ApiAction[]>('actions.php', []);
@@ -152,11 +163,11 @@ export const api = {
       title: a.titre,
       category: a.categorie,
       description: a.description,
-      image: a.image_url?.startsWith('http') ? a.image_url : `${API_BASE_URL}/${a.image_url}`,
+      image: getAbsoluteUrl(a.image_url),
       date: a.date_debut,
       endDate: a.date_fin,
       status: a.statut === 'termine' ? 'Completed' : 'Ongoing',
-      goal: 0, raised: 0 // Champs non gérés par l'API actuelle
+      goal: 0, raised: 0
     }));
   },
 
@@ -167,11 +178,11 @@ export const api = {
     return articles.map(a => ({
       id: a.id,
       title: a.titre,
-      excerpt: a.contenu.substring(0, 150) + '...', // Génération extrait
+      excerpt: a.contenu.substring(0, 150) + '...',
       author: a.auteur,
-      date: a.created_at?.split(' ')[0] || '', // Garder juste la date YYYY-MM-DD
+      date: a.created_at?.split(' ')[0] || '',
       category: a.categorie,
-      image: a.image_url?.startsWith('http') ? a.image_url : `${API_BASE_URL}/${a.image_url}`
+      image: getAbsoluteUrl(a.image_url)
     }));
   },
 
@@ -182,9 +193,9 @@ export const api = {
     return partners.map(p => ({
       id: p.id,
       name: p.nom,
-      logo: p.logo_url?.startsWith('http') ? p.logo_url : `${API_BASE_URL}/${p.logo_url}`,
+      logo: getAbsoluteUrl(p.logo_url),
       description: p.description,
-      type: (p.type as any) || 'Corporate' // Fallback type
+      type: (p.type as any) || 'Corporate'
     }));
   },
 
@@ -195,7 +206,7 @@ export const api = {
   createUser: (data: any) => sendData('users.php', 'POST', data),
   updateUser: (id: string, data: any) => sendData(`users.php?id=${id}`, 'PUT', data),
   deleteUser: (id: string) => sendData(`users.php?id=${id}`, 'DELETE'),
-  register: (data: any) => sendData('users.php', 'POST', data), // Alias pour inscription publique
+  register: (data: any) => sendData('users.php', 'POST', data),
 
   // Donations
   getDonations: () => fetchData<ApiDonation[]>('donations.php', []),
@@ -221,10 +232,10 @@ export const api = {
   updatePartner: (id: string, data: any) => sendData(`partners.php?id=${id}`, 'PUT', data),
   deletePartner: (id: string) => sendData(`partners.php?id=${id}`, 'DELETE'),
 
-  // Static / Mocked for now
+  // Static / Mocked for now (Waiting for endpoints)
   getSettings: () => fetchData<SiteSettings>('settings.php', {
-    logoUrl: `${API_BASE_URL}/assets/images/logo1.png`, 
-    faviconUrl: `${API_BASE_URL}/assets/images/favicon.ico`,
+    logoUrl: getAbsoluteUrl('assets/images/logo1.png'), 
+    faviconUrl: getAbsoluteUrl('assets/images/favicon.ico'),
     siteName: 'COMFORT Asbl',
     contactEmail: 'contact@comfort-asbl.org',
     contactPhone: '+243 994 280 037',
