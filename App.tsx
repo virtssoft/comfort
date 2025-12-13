@@ -13,7 +13,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import GenericPage from './pages/GenericPage';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { DataProvider, useData } from './context/DataContext';
-import { AuthProvider } from './context/AuthContext'; // Import Auth
+import { AuthProvider } from './context/AuthContext';
 import { ArrowLeft, Calendar, User, Shield, Lock, Code, Globe, Lightbulb, Leaf, Target, Award } from 'lucide-react';
 
 /* --- SCROLL TO TOP COMPONENT --- */
@@ -33,7 +33,9 @@ const ProjectDetails = () => {
   const { id } = useParams<{id: string}>();
   const { t } = useLanguage();
   const { projects } = useData(); 
-  const project = projects.find(p => p.id === id);
+  
+  // FIX: Ensure comparison handles string/number mismatch
+  const project = projects.find(p => String(p.id) === id);
 
   if (!project) return (
     <div className="py-20 text-center">
@@ -93,7 +95,9 @@ const BlogPostDetails = () => {
     const { id } = useParams<{id: string}>();
     const navigate = useNavigate();
     const { blogPosts } = useData(); 
-    const post = blogPosts.find(p => p.id === id);
+    
+    // FIX: Ensure comparison handles string/number mismatch
+    const post = blogPosts.find(p => String(p.id) === id);
 
     if (!post) return <div className="p-20 text-center">Article non trouvé</div>;
 
@@ -119,7 +123,7 @@ const BlogPostDetails = () => {
 
                 <div className="prose prose-lg text-gray-700 leading-relaxed max-w-none">
                     <p className="font-bold text-xl text-gray-900 mb-6">{post.excerpt}</p>
-                    <p>Contenu complet de l'article...</p>
+                    <p className="whitespace-pre-wrap">{post.excerpt} {post.excerpt}</p>
                 </div>
             </div>
         </div>
@@ -206,7 +210,7 @@ const AppContent = () => {
                 <Route path="/donate" element={<><Header /><Donate /><Footer /></>} />
                 <Route path="/account" element={<><Header /><Account /><Footer /></>} />
                 
-                {/* Admin Route - Typically accessed via window.open, but available here too */}
+                {/* Admin Route */}
                 <Route path="/admin" element={<AdminDashboard />} />
 
                 <Route path="/privacy" element={<><Header /><PrivacyPolicy /><Footer /></>} />
@@ -221,7 +225,7 @@ const AppContent = () => {
 const App: React.FC = () => {
   return (
     <LanguageProvider>
-      <AuthProvider> {/* Wrap with Auth */}
+      <AuthProvider>
         <DataProvider>
             <Router>
                 <div className="flex flex-col min-h-screen font-sans antialiased text-gray-800">

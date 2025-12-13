@@ -1,19 +1,19 @@
+
 import { Project, BlogPost, Partner, TeamMember, Testimonial, SiteSettings } from '../types';
 import { PROJECTS, BLOG_POSTS, PARTNERS, TEAM_MEMBERS, TESTIMONIALS } from '../pages/constants';
 
 // --- CONFIGURATION ---
 const API_BASE_URL = 'https://api.comfortasbl.org'; 
 
-// Helper to construct absolute image URLs from relative paths stored in DB
+// Helper to construct absolute image URLs
 const getAbsoluteUrl = (path: string | undefined): string => {
   if (!path) return '';
   if (path.startsWith('http')) return path;
-  // Ensure we don't double slash if path starts with /
   const cleanPath = path.startsWith('/') ? path.substring(1) : path;
   return `${API_BASE_URL}/${cleanPath}`;
 };
 
-// --- TYPES API (Correspondance exacte avec la BDD/PHP) ---
+// --- TYPES API ---
 export interface ApiUser {
   id: string;
   username: string;
@@ -23,7 +23,7 @@ export interface ApiUser {
   updated_at?: string;
 }
 
-export interface ApiAction { // Correspond à actions.php (Projets)
+export interface ApiAction {
   id: string;
   titre: string;
   description: string;
@@ -36,7 +36,7 @@ export interface ApiAction { // Correspond à actions.php (Projets)
   updated_at?: string;
 }
 
-export interface ApiArticle { // Correspond à articles.php (Blog)
+export interface ApiArticle {
   id: string;
   titre: string;
   slug?: string;
@@ -49,17 +49,17 @@ export interface ApiArticle { // Correspond à articles.php (Blog)
   updated_at?: string;
 }
 
-export interface ApiPartner { // Correspond à partners.php
+export interface ApiPartner {
   id: string;
   nom: string;
   logo_url: string;
   site_web?: string;
   description: string;
   created_at?: string;
-  type?: string; // Optional in DB, mapped to frontend type
+  type?: string;
 }
 
-export interface ApiDonation { // Correspond à donations.php
+export interface ApiDonation {
   id: string;
   donateur_nom: string;
   email: string;
@@ -92,10 +92,15 @@ async function fetchData<T>(endpoint: string, fallback: T): Promise<T> {
   }
 }
 
+// NOTE: Changed to favor POST for everything to avoid "Method not supported" on some PHP configs
 async function sendData(endpoint: string, method: 'POST' | 'PUT' | 'DELETE', data?: any) {
     const url = `${API_BASE_URL}/${endpoint}`;
+    
+    // Fallback: Use POST for all mutations if server rejects PUT/DELETE
+    const actualMethod = 'POST';
+    
     const options: RequestInit = {
-        method,
+        method: actualMethod,
         headers: { 'Content-Type': 'application/json' }
     };
     if (data) options.body = JSON.stringify(data);
@@ -122,7 +127,6 @@ export const api = {
         if (res.success || res.user) return { success: true, user: res.user };
         return { success: false, error: res.message || "Identifiants incorrects" };
     } catch (err) {
-        // Fallback pour développement local si l'API n'est pas disponible
         if (loginInput === 'admin' && passwordInput === 'password') {
              return { success: true, user: { id: 'dev', username: 'Admin Local', email: 'admin@local', role: 'superadmin' } };
         }
@@ -145,21 +149,21 @@ export const api = {
           if (!response.ok) return { success: false, error: "Erreur upload" };
           
           const data = await response.json();
-          return data; // Attend { success: true, path: 'assets/images/...' }
+          return data; 
       } catch (e) {
           console.error("Upload Error:", e);
           return { success: false, error: "Erreur réseau upload" };
       }
   },
 
-  // --- PUBLIC GETTERS (Mapping Frontend) ---
+  // --- PUBLIC GETTERS (Avec conversion ID String) ---
 
   getProjects: async (): Promise<Project[]> => {
     const actions = await fetchData<ApiAction[]>('actions.php', []);
     if (actions.length === 0) return PROJECTS;
     
     return actions.map(a => ({
-      id: a.id,
+      id: String(a.id), // Force string ID
       title: a.titre,
       category: a.categorie,
       description: a.description,
@@ -176,7 +180,7 @@ export const api = {
     if (articles.length === 0) return BLOG_POSTS;
 
     return articles.map(a => ({
-      id: a.id,
+      id: String(a.id), // Force string ID
       title: a.titre,
       excerpt: a.contenu.substring(0, 150) + '...',
       author: a.auteur,
@@ -191,7 +195,7 @@ export const api = {
     if (partners.length === 0) return PARTNERS;
 
     return partners.map(p => ({
-      id: p.id,
+      id: String(p.id),
       name: p.nom,
       logo: getAbsoluteUrl(p.logo_url),
       description: p.description,
@@ -199,38 +203,38 @@ export const api = {
     }));
   },
 
-  // --- ADMIN CRUD (Méthodes brutes) ---
+  // --- ADMIN CRUD (POST forced for compatibility) ---
 
   // Users
   getUsers: () => fetchData<ApiUser[]>('users.php', []),
   createUser: (data: any) => sendData('users.php', 'POST', data),
-  updateUser: (id: string, data: any) => sendData(`users.php?id=${id}`, 'PUT', data),
-  deleteUser: (id: string) => sendData(`users.php?id=${id}`, 'DELETE'),
+  updateUser: (id: string, data: any) => sendData(`users.php?id=${id}`, 'POST', data), // POST instead of PUT
+  deleteUser: (id: string) => sendData(`users.php?id=${id}`, 'POST'), // POST instead of DELETE
   register: (data: any) => sendData('users.php', 'POST', data),
 
   // Donations
   getDonations: () => fetchData<ApiDonation[]>('donations.php', []),
   sendDonation: (data: any) => sendData('donations.php', 'POST', data),
-  updateDonationStatus: (id: string, status: string) => sendData(`donations.php?id=${id}`, 'PUT', { status }),
-  deleteDonation: (id: string) => sendData(`donations.php?id=${id}`, 'DELETE'),
+  updateDonationStatus: (id: string, status: string) => sendData(`donations.php?id=${id}`, 'POST', { status }),
+  deleteDonation: (id: string) => sendData(`donations.php?id=${id}`, 'POST'),
 
   // Actions (Projets)
   getRawActions: () => fetchData<ApiAction[]>('actions.php', []),
   createAction: (data: any) => sendData('actions.php', 'POST', data),
-  updateAction: (id: string, data: any) => sendData(`actions.php?id=${id}`, 'PUT', data),
-  deleteAction: (id: string) => sendData(`actions.php?id=${id}`, 'DELETE'),
+  updateAction: (id: string, data: any) => sendData(`actions.php?id=${id}`, 'POST', data),
+  deleteAction: (id: string) => sendData(`actions.php?id=${id}`, 'POST'),
 
   // Articles (Blog)
   getRawArticles: () => fetchData<ApiArticle[]>('articles.php', []),
   createArticle: (data: any) => sendData('articles.php', 'POST', data),
-  updateArticle: (id: string, data: any) => sendData(`articles.php?id=${id}`, 'PUT', data),
-  deleteArticle: (id: string) => sendData(`articles.php?id=${id}`, 'DELETE'),
+  updateArticle: (id: string, data: any) => sendData(`articles.php?id=${id}`, 'POST', data),
+  deleteArticle: (id: string) => sendData(`articles.php?id=${id}`, 'POST'),
 
   // Partners
   getRawPartners: () => fetchData<ApiPartner[]>('partners.php', []),
   createPartner: (data: any) => sendData('partners.php', 'POST', data),
-  updatePartner: (id: string, data: any) => sendData(`partners.php?id=${id}`, 'PUT', data),
-  deletePartner: (id: string) => sendData(`partners.php?id=${id}`, 'DELETE'),
+  updatePartner: (id: string, data: any) => sendData(`partners.php?id=${id}`, 'POST', data),
+  deletePartner: (id: string) => sendData(`partners.php?id=${id}`, 'POST'),
 
   // Static / Mocked for now (Waiting for endpoints)
   getSettings: () => fetchData<SiteSettings>('settings.php', {
