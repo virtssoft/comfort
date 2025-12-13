@@ -163,7 +163,45 @@ const SearchResults = () => {
 const PrivacyPolicy = () => (
     <GenericPage title="Politique de Confidentialité">
         <div className="space-y-8 text-gray-700 leading-relaxed">
-             <p>Contenu de la politique de confidentialité...</p>
+             <section>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">1. Collecte de l'information</h3>
+                <p>
+                    Nous recueillons des informations lorsque vous faites un don, vous inscrivez à notre newsletter ou remplissez un formulaire de contact. 
+                    Les informations recueillies incluent votre nom, votre adresse e-mail, et numéro de téléphone. 
+                    Pour les dons, nous ne stockons aucune information bancaire sensible (numéros de carte de crédit), qui sont traitées de manière sécurisée par nos prestataires de paiement.
+                </p>
+             </section>
+             <section>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">2. Utilisation des informations</h3>
+                <p>
+                    Toute les informations que nous recueillons auprès de vous peuvent être utilisées pour :
+                </p>
+                <ul className="list-disc pl-5 space-y-2 mt-2">
+                    <li>Personnaliser votre expérience et répondre à vos besoins individuels</li>
+                    <li>Améliorer notre site web</li>
+                    <li>Améliorer le service client et vos besoins de prise en charge</li>
+                    <li>Vous contacter par e-mail ou téléphone concernant votre don ou nos actualités</li>
+                    <li>Administrer un concours, une promotion, ou une enquête</li>
+                </ul>
+             </section>
+             <section>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">3. Confidentialité des dons</h3>
+                <p>
+                    Nous sommes les seuls propriétaires des informations recueillies sur ce site. Vos informations personnelles ne seront pas vendues, échangées, transférées, ou données à une autre société pour n'importe quelle raison, sans votre consentement, en dehors de ce qui est nécessaire pour répondre à une demande et / ou une transaction, comme par exemple pour expédier une commande ou traiter un don.
+                </p>
+             </section>
+             <section>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">4. Protection des informations</h3>
+                <p>
+                    Nous mettons en œuvre une variété de mesures de sécurité pour préserver la sécurité de vos informations personnelles. Nous utilisons un cryptage à la pointe de la technologie pour protéger les informations sensibles transmises en ligne. Nous protégeons également vos informations hors ligne. Seuls les employés qui ont besoin d’effectuer un travail spécifique (par exemple, la facturation ou le service à la clientèle) ont accès aux informations personnelles identifiables.
+                </p>
+             </section>
+             <section>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">5. Consentement</h3>
+                <p>
+                    En utilisant notre site, vous consentez à notre politique de confidentialité.
+                </p>
+             </section>
         </div>
     </GenericPage>
 );
@@ -171,7 +209,36 @@ const PrivacyPolicy = () => (
 const LegalTerms = () => (
     <GenericPage title="Mentions Légales & Conditions">
         <div className="space-y-10 text-gray-700 leading-relaxed">
-             <p>Contenu des mentions légales...</p>
+             <section>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">1. Éditeur du site</h3>
+                <p>
+                    Le site internet <strong>comfortasbl.org</strong> est édité par l'organisation non gouvernementale <strong>COMFORT Asbl</strong>.
+                </p>
+                <ul className="mt-4 space-y-1">
+                    <li><strong>Siège social :</strong> Katindo Beni 108, Goma, RDC</li>
+                    <li><strong>Téléphone :</strong> +243 994 280 037</li>
+                    <li><strong>Email :</strong> contact@comfort-asbl.org</li>
+                    <li><strong>Statut juridique :</strong> Association sans but lucratif (ASBL) de droit congolais.</li>
+                </ul>
+             </section>
+             <section>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">2. Propriété intellectuelle</h3>
+                <p>
+                    L’ensemble de ce site relève de la législation congolaise et internationale sur le droit d’auteur et la propriété intellectuelle. Tous les droits de reproduction sont réservés, y compris pour les documents téléchargeables et les représentations iconographiques et photographiques. La reproduction de tout ou partie de ce site sur un support électronique quel qu’il soit est formellement interdite sauf autorisation expresse du directeur de la publication.
+                </p>
+             </section>
+             <section>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">3. Limitation de responsabilité</h3>
+                <p>
+                    COMFORT Asbl ne pourra être tenue responsable des dommages directs et indirects causés au matériel de l’utilisateur, lors de l’accès au site comfortasbl.org. COMFORT Asbl décline toute responsabilité quant à l’utilisation qui pourrait être faite des informations et contenus présents sur comfortasbl.org.
+                </p>
+             </section>
+             <section>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">4. Droit applicable</h3>
+                <p>
+                    Tout litige en relation avec l’utilisation du site comfortasbl.org est soumis au droit congolais. Il est fait attribution exclusive de juridiction aux tribunaux compétents de Goma.
+                </p>
+             </section>
         </div>
     </GenericPage>
 );

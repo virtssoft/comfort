@@ -189,7 +189,45 @@ const AdminDashboard: React.FC = () => {
 
   const handleCreate = (type: any) => {
       setModalType(type);
-      setEditingItem({}); // Empty
+      // Initialize with default empty strings to ensure all keys exist for the API validation
+      let defaultItem = {};
+      if (type === 'project') {
+          defaultItem = { 
+              titre: '', 
+              description: '', 
+              categorie: 'Éducation', 
+              statut: 'en_cours', 
+              image_url: '', 
+              date_debut: new Date().toISOString().split('T')[0],
+              date_fin: '' 
+          };
+      } else if (type === 'blog') {
+          defaultItem = { 
+              titre: '', 
+              contenu: '', 
+              auteur: user?.username || 'Admin', 
+              categorie: 'Actualité', 
+              image_url: '', 
+              status: 'publié' 
+          };
+      } else if (type === 'partner') {
+          defaultItem = { 
+              nom: '', 
+              description: '', 
+              site_web: '', 
+              logo_url: '',
+              type: 'Corporate'
+          };
+      } else if (type === 'user') {
+          defaultItem = { 
+              username: '', 
+              email: '', 
+              password: '', 
+              role: 'user' 
+          };
+      }
+      
+      setEditingItem(defaultItem); 
       setIsModalOpen(true);
   };
 

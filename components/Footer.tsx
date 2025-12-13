@@ -91,7 +91,7 @@ const Footer: React.FC = () => {
              <Link to="/privacy" className="hover:text-gray-400 transition-colors">{t('footer.privacy')}</Link>
              <Link to="/terms" className="hover:text-gray-400 transition-colors">{t('footer.terms')}</Link>
              <span className="text-gray-700">|</span>
-             <a href="#" className="text-gray-500 hover:text-white transition-colors font-medium">{t('footer.powered')}</a>
+             <a href="https://virtssoft.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors font-medium">{t('footer.powered')}</a>
           </div>
         </div>
       </div>
