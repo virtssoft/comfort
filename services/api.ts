@@ -183,35 +183,35 @@ export const api = {
   // Users
   getUsers: () => fetchData<ApiUser[]>('users.php', []),
   createUser: (data: any) => sendData('users.php', 'POST', data),
-  updateUser: (id: string, data: any) => sendData(`users.php?id=${id}`, 'POST', data),
-  deleteUser: (id: string) => sendData(`users.php?id=${id}`, 'POST'),
+  updateUser: (id: string, data: any) => sendData(`users.php?id=${id}`, 'PUT', data),
+  deleteUser: (id: string) => sendData(`users.php?id=${id}`, 'DELETE'),
   register: (data: any) => sendData('users.php', 'POST', data),
 
   // Donations
   getDonations: () => fetchData<ApiDonation[]>('donations.php', []),
   sendDonation: (data: any) => sendData('donations.php', 'POST', data),
-  updateDonationStatus: (id: string, status: string) => sendData(`donations.php?id=${id}`, 'POST', { status }),
-  deleteDonation: (id: string) => sendData(`donations.php?id=${id}`, 'POST'),
+  updateDonationStatus: (id: string, status: string) => sendData(`donations.php?id=${id}`, 'PUT', { status }),
+  deleteDonation: (id: string) => sendData(`donations.php?id=${id}`, 'DELETE'),
 
   // Actions (Projets)
   getRawActions: () => fetchData<ApiAction[]>('actions.php', []),
   createAction: (data: any) => sendData('actions.php', 'POST', data),
-  updateAction: (id: string, data: any) => sendData(`actions.php?id=${id}`, 'POST', data),
-  deleteAction: (id: string) => sendData(`actions.php?id=${id}`, 'POST'),
+  updateAction: (id: string, data: any) => sendData(`actions.php?id=${id}`, 'PUT', data),
+  deleteAction: (id: string) => sendData(`actions.php?id=${id}`, 'DELETE'),
 
   // Articles (Blog)
   getRawArticles: () => fetchData<ApiArticle[]>('articles.php', []),
   createArticle: (data: any) => sendData('articles.php', 'POST', data),
-  updateArticle: (id: string, data: any) => sendData(`articles.php?id=${id}`, 'POST', data),
-  deleteArticle: (id: string) => sendData(`articles.php?id=${id}`, 'POST'),
+  updateArticle: (id: string, data: any) => sendData(`articles.php?id=${id}`, 'PUT', data),
+  deleteArticle: (id: string) => sendData(`articles.php?id=${id}`, 'DELETE'),
 
   // Partners
   getRawPartners: () => fetchData<ApiPartner[]>('partners.php', []),
   createPartner: (data: any) => sendData('partners.php', 'POST', data),
-  updatePartner: (id: string, data: any) => sendData(`partners.php?id=${id}`, 'POST', data),
-  deletePartner: (id: string) => sendData(`partners.php?id=${id}`, 'POST'),
+  updatePartner: (id: string, data: any) => sendData(`partners.php?id=${id}`, 'PUT', data),
+  deletePartner: (id: string) => sendData(`partners.php?id=${id}`, 'DELETE'),
 
-  // Settings & Team
+  // Settings & Team (Keep for compatibility if used internally, even if not in doc provided)
   getSettings: () => fetchData<SiteSettings>('settings.php', {
     logoUrl: getAbsoluteUrl('assets/images/logo1.png'), 
     faviconUrl: getAbsoluteUrl('assets/images/favicon.ico'),
