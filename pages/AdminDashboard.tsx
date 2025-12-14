@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Users, FileText, Settings, LogOut, DollarSign, Activity, Bell, Mail, Plus, Edit, Trash2, Handshake, Briefcase, X, Check, Eye, UploadCloud, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
-import { api, ApiUser, ApiAction, ApiArticle, ApiDonation, ApiPartner } from '../services/api';
+import { api, API_BASE_URL, ApiUser, ApiAction, ApiArticle, ApiDonation, ApiPartner } from '../services/api';
 
 /* --- IMAGE UPLOAD COMPONENT --- */
 interface ImageUploadProps {
@@ -17,9 +17,9 @@ interface ImageUploadProps {
 const ImageUploader: React.FC<ImageUploadProps> = ({ label, value, folder, onChange }) => {
     const [uploading, setUploading] = useState(false);
     
-    // Determine preview URL
+    // Determine preview URL using imported API_BASE_URL
     const previewUrl = value 
-        ? (value.startsWith('http') ? value : `https://api.comfortasbl.org/${value.startsWith('/') ? value.substring(1) : value}`) 
+        ? (value.startsWith('http') ? value : `${API_BASE_URL}/${value.startsWith('/') ? value.substring(1) : value}`) 
         : null;
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,7 +142,7 @@ const AdminDashboard: React.FC = () => {
   
   // Carousel State
   const [currentGalleryIndex, setCurrentGalleryIndex] = useState(0);
-  const galleryImages = Array.from({ length: 10 }, (_, i) => `https://api.comfortasbl.org/assets/images/gallery/gallery${i + 1}.jpg`);
+  const galleryImages = Array.from({ length: 10 }, (_, i) => `${API_BASE_URL}/assets/images/gallery/gallery${i + 1}.jpg`);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -545,7 +545,7 @@ const AdminDashboard: React.FC = () => {
                                     {projects.map(p => (
                                         <tr key={p.id}>
                                             <td className="px-6 py-4">
-                                                <img src={p.image_url?.startsWith('http') ? p.image_url : `https://api.comfortasbl.org/${p.image_url.startsWith('/') ? p.image_url.substring(1) : p.image_url}`} alt="" className="w-12 h-12 object-cover rounded bg-gray-100" />
+                                                <img src={p.image_url?.startsWith('http') ? p.image_url : `${API_BASE_URL}/${p.image_url.startsWith('/') ? p.image_url.substring(1) : p.image_url}`} alt="" className="w-12 h-12 object-cover rounded bg-gray-100" />
                                             </td>
                                             <td className="px-6 py-4 text-sm font-medium text-gray-900">{p.titre}</td>
                                             <td className="px-6 py-4"><span className={`px-2 py-1 rounded text-xs font-bold uppercase ${p.statut === 'en_cours' ? 'bg-blue-100 text-blue-700' : p.statut === 'termine' ? 'bg-green-100 text-green-700' : 'bg-gray-100'}`}>{p.statut.replace('_', ' ')}</span></td>
@@ -573,7 +573,7 @@ const AdminDashboard: React.FC = () => {
                                     {blogs.map(b => (
                                         <tr key={b.id}>
                                             <td className="px-6 py-4">
-                                                <img src={b.image_url?.startsWith('http') ? b.image_url : `https://api.comfortasbl.org/${b.image_url.startsWith('/') ? b.image_url.substring(1) : b.image_url}`} alt="" className="w-12 h-12 object-cover rounded bg-gray-100" />
+                                                <img src={b.image_url?.startsWith('http') ? b.image_url : `${API_BASE_URL}/${b.image_url.startsWith('/') ? b.image_url.substring(1) : b.image_url}`} alt="" className="w-12 h-12 object-cover rounded bg-gray-100" />
                                             </td>
                                             <td className="px-6 py-4 text-sm font-medium text-gray-900">{b.titre}</td>
                                             <td className="px-6 py-4 text-sm text-gray-500">{b.auteur}</td>
@@ -646,7 +646,7 @@ const AdminDashboard: React.FC = () => {
                                 {partners.map(p => (
                                     <tr key={p.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4">
-                                            <img src={p.logo_url?.startsWith('http') ? p.logo_url : `https://api.comfortasbl.org/${p.logo_url.startsWith('/') ? p.logo_url.substring(1) : p.logo_url}`} alt="" className="w-16 h-16 object-contain border rounded bg-gray-50" />
+                                            <img src={p.logo_url?.startsWith('http') ? p.logo_url : `${API_BASE_URL}/${p.logo_url.startsWith('/') ? p.logo_url.substring(1) : p.logo_url}`} alt="" className="w-16 h-16 object-contain border rounded bg-gray-50" />
                                         </td>
                                         <td className="px-6 py-4 text-sm font-medium text-gray-900">
                                             {p.nom}

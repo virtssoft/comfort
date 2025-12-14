@@ -1,9 +1,10 @@
+
 import { Project, BlogPost, Domain, Testimonial, Partner, TeamMember } from './types';
 
 export const CONTACT_INFO = {
-  phone: "+243 999 000 000",
-  email: "contact@comfort-asbl.org",
-  address: "123 Avenue de la Paix, Goma, RDC",
+  phone: "+243 994 280 037",
+  email: "contact@comfortasbl.org",
+  address: "Katindo Beni 108, Goma, RDC",
   hours: "Lun - Ven: 8h00 - 17h00"
 };
 

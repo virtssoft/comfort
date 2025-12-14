@@ -11,12 +11,13 @@ import Blog from './pages/Blog';
 import Account from './pages/Account'; 
 import AdminDashboard from './pages/AdminDashboard'; 
 import GenericPage from './pages/GenericPage';
+import ScrollToTopButton from './components/ScrollToTopButton'; // Import du bouton
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { DataProvider, useData } from './context/DataContext';
 import { AuthProvider } from './context/AuthContext';
 import { ArrowLeft, Calendar, User, Shield, Lock, Code, Globe, Lightbulb, Leaf, Target, Award } from 'lucide-react';
 
-/* --- SCROLL TO TOP COMPONENT --- */
+/* --- SCROLL TO TOP COMPONENT (Route Change) --- */
 const ScrollToTop = () => {
   const { pathname } = useLocation();
 
@@ -160,109 +161,97 @@ const SearchResults = () => {
 };
 
 /* --- LEGAL PAGES CONTENT --- */
-const PrivacyPolicy = () => (
-    <GenericPage title="Politique de Confidentialité">
+const PrivacyPolicy = () => {
+    const { t } = useLanguage();
+    return (
+    <GenericPage title={t('legal.privacy_title')}>
         <div className="space-y-8 text-gray-700 leading-relaxed">
              <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">1. Collecte de l'information</h3>
-                <p>
-                    Nous recueillons des informations lorsque vous faites un don, vous inscrivez à notre newsletter ou remplissez un formulaire de contact. 
-                    Les informations recueillies incluent votre nom, votre adresse e-mail, et numéro de téléphone. 
-                    Pour les dons, nous ne stockons aucune information bancaire sensible (numéros de carte de crédit), qui sont traitées de manière sécurisée par nos prestataires de paiement.
-                </p>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.privacy_1_title')}</h3>
+                <p>{t('legal.privacy_1_text')}</p>
              </section>
              <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">2. Utilisation des informations</h3>
-                <p>
-                    Toute les informations que nous recueillons auprès de vous peuvent être utilisées pour :
-                </p>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.privacy_2_title')}</h3>
+                <p>{t('legal.privacy_2_intro')}</p>
                 <ul className="list-disc pl-5 space-y-2 mt-2">
-                    <li>Personnaliser votre expérience et répondre à vos besoins individuels</li>
-                    <li>Améliorer notre site web</li>
-                    <li>Améliorer le service client et vos besoins de prise en charge</li>
-                    <li>Vous contacter par e-mail ou téléphone concernant votre don ou nos actualités</li>
-                    <li>Administrer un concours, une promotion, ou une enquête</li>
+                    <li>{t('legal.privacy_2_list1')}</li>
+                    <li>{t('legal.privacy_2_list2')}</li>
+                    <li>{t('legal.privacy_2_list3')}</li>
+                    <li>{t('legal.privacy_2_list4')}</li>
+                    <li>{t('legal.privacy_2_list5')}</li>
                 </ul>
              </section>
              <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">3. Confidentialité des dons</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.privacy_3_title')}</h3>
+                <p>{t('legal.privacy_3_text')}</p>
+             </section>
+             <section>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.privacy_4_title')}</h3>
+                <p>{t('legal.privacy_4_text')}</p>
+             </section>
+             <section>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.privacy_5_title')}</h3>
                 <p>
-                    Nous sommes les seuls propriétaires des informations recueillies sur ce site. Vos informations personnelles ne seront pas vendues, échangées, transférées, ou données à une autre société pour n'importe quelle raison, sans votre consentement, en dehors de ce qui est nécessaire pour répondre à une demande et / ou une transaction, comme par exemple pour expédier une commande ou traiter un don.
+                    {t('legal.privacy_5_text_1')} <strong><a href="https://virtssoft.com" target="_blank" rel="noopener noreferrer" className="text-comfort-blue hover:underline font-semibold">Virtssoft Technologies</a></strong>{t('legal.privacy_5_text_2')}
                 </p>
              </section>
              <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">4. Protection des informations</h3>
-                <p>
-                    Nous mettons en œuvre une variété de mesures de sécurité pour préserver la sécurité de vos informations personnelles. Nous utilisons un cryptage à la pointe de la technologie pour protéger les informations sensibles transmises en ligne. 
-                </p>
-             </section>
-             <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">5. Partenaires Techniques et Sécurité</h3>
-                <p>
-                    La maintenance technique, la sécurité de l'infrastructure et l'optimisation des performances de ce site sont assurées par notre partenaire <strong><a href="https://virtssoft.com" target="_blank" rel="noopener noreferrer" className="text-comfort-blue hover:underline font-semibold">Virtssoft Technologies</a></strong>. Leur expertise garantit la protection de vos données et la fiabilité de nos services numériques.
-                </p>
-             </section>
-             <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">6. Consentement</h3>
-                <p>
-                    En utilisant notre site, vous consentez à notre politique de confidentialité.
-                </p>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.privacy_6_title')}</h3>
+                <p>{t('legal.privacy_6_text')}</p>
              </section>
         </div>
     </GenericPage>
-);
+    );
+};
 
-const LegalTerms = () => (
-    <GenericPage title="Mentions Légales & Conditions">
+const LegalTerms = () => {
+    const { t } = useLanguage();
+    return (
+    <GenericPage title={t('legal.terms_title')}>
         <div className="space-y-10 text-gray-700 leading-relaxed">
              <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">1. Éditeur du site</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.terms_1_title')}</h3>
                 <p>
-                    Le site internet <strong>comfortasbl.org</strong> est édité par l'organisation non gouvernementale <strong>COMFORT Asbl</strong>.
+                    {t('legal.terms_1_text_1')} <strong>COMFORT Asbl</strong>.
                 </p>
                 <ul className="mt-4 space-y-1">
-                    <li><strong>Siège social :</strong> Katindo Beni 108, Goma, RDC</li>
-                    <li><strong>Téléphone :</strong> +243 994 280 037</li>
-                    <li><strong>Email :</strong> contact@comfort-asbl.org</li>
-                    <li><strong>Statut juridique :</strong> Association sans but lucratif (ASBL) de droit congolais.</li>
+                    <li><strong>{t('contact.address')} :</strong> Katindo Beni 108, Goma, RDC</li>
+                    <li><strong>{t('contact.phone')} :</strong> +243 994 280 037</li>
+                    <li><strong>{t('contact.email')} :</strong> contact@comfort-asbl.org</li>
+                    <li><strong>Statut :</strong> ASBL.</li>
                 </ul>
              </section>
              <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">2. Conception et Développement</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.terms_2_title')}</h3>
                 <p>
-                    Ce site internet a été conçu et développé par <strong><a href="https://virtssoft.com" target="_blank" rel="noopener noreferrer" className="text-comfort-blue hover:underline font-semibold">Virtssoft Technologies</a></strong>.
+                    {t('legal.terms_2_text_1')} <strong><a href="https://virtssoft.com" target="_blank" rel="noopener noreferrer" className="text-comfort-blue hover:underline font-semibold">Virtssoft Technologies</a></strong>.
                 </p>
                 <p className="mt-4">
-                    <strong>Virtssoft Technologies</strong> est une startup de sciences et technologies dont la mission est de rendre les technologies avancées accessibles et utiles, en accompagnant entreprises et professionnels dans l’automatisation de leurs processus grâce à l’Intelligence Artificielle, au Cloud et aux solutions innovantes.
+                    {t('legal.terms_2_text_2')}
                 </p>
                 <p className="mt-2">
-                    Ses activités couvrent la conception de produits IoT, les énergies renouvelables, le développement logiciel et mobile, la formation numérique, la maintenance et vente d’équipements technologiques, le déploiement de réseaux et la production de contenus médias.
+                    {t('legal.terms_2_text_3')}
                 </p>
                 <p className="mt-2">
-                    Avec une ambition de transformation numérique inclusive, Virtssoft aspire à devenir un acteur majeur en Afrique centrale, révélant les talents locaux et connectant les défis aux solutions durables.
+                    {t('legal.terms_2_text_4')}
                 </p>
              </section>
              <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">3. Propriété intellectuelle</h3>
-                <p>
-                    L’ensemble de ce site relève de la législation congolaise et internationale sur le droit d’auteur et la propriété intellectuelle. Tous les droits de reproduction sont réservés, y compris pour les documents téléchargeables et les représentations iconographiques et photographiques. La reproduction de tout ou partie de ce site sur un support électronique quel qu’il soit est formellement interdite sauf autorisation expresse du directeur de la publication.
-                </p>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.terms_3_title')}</h3>
+                <p>{t('legal.terms_3_text')}</p>
              </section>
              <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">4. Limitation de responsabilité</h3>
-                <p>
-                    COMFORT Asbl ne pourra être tenue responsable des dommages directs et indirects causés au matériel de l’utilisateur, lors de l’accès au site comfortasbl.org. COMFORT Asbl décline toute responsabilité quant à l’utilisation qui pourrait être faite des informations et contenus présents sur comfortasbl.org.
-                </p>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.terms_4_title')}</h3>
+                <p>{t('legal.terms_4_text')}</p>
              </section>
              <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">5. Droit applicable</h3>
-                <p>
-                    Tout litige en relation avec l’utilisation du site comfortasbl.org est soumis au droit congolais. Il est fait attribution exclusive de juridiction aux tribunaux compétents de Goma.
-                </p>
+                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.terms_5_title')}</h3>
+                <p>{t('legal.terms_5_text')}</p>
              </section>
         </div>
     </GenericPage>
-);
+    );
+};
 
 
 const AppContent = () => {
@@ -306,6 +295,7 @@ const AppContent = () => {
                 <Route path="/search" element={<><Header /><SearchResults /><Footer /></>} />
                 <Route path="*" element={<><Header /><NotFound /><Footer /></>} />
             </Routes>
+            <ScrollToTopButton />
         </>
     )
 }

@@ -96,7 +96,7 @@ const Partners: React.FC = () => {
              Vous souhaitez rejoindre notre réseau et contribuer à notre mission ? Contactez notre équipe de partenariats stratégiques.
            </p>
            <a 
-            href="mailto:partenariat@comfort-asbl.org" 
+            href="mailto:partenariat@comfortasbl.org" 
             className="inline-block border-2 border-comfort-blue text-comfort-blue px-8 py-3 rounded-sm font-bold uppercase tracking-wide hover:bg-comfort-blue hover:text-white transition-colors"
            >
              {t('partners.contact_us')}

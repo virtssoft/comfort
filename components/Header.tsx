@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Phone, Mail, ChevronDown, Menu, X, Facebook, Linkedin, Search, User } from 'lucide-react';
@@ -19,8 +20,8 @@ const Header: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
 
   // Fallback defaults if settings not loaded yet
-  const contactEmail = settings?.contactEmail || "contact@comfort-asbl.org";
-  const contactPhone = settings?.contactPhone || "+243 999 000 000";
+  const contactEmail = settings?.contactEmail || "contact@comfortasbl.org";
+  const contactPhone = settings?.contactPhone || "+243 994 280 037";
   const logoUrl = settings?.logoUrl || "https://api.comfortasbl.org/assets/images/logo1.png";
 
   const navLinks = [

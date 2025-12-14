@@ -279,7 +279,7 @@ const Donate: React.FC = () => {
                <div className="mt-6 pt-6 border-t border-blue-800">
                    <h3 className="font-bold text-white mb-2">{t('donate.help')}</h3>
                    <p className="text-sm text-blue-200 mb-2">Une question sur les méthodes de paiement ?</p>
-                   <a href="mailto:donations@comfort-asbl.org" className="text-yellow-400 text-sm font-semibold hover:underline block mb-1">donations@comfort-asbl.org</a>
+                   <a href="mailto:donations@comfortasbl.org" className="text-yellow-400 text-sm font-semibold hover:underline block mb-1">donations@comfortasbl.org</a>
                    <a href="tel:+243994280037" className="text-yellow-400 text-sm font-semibold hover:underline block">+243 994 280 037</a>
                </div>
              </div>

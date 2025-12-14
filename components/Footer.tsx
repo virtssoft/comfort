@@ -86,7 +86,7 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="flex flex-col md:flex-row justify-between items-center text-xs text-gray-600">
-          <p>&copy; {new Date().getFullYear()} Comfort-Impact20. {t('footer.rights')}</p>
+          <p>&copy; 2025 Comfort. {t('footer.rights')}</p>
           <div className="flex items-center space-x-6 mt-4 md:mt-0">
              <Link to="/privacy" className="hover:text-gray-400 transition-colors">{t('footer.privacy')}</Link>
              <Link to="/terms" className="hover:text-gray-400 transition-colors">{t('footer.terms')}</Link>
