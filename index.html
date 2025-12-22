@@ -7,31 +7,48 @@
     
     <!-- SEO Optimization -->
     <title>COMFORT Asbl | Impact & Humanitaire - Goma RDC</title>
-    <meta name="description" content="COMFORT Asbl - Leading NGO in Goma, DRC providing humanitarian aid, health, education, and economic empowerment projects. A sustainable development initiative powered by Impact20 & Virtssoft Technologies." />
-    <meta name="keywords" content="humanitarian aid, DRC projects, NGO Goma, Impact20, Virtssoft Technologies, aide humanitaire, RDC, Goma, développement durable, education Congo, health Goma, comfort asbl" />
-    <meta name="author" content="Virtssoft Technologies" />
+    <meta name="description" content="COMFORT Asbl - Leading NGO in Goma, DRC providing humanitarian aid, health, education, and economic empowerment projects." />
     <meta name="robots" content="index, follow" />
 
     <link rel="icon" type="image/png" href="https://api.comfortasbl.org/assets/images/logo1.png" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
           extend: {
             colors: {
               'comfort-blue': '#01217d',
-              'comfort-dark': '#0b1221',
-              'comfort-light': '#f8fafc',
+              'comfort-gold': '#c5a059',
+              'comfort-dark': '#070b14',
+              'comfort-light': '#fdfdfd',
             },
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
               serif: ['Merriweather', 'serif'],
+            },
+            animation: {
+              'ken-burns': 'kenburns 20s ease infinite alternate',
+              'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+            },
+            keyframes: {
+              kenburns: {
+                '0%': { transform: 'scale(1)' },
+                '100%': { transform: 'scale(1.15)' },
+              },
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
             }
           }
         }
       }
     </script>
+    <style>
+      .text-balance { text-wrap: balance; }
+      .glass-morphism { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); }
+    </style>
   <script type="importmap">
 {
   "imports": {
@@ -46,7 +63,7 @@
 }
 </script>
 </head>
-  <body class="bg-white text-gray-800 antialiased font-sans">
+  <body class="bg-white text-gray-900 antialiased font-sans">
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
   </body>

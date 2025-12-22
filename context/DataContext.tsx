@@ -25,15 +25,13 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
 
-  const preloadImages = (urls: string[]) => {
-    return Promise.all(urls.map(url => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.src = url;
-        img.onload = resolve;
-        img.onerror = resolve; // On résout quand même pour ne pas bloquer indéfiniment
-      });
-    }));
+  const preloadImage = (url: string): Promise<void> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = url;
+      img.onload = () => resolve();
+      img.onerror = () => resolve(); // Ne bloque pas si une image est cassée
+    });
   };
 
   const loadData = async () => {
@@ -51,27 +49,25 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (results[0].status === 'fulfilled') setSettings(results[0].value);
       if (results[1].status === 'fulfilled') setProjects(results[1].value || []);
       
-      let fetchedPosts: BlogPost[] = [];
+      let posts: BlogPost[] = [];
       if (results[2].status === 'fulfilled') {
-          fetchedPosts = results[2].value || [];
-          setBlogPosts(fetchedPosts);
+        posts = results[2].value || [];
+        setBlogPosts(posts);
       }
       
       if (results[3].status === 'fulfilled') setPartners(results[3].value || []);
-      if (results[4].status === 'fulfilled') setTeamMembers(results[5].status === 'fulfilled' ? results[4].value : []);
+      if (results[4].status === 'fulfilled') setTeamMembers(results[4].value || []);
       if (results[5].status === 'fulfilled') setTestimonials(results[5].value || []);
 
-      // Pré-chargement des images du Hero (les 3 premières actualités)
-      const heroImages = fetchedPosts.slice(0, 3).map(p => p.image).filter(img => !!img);
-      if (heroImages.length > 0) {
-          await preloadImages(heroImages);
-      }
+      // CRITIQUE : Pré-charger les images des 3 premières actualités pour le carrousel
+      const topImages = posts.slice(0, 3).map(p => p.image).filter(i => !!i);
+      await Promise.all(topImages.map(url => preloadImage(url)));
 
     } catch (error) {
-      console.error("Erreur critique API:", error);
+      console.error("Erreur Data Loading", error);
     } finally {
-      // Délai de confort pour stabiliser l'UI
-      setTimeout(() => setLoading(false), 1000);
+      // Un délai pour assurer que les squelettes ont été rendus derrière le loader
+      setTimeout(() => setLoading(false), 2000);
     }
   };
 
@@ -97,8 +93,6 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 export const useData = () => {
   const context = useContext(DataContext);
-  if (!context) {
-    throw new Error('useData must be used within a DataProvider');
-  }
+  if (!context) throw new Error('useData must be used within a DataProvider');
   return context;
 };

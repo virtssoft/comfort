@@ -1,9 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { DOMAINS, TEAM_MEMBERS, CONTACT_INFO } from './constants';
-import { Heart, BookOpen, HandCoins, Wheat, Palette, Shield, Activity, TrendingUp, Users, MapPin, Mail, Phone, Clock, ArrowRight, Facebook } from 'lucide-react';
+import { Heart, BookOpen, HandCoins, Wheat, Palette, Shield, Activity, TrendingUp, Users, MapPin, Mail, Phone, ArrowRight } from 'lucide-react';
 
 const About: React.FC = () => {
   const { t } = useLanguage();
@@ -14,197 +14,131 @@ const About: React.FC = () => {
   const contactAddress = settings?.contactAddress || CONTACT_INFO.address;
 
   const getIcon = (iconName: string, size = 32) => {
+    const props = { size, strokeWidth: 1.5, className: "text-comfort-gold" };
     switch (iconName) {
-      case 'Heart': return <Heart size={size} />;
-      case 'BookOpen': return <BookOpen size={size} />;
-      case 'HandCoins': return <HandCoins size={size} />;
-      case 'Wheat': return <Wheat size={size} />;
-      case 'Palette': return <Palette size={size} />;
-      default: return <Heart size={size} />;
+      case 'Heart': return <Heart {...props} />;
+      case 'BookOpen': return <BookOpen {...props} />;
+      case 'HandCoins': return <HandCoins {...props} />;
+      case 'Wheat': return <Wheat {...props} />;
+      case 'Palette': return <Palette {...props} />;
+      default: return <Heart {...props} />;
     }
   };
 
-  if (loading) return <div className="py-40 bg-gray-50 min-h-screen animate-pulse"></div>;
+  if (loading) return <div className="py-40 bg-white min-h-screen animate-pulse"></div>;
 
   return (
-    <div className="flex flex-col min-h-screen font-sans">
+    <div className="flex flex-col min-h-screen font-sans bg-white overflow-x-hidden">
       
-      {/* 🟦 1. HERO SECTION */}
-      <section className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-comfort-blue">
+      {/* 🏛️ HERO - Style Fondation */}
+      <section className="relative h-[50vh] flex items-center overflow-hidden bg-comfort-dark">
         <div className="absolute inset-0">
           <img 
             src="https://api.comfortasbl.org/assets/images/about-hero.jpg"
-            alt="Humanitarian Work" 
-            className="w-full h-full object-cover"
-            onError={(e) => e.currentTarget.style.display = 'none'}
+            alt="Humanitarian Impact" 
+            className="w-full h-full object-cover opacity-40 grayscale"
           />
-          <div className="absolute inset-0 bg-comfort-blue/70 mix-blend-multiply"></div>
-          <div className="absolute inset-0 bg-black/30"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-comfort-dark/80 to-comfort-dark"></div>
         </div>
-        <div className="container relative z-10 mx-auto px-4 md:px-6 text-center animate-in fade-in duration-1000">
-          <h1 className="text-4xl md:text-6xl font-serif font-bold text-white mb-6 drop-shadow-md">
-            {t('about_page.hero_title')}
-          </h1>
-          <p className="text-lg md:text-2xl text-blue-50 max-w-3xl mx-auto font-light leading-relaxed drop-shadow-sm">
-            {t('about_page.hero_subtitle')}
-          </p>
+        <div className="container relative z-10 mx-auto px-6">
+          <div className="max-w-3xl animate-fade-in-up">
+            <span className="text-comfort-gold font-bold uppercase tracking-[0.4em] text-xs mb-4 block">Notre Identité</span>
+            <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-6 leading-tight">
+              {t('about_page.hero_title')}
+            </h1>
+            <div className="h-1 w-24 bg-comfort-gold"></div>
+          </div>
         </div>
       </section>
 
-      {/* 🟩 2. QUI SOMMES-NOUS ? */}
-      <section className="py-20 md:py-32 bg-white">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="prose prose-lg text-gray-600">
-              <h2 className="text-4xl font-serif font-bold text-comfort-blue mb-8">{t('about_page.who_title')}</h2>
-              <p className="leading-loose text-lg text-gray-700">
+      {/* 🏛️ HISTOIRE - Layout Asymétrique */}
+      <section className="py-32">
+        <div className="container mx-auto px-6">
+          <div className="grid lg:grid-cols-12 gap-16 items-start">
+            <div className="lg:col-span-7 prose prose-lg">
+              <h2 className="text-4xl font-serif font-bold text-comfort-blue mb-10 leading-tight">
+                {t('about_page.who_title')}
+              </h2>
+              <p className="text-xl text-gray-600 font-light leading-relaxed mb-8 first-letter:text-6xl first-letter:font-serif first-letter:text-comfort-gold first-letter:mr-3 first-letter:float-left">
                 {t('about_page.who_text')}
               </p>
             </div>
-            <div className="relative group bg-gray-50 rounded-2xl min-h-[400px]">
-              <div className="absolute -inset-4 bg-gray-100 rounded-2xl transform rotate-2 group-hover:rotate-1 transition-all duration-500"></div>
-              <img 
-                src="https://api.comfortasbl.org/assets/images/about-who.jpg"
-                alt="Community Support" 
-                className="relative z-10 rounded-2xl shadow-xl w-full object-cover h-[500px] transform group-hover:scale-[1.01] transition-transform duration-500"
-                onError={(e) => e.currentTarget.style.display = 'none'}
-              />
+            <div className="lg:col-span-5 relative">
+              <div className="aspect-[4/5] bg-gray-100 overflow-hidden shadow-2xl rounded-sm">
+                <img src="https://api.comfortasbl.org/assets/images/about-who.jpg" className="w-full h-full object-cover" alt="COMFORT in action" />
+              </div>
+              <div className="absolute -bottom-10 -left-10 bg-comfort-gold p-10 text-white shadow-xl hidden md:block">
+                 <p className="font-serif italic text-2xl">"Agir avec intégrité pour chaque vie impactée."</p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 🟦 3. VISION */}
-      <section className="py-24 bg-comfort-blue text-white">
-        <div className="container mx-auto px-4 md:px-6 text-center max-w-4xl">
-          <h2 className="text-4xl md:text-5xl font-serif font-bold mb-10">{t('about_page.vision_title')}</h2>
-          <p className="text-xl md:text-2xl leading-relaxed font-light text-blue-50 opacity-90 whitespace-pre-line">
-            {t('about_page.vision_text')}
-          </p>
-        </div>
-      </section>
-
-      {/* 🟧 4. MISSION */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-4 md:px-6 flex flex-col items-center text-center max-w-4xl">
-          <div className="bg-blue-50 p-6 rounded-full text-comfort-blue mb-8">
-             <Activity size={48} />
-          </div>
-          <h2 className="text-4xl font-serif font-bold text-comfort-blue mb-8">{t('about_page.mission_title')}</h2>
-          <p className="text-xl leading-relaxed text-gray-700">
-            {t('about_page.mission_text')}
-          </p>
-        </div>
-      </section>
-
-      {/* 🟫 5. OBJECTIFS STRATEGIQUES */}
-      <section className="py-24 bg-gray-50">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-16 max-w-3xl mx-auto">
-             <h2 className="text-3xl md:text-4xl font-serif font-bold text-comfort-blue mb-4">{t('about_page.objectives_title')}</h2>
-             <p className="text-gray-600">{t('about_page.objectives_intro')}</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-             <div className="bg-white p-8 rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
-                <Shield className="text-comfort-blue mb-6 group-hover:scale-110 transition-transform" size={40} strokeWidth={1.5} />
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{t('about_page.obj_1_title')}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{t('about_page.obj_1_text')}</p>
-             </div>
-             <div className="bg-white p-8 rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
-                <Heart className="text-comfort-blue mb-6 group-hover:scale-110 transition-transform" size={40} strokeWidth={1.5} />
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{t('about_page.obj_2_title')}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{t('about_page.obj_2_text')}</p>
-             </div>
-             <div className="bg-white p-8 rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
-                <TrendingUp className="text-comfort-blue mb-6 group-hover:scale-110 transition-transform" size={40} strokeWidth={1.5} />
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{t('about_page.obj_3_title')}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{t('about_page.obj_3_text')}</p>
-             </div>
-             <div className="bg-white p-8 rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
-                <Users className="text-comfort-blue mb-6 group-hover:scale-110 transition-transform" size={40} strokeWidth={1.5} />
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{t('about_page.obj_4_title')}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{t('about_page.obj_4_text')}</p>
-             </div>
+      {/* 🏛️ VISION & MISSION - Diptyque */}
+      <section className="py-32 bg-comfort-light border-y border-gray-100">
+        <div className="container mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-0 border border-gray-100 shadow-sm">
+            <div className="p-16 bg-white border-r border-gray-100">
+               <span className="text-comfort-gold font-bold uppercase tracking-widest text-xs mb-6 block">Le Regard</span>
+               <h3 className="text-3xl font-serif font-bold text-comfort-blue mb-6">{t('about_page.vision_title')}</h3>
+               <p className="text-gray-500 font-light leading-relaxed">{t('about_page.vision_text')}</p>
+            </div>
+            <div className="p-16 bg-white">
+               <span className="text-comfort-gold font-bold uppercase tracking-widest text-xs mb-6 block">Le Devoir</span>
+               <h3 className="text-3xl font-serif font-bold text-comfort-blue mb-6">{t('about_page.mission_title')}</h3>
+               <p className="text-gray-500 font-light leading-relaxed">{t('about_page.mission_text')}</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 🟦 6. DOMAINES D'INTERVENTION */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-comfort-blue mb-4">{t('domains.title')}</h2>
-            <p className="text-gray-500 uppercase tracking-widest text-sm font-medium">{t('domains.subtitle')}</p>
+      {/* 🏛️ OBJECTIFS - Grille Institutionnelle */}
+      <section className="py-32">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-24">
+             <h2 className="text-4xl font-serif font-bold text-comfort-blue mb-4">{t('about_page.objectives_title')}</h2>
+             <div className="h-1 w-16 bg-comfort-gold mx-auto mb-6"></div>
+             <p className="text-gray-500 font-light max-w-2xl mx-auto">{t('about_page.objectives_intro')}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
-             {DOMAINS.map((domain) => (
-               <div key={domain.id} className="group flex flex-col items-center text-center p-6 rounded-lg transition-all duration-300 hover:bg-gray-50">
-                  <div className="h-20 w-20 rounded-full border border-gray-100 flex items-center justify-center mb-6 text-comfort-blue group-hover:bg-comfort-blue group-hover:text-white transition-all shadow-sm">
-                     {getIcon(domain.icon, 32)}
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-comfort-blue transition-colors">{t(`domains.${domain.id}.title`)}</h3>
-                  <p className="text-sm text-gray-500 leading-relaxed opacity-80 group-hover:opacity-100">
-                    {t(`domains.${domain.id}.desc`)}
-                  </p>
-               </div>
+          <div className="grid md:grid-cols-4 gap-12">
+             {[
+               { icon: Shield, title: 'about_page.obj_1_title', text: 'about_page.obj_1_text' },
+               { icon: Heart, title: 'about_page.obj_2_title', text: 'about_page.obj_2_text' },
+               { icon: TrendingUp, title: 'about_page.obj_3_title', text: 'about_page.obj_3_text' },
+               { icon: Users, title: 'about_page.obj_4_title', text: 'about_page.obj_4_text' }
+             ].map((obj, i) => (
+                <div key={i} className="group text-center">
+                   <div className="w-16 h-16 rounded-full border border-gray-100 flex items-center justify-center mx-auto mb-8 group-hover:bg-comfort-blue transition-all duration-500">
+                      <obj.icon size={28} strokeWidth={1} className="text-comfort-gold group-hover:text-white transition-colors" />
+                   </div>
+                   <h4 className="text-lg font-bold uppercase tracking-widest mb-4">{t(obj.title)}</h4>
+                   <p className="text-sm text-gray-500 font-light leading-relaxed">{t(obj.text)}</p>
+                </div>
              ))}
           </div>
         </div>
       </section>
 
-      {/* 🟩 7. NOTRE APPROCHE */}
-      <section className="py-24 bg-blue-50/50 relative overflow-hidden">
-        <div className="container mx-auto px-4 md:px-6 relative z-10">
-          <div className="grid md:grid-cols-2 gap-16 items-start">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-comfort-blue mb-8">{t('about_page.approach_title')}</h2>
-              <p className="text-lg text-gray-700 leading-relaxed mb-8">
-                 {t('about_page.approach_text')}
-              </p>
-              <div className="rounded-xl shadow-lg w-full bg-gray-100 overflow-hidden min-h-[300px]">
-                <img 
-                    src="https://api.comfortasbl.org/assets/images/about-approach.jpg"
-                    alt="Approach" 
-                    className="w-full" 
-                    onError={(e) => e.currentTarget.style.display = 'none'}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-0 relative pl-8 border-l-2 border-comfort-blue/20">
-              {[1, 2, 3, 4, 5].map((step) => (
-                <div key={step} className="relative pb-12 last:pb-0">
-                  <span className="absolute -left-[41px] top-0 flex h-6 w-6 items-center justify-center rounded-full bg-comfort-blue text-white text-xs font-bold ring-4 ring-white">
-                    {step}
-                  </span>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{t(`about_page.step_${step}`)}</h3>
-                  <p className="text-gray-500 text-sm">Phase {step} du cycle de projet</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 🟦 8. NOTRE EQUIPE */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-comfort-blue mb-4">{t('about_page.team_title')}</h2>
-            <p className="text-gray-500">{t('about_page.team_desc')}</p>
+      {/* 🏛️ EQUIPE - Portraits Raffinés */}
+      <section className="py-32 bg-comfort-dark text-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-24">
+            <h2 className="text-4xl font-serif font-bold mb-4">{t('about_page.team_title')}</h2>
+            <p className="text-gray-400 font-light">{t('about_page.team_desc')}</p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
+          <div className="grid md:grid-cols-4 gap-12">
             {TEAM_MEMBERS.map((member) => (
-              <div key={member.id} className="flex flex-col items-center text-center group">
-                <div className="w-48 h-48 rounded-full overflow-hidden mb-6 border-4 border-gray-50 group-hover:border-comfort-blue transition-colors shadow-lg bg-gray-100">
-                  <img src={member.image} alt={member.name} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
+              <div key={member.id} className="group">
+                <div className="aspect-square bg-gray-800 overflow-hidden mb-8 relative">
+                  <img src={member.image} alt={member.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+                  <div className="absolute inset-0 border-[10px] border-white/0 group-hover:border-white/10 transition-all duration-500"></div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
-                <span className="text-comfort-blue text-sm font-bold uppercase tracking-wide mb-3">{member.role}</span>
-                <p className="text-sm text-gray-500 leading-relaxed px-4">
+                <h3 className="text-xl font-serif font-bold mb-1">{member.name}</h3>
+                <span className="text-comfort-gold text-xs font-bold uppercase tracking-widest block mb-4">{member.role}</span>
+                <p className="text-sm text-gray-400 font-light leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                   {member.bio}
                 </p>
               </div>
@@ -213,96 +147,33 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* 🟧 9. PARTENAIRES */}
-      <section className="py-16 bg-white border-t border-gray-100 overflow-hidden relative group">
-         <div className="container mx-auto px-4 mb-8 text-center">
-             <h3 className="text-lg font-serif font-bold text-gray-400 uppercase tracking-widest">{t('about_page.partners_title')}</h3>
-         </div>
-         {partners.length > 0 && (
-         <div className="w-full relative overflow-hidden">
-            <div className="flex w-max animate-marquee hover:[animation-play-state:paused] items-center">
-              <div className="flex shrink-0 items-center justify-around gap-12 md:gap-16 px-4">
-                {partners.map((partner) => (
-                    <div key={`ab-p1-${partner.id}`} className="w-32 md:w-48 flex items-center justify-center shrink-0">
-                        <img 
-                            src={partner.logo} 
-                            alt={partner.name} 
-                            className="max-h-16 md:max-h-20 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-500 opacity-60 hover:opacity-100 cursor-pointer transform hover:scale-110"
-                        />
-                    </div>
-                ))}
-              </div>
-              <div className="flex shrink-0 items-center justify-around gap-12 md:gap-16 px-4">
-                {partners.map((partner) => (
-                    <div key={`ab-p2-${partner.id}`} className="w-32 md:w-48 flex items-center justify-center shrink-0">
-                        <img 
-                            src={partner.logo} 
-                            alt={partner.name} 
-                            className="max-h-16 md:max-h-20 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-500 opacity-60 hover:opacity-100 cursor-pointer transform hover:scale-110"
-                        />
-                    </div>
-                ))}
-              </div>
-            </div>
-         </div>
-         )}
-          <style>{`
-            @keyframes marquee {
-              0% { transform: translateX(0); }
-              100% { transform: translateX(-50%); }
-            }
-            .animate-marquee {
-              animation: marquee 30s linear infinite;
-            }
-         `}</style>
-      </section>
-
-      {/* 🟩 10. SECTION CONTACT */}
-      <section className="py-24 bg-white" id="contact-section">
-        <div className="container mx-auto px-4 md:px-6">
-           <div className="grid lg:grid-cols-2 gap-16">
-              <div>
-                 <h2 className="text-3xl font-serif font-bold text-comfort-blue mb-6">{t('contact.title')}</h2>
-                 <p className="text-gray-600 mb-10 text-lg">
-                   {t('contact.desc')}
-                 </p>
-                 <div className="space-y-8">
-                    <div className="flex items-start">
-                       <MapPin className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
-                       <div>
-                          <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.address')}</h4>
-                          <p className="text-gray-600">{contactAddress}</p>
-                       </div>
-                    </div>
-                    <div className="flex items-start">
-                       <Mail className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
-                       <div>
-                          <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.email')}</h4>
-                          <p className="text-gray-600">{contactEmail}</p>
-                       </div>
-                    </div>
-                    <div className="flex items-start">
-                       <Phone className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
-                       <div>
-                          <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.phone')}</h4>
-                          <p className="text-gray-600">{contactPhone}</p>
-                       </div>
-                    </div>
-                 </div>
-              </div>
-
-              <div className="bg-gray-50 p-8 md:p-12 rounded-lg border border-gray-100 shadow-sm flex flex-col justify-center text-center">
-                  <h3 className="text-2xl font-bold mb-6 text-gray-900">Contact Direct</h3>
-                  <div className="space-y-4">
-                      <a href={`mailto:${contactEmail}`} className="block w-full bg-comfort-blue text-white font-bold py-4 rounded-sm uppercase tracking-wider hover:bg-[#001860] transition-colors shadow-lg flex items-center justify-center">
-                          <Mail className="mr-2" size={20} /> Envoyer un Email
-                      </a>
-                      <a href={`tel:${contactPhone}`} className="block w-full bg-white text-comfort-blue border-2 border-comfort-blue font-bold py-4 rounded-sm uppercase tracking-wider hover:bg-blue-50 transition-colors shadow-sm flex items-center justify-center">
-                          <Phone className="mr-2" size={20} /> Appeler : {contactPhone}
-                      </a>
+      {/* 🏛️ CONTACT - Style Institutionnel */}
+      <section className="py-32">
+        <div className="container mx-auto px-6">
+          <div className="bg-white border border-gray-100 shadow-2xl p-12 md:p-24 flex flex-col md:flex-row items-center gap-16">
+            <div className="flex-1">
+               <h2 className="text-4xl font-serif font-bold text-comfort-blue mb-8">Nous sommes à votre <span className="italic font-light">écoute</span>.</h2>
+               <div className="space-y-6">
+                  <div className="flex items-center text-gray-500">
+                     <MapPin size={20} className="mr-6 text-comfort-gold" />
+                     <span className="font-light tracking-wide">{contactAddress}</span>
                   </div>
-              </div>
-           </div>
+                  <div className="flex items-center text-gray-500">
+                     <Mail size={20} className="mr-6 text-comfort-gold" />
+                     <span className="font-light tracking-wide">{contactEmail}</span>
+                  </div>
+                  <div className="flex items-center text-gray-500">
+                     <Phone size={20} className="mr-6 text-comfort-gold" />
+                     <span className="font-light tracking-wide">{contactPhone}</span>
+                  </div>
+               </div>
+            </div>
+            <div className="w-full md:w-auto">
+               <a href={`mailto:${contactEmail}`} className="inline-block bg-comfort-blue text-white px-12 py-5 font-bold uppercase tracking-widest hover:bg-comfort-gold transition-all duration-500 shadow-xl">
+                  Initier une conversation
+               </a>
+            </div>
+          </div>
         </div>
       </section>
     </div>

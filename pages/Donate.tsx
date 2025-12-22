@@ -1,13 +1,12 @@
 
 import React, { useState } from 'react';
-import { Heart, Lock, CheckCircle, CreditCard, Phone, Smartphone, AlertTriangle } from 'lucide-react';
+import { Heart, Lock, CheckCircle, CreditCard, Phone, Smartphone, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { api } from '../services/api';
 
 const Donate: React.FC = () => {
   const { t } = useLanguage();
   
-  // Form State
   const [amount, setAmount] = useState<number | null>(50);
   const [customAmount, setCustomAmount] = useState('');
   const [name, setName] = useState('');
@@ -15,7 +14,6 @@ const Donate: React.FC = () => {
   const [method, setMethod] = useState('Carte');
   const [message, setMessage] = useState('');
 
-  // Status State
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -25,144 +23,81 @@ const Donate: React.FC = () => {
     setAmount(null);
   };
 
-  const getFinalAmount = () => {
-      return amount ? amount.toString() : customAmount;
-  };
+  const getFinalAmount = () => amount ? amount.toString() : customAmount;
 
   const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       setError('');
       setLoading(true);
-
       const finalAmount = getFinalAmount();
 
       if (!finalAmount || parseFloat(finalAmount) <= 0) {
-          setError("Veuillez entrer un montant valide.");
+          setError("Veuillez entrer un montant symbolique valide.");
           setLoading(false);
           return;
       }
-      if (!name || !email) {
-          setError("Veuillez remplir tous les champs obligatoires.");
-          setLoading(false);
-          return;
-      }
-
-      const payload = {
-          donateur_nom: name,
-          email: email,
-          montant: finalAmount,
-          methode: method,
-          message: message,
-          status: 'en_attente'
-      };
 
       try {
-          // Envoi à l'API
-          const result = await api.sendDonation(payload);
-          
-          if (result.success) {
-              setSuccess(true);
-          } else {
-              setError(result.error || "Une erreur est survenue lors de l'enregistrement du don.");
-          }
+          const result = await api.sendDonation({
+              donateur_nom: name,
+              email: email,
+              montant: finalAmount,
+              methode: method,
+              message: message,
+              status: 'en_attente'
+          });
+          if (result.success) setSuccess(true);
+          else setError(result.error || "Erreur de transmission.");
       } catch (err) {
-          setError("Erreur de connexion au serveur.");
+          setError("Erreur de connexion.");
       } finally {
           setLoading(false);
       }
   };
 
-  const renderPaymentInstructions = () => {
-      let icon = <AlertTriangle className="text-orange-500 mb-4 mx-auto" size={48} />;
-      let title = "Méthode Indisponible";
-      let content = <p className="text-gray-600">Le paiement par {method} n'est pas encore disponible automatiquement. Veuillez réessayer plus tard ou choisir Airtel Money.</p>;
-
-      if (method === 'Airtel Money') {
-          icon = <Phone className="text-red-600 mb-4 mx-auto" size={48} />;
-          title = "Finaliser votre don via Airtel Money";
-          content = (
-              <div className="bg-red-50 border border-red-100 p-6 rounded-lg text-left">
-                  <p className="font-bold text-gray-800 mb-2">Instructions :</p>
-                  <ol className="list-decimal list-inside space-y-2 text-gray-700 text-sm mb-4">
-                      <li>Ouvrez votre menu Airtel Money.</li>
-                      <li>Choisissez l'option "Envoi Argent".</li>
-                      <li>Entrez le numéro : <span className="font-bold text-xl text-red-600 select-all">+243 994 280 037</span></li>
-                      <li>Montant : <span className="font-bold">{getFinalAmount()}$</span></li>
-                      <li>Confirmez la transaction avec votre code PIN.</li>
-                  </ol>
-                  <p className="text-xs text-gray-500 italic">
-                      Une fois le transfert effectué, notre administrateur validera votre don et vous recevrez un email de confirmation.
-                  </p>
-              </div>
-          );
-      } else if (method === 'M-Pesa') {
-           icon = <Smartphone className="text-green-600 mb-4 mx-auto" size={48} />;
-           title = "M-Pesa (Indisponible)";
-           content = <p className="text-gray-600">Le numéro M-Pesa pour les dons est temporairement indisponible. Veuillez utiliser Airtel Money.</p>;
-      } else if (method === 'Orange Money') {
-           icon = <Smartphone className="text-orange-600 mb-4 mx-auto" size={48} />;
-           title = "Orange Money (Indisponible)";
-           content = <p className="text-gray-600">Le numéro Orange Money pour les dons est temporairement indisponible. Veuillez utiliser Airtel Money.</p>;
-      } else if (method === 'Carte') {
-           icon = <CreditCard className="text-blue-600 mb-4 mx-auto" size={48} />;
-           title = "Virement Bancaire / Carte";
-           content = <p className="text-gray-600">Le paiement par carte en ligne est en cours de maintenance. Veuillez effectuer un transfert mobile si possible.</p>;
-      }
-
-      return (
-          <div className="text-center py-8 animate-in fade-in zoom-in duration-300">
-               <div className="mb-6 flex justify-center">
-                   <div className="bg-green-100 p-3 rounded-full">
-                       <CheckCircle className="text-green-600" size={40} />
-                   </div>
-               </div>
-               <h2 className="text-2xl font-bold text-gray-800 mb-2">Merci, {name} !</h2>
-               <p className="text-gray-500 mb-8">Votre promesse de don a été enregistrée.</p>
-               
-               <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-                    {icon}
-                    <h3 className="text-xl font-bold mb-4">{title}</h3>
-                    {content}
-               </div>
-
-               <button 
-                onClick={() => { setSuccess(false); setName(''); setEmail(''); setMessage(''); }} 
-                className="mt-8 text-comfort-blue font-bold hover:underline"
-               >
-                   Faire un autre don
-               </button>
-          </div>
-      );
-  };
-
   return (
-    <div className="py-16 bg-gray-50 min-h-screen">
-      <div className="container mx-auto px-4 max-w-4xl">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-serif font-bold text-comfort-blue mb-4">{t('donate.title')}</h1>
-          <p className="text-xl text-gray-600">{t('donate.subtitle')}</p>
+    <div className="py-24 bg-white min-h-screen font-sans">
+      <div className="container mx-auto px-6 max-w-6xl">
+        
+        {/* EN-TETE SOLENNELLE */}
+        <div className="text-center mb-24 animate-fade-in-up">
+          <span className="text-comfort-gold font-bold uppercase tracking-[0.4em] text-xs mb-6 block">Acte de Solidarité</span>
+          <h1 className="text-5xl md:text-7xl font-serif font-bold text-comfort-blue mb-8 leading-tight">{t('donate.title')}</h1>
+          <div className="h-1 w-20 bg-comfort-gold mx-auto mb-8"></div>
+          <p className="text-xl text-gray-500 font-light max-w-2xl mx-auto leading-relaxed italic">
+            "Soutenir COMFORT, c'est investir dans la dignité de ceux qui n'ont que leur résilience pour avancer."
+          </p>
         </div>
 
-        {success ? renderPaymentInstructions() : (
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* Donation Form */}
-          <div className="md:col-span-2 bg-white p-8 rounded-lg shadow-md border border-gray-100">
-            <h2 className="text-xl font-bold mb-6 flex items-center">
-              <Heart className="text-red-500 mr-2" fill="currentColor" size={20} />
+        {success ? (
+          <div className="max-w-2xl mx-auto text-center py-20 bg-comfort-light border border-gray-100 shadow-2xl animate-in zoom-in duration-500">
+             <div className="bg-comfort-gold/10 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-10">
+                <CheckCircle className="text-comfort-gold" size={48} />
+             </div>
+             <h2 className="text-3xl font-serif font-bold text-comfort-blue mb-6">Merci pour votre noblesse, {name}.</h2>
+             <p className="text-gray-600 mb-12 font-light">Votre promesse de don de <span className="font-bold text-comfort-blue">{getFinalAmount()}$</span> est enregistrée. Veuillez finaliser via votre application bancaire ou mobile.</p>
+             <button onClick={() => setSuccess(false)} className="text-comfort-gold font-bold uppercase tracking-widest hover:underline">Faire un nouvel acte</button>
+          </div>
+        ) : (
+        <div className="grid lg:grid-cols-12 gap-20">
+          
+          {/* FORMULAIRE EPAURE */}
+          <div className="lg:col-span-7 bg-white">
+            <h2 className="text-2xl font-serif font-bold text-comfort-blue mb-12 flex items-center">
+              <span className="w-8 h-[1px] bg-comfort-gold mr-4"></span>
               {t('donate.choose_amount')}
             </h2>
             
-            {/* Amount Selection */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              {[10, 25, 50, 100, 250, 500].map((val) => (
+            <div className="grid grid-cols-3 gap-6 mb-12">
+              {[25, 50, 100, 250, 500, 1000].map((val) => (
                 <button
                   key={val}
                   type="button"
                   onClick={() => { setAmount(val); setCustomAmount(''); }}
-                  className={`py-3 rounded border font-semibold transition-all ${
+                  className={`py-6 border font-bold transition-all duration-500 tracking-widest ${
                     amount === val 
-                      ? 'bg-comfort-blue text-white border-comfort-blue' 
-                      : 'bg-white text-gray-600 border-gray-200 hover:border-comfort-blue'
+                      ? 'bg-comfort-blue text-white border-comfort-blue shadow-xl scale-105' 
+                      : 'bg-white text-gray-400 border-gray-100 hover:border-comfort-gold hover:text-comfort-gold'
                   }`}
                 >
                   ${val}
@@ -170,117 +105,89 @@ const Donate: React.FC = () => {
               ))}
             </div>
 
-            <div className="mb-8">
-              <label className="block text-sm font-medium text-gray-700 mb-2">{t('donate.other_amount')}</label>
-              <div className="relative">
-                <span className="absolute left-4 top-3 text-gray-500">$</span>
-                <input 
-                  type="number" 
-                  value={customAmount}
-                  onChange={handleCustomChange}
-                  className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-comfort-blue focus:border-transparent outline-none"
-                  placeholder="0.00"
-                />
-              </div>
+            <div className="mb-16">
+              <input 
+                type="number" 
+                value={customAmount}
+                onChange={handleCustomChange}
+                className="w-full bg-transparent border-b-2 border-gray-100 py-6 text-2xl font-light outline-none focus:border-comfort-gold transition-colors"
+                placeholder="Ou entrez un autre montant libre ($)"
+              />
             </div>
 
-            <form onSubmit={handleSubmit}>
-                <h2 className="text-xl font-bold mb-6">{t('donate.your_info')}</h2>
+            <form onSubmit={handleSubmit} className="space-y-8">
+                <h2 className="text-2xl font-serif font-bold text-comfort-blue mb-12 flex items-center">
+                    <span className="w-8 h-[1px] bg-comfort-gold mr-4"></span>
+                    Vos Coordonnées
+                </h2>
                 
-                {error && <div className="bg-red-50 text-red-600 p-3 rounded border border-red-200 mb-4 text-sm">{error}</div>}
+                {error && <div className="bg-red-50 text-red-600 p-4 font-bold text-sm border-l-4 border-red-500 mb-6">{error}</div>}
 
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Nom Complet *</label>
+                <div className="grid md:grid-cols-2 gap-8">
                     <input 
-                        type="text" 
-                        required
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Ex: Jean Dupont" 
-                        className="w-full border border-gray-300 p-3 rounded focus:ring-comfort-blue focus:border-comfort-blue outline-none" 
+                        type="text" required value={name} onChange={(e) => setName(e.target.value)}
+                        placeholder="Nom Complet institutionnel" 
+                        className="w-full bg-comfort-light border-b border-gray-200 p-5 outline-none focus:border-comfort-gold transition-all font-light" 
                     />
-                </div>
-                
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Adresse Email *</label>
                     <input 
-                        type="email" 
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Ex: jean@exemple.com" 
-                        className="w-full border border-gray-300 p-3 rounded focus:ring-comfort-blue focus:border-comfort-blue outline-none" 
+                        type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Adresse Email de contact" 
+                        className="w-full bg-comfort-light border-b border-gray-200 p-5 outline-none focus:border-comfort-gold transition-all font-light" 
                     />
                 </div>
 
-                <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Message (Optionnel)</label>
-                    <textarea 
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Un petit mot de soutien..." 
-                        rows={3}
-                        className="w-full border border-gray-300 p-3 rounded focus:ring-comfort-blue focus:border-comfort-blue outline-none resize-none" 
-                    />
-                </div>
+                <textarea 
+                    value={message} onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Un message pour nos équipes (optionnel)..." 
+                    rows={3}
+                    className="w-full bg-comfort-light border-b border-gray-200 p-5 outline-none focus:border-comfort-gold transition-all font-light resize-none" 
+                />
 
-                <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Méthode de paiement</label>
-                    <div className="relative">
-                        <select 
-                            value={method}
-                            onChange={(e) => setMethod(e.target.value)}
-                            className="w-full border border-gray-300 p-3 rounded focus:ring-comfort-blue focus:border-comfort-blue outline-none appearance-none bg-white"
-                        >
-                            <option value="Carte">Carte Bancaire / Visa / Mastercard</option>
-                            <option value="Airtel Money">Airtel Money</option>
-                            <option value="M-Pesa">M-Pesa (Vodacom)</option>
-                            <option value="Orange Money">Orange Money</option>
-                        </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                    </div>
-                </div>
+                <select 
+                    value={method} onChange={(e) => setMethod(e.target.value)}
+                    className="w-full bg-comfort-light border-b border-gray-200 p-5 outline-none focus:border-comfort-gold transition-all font-bold text-sm uppercase tracking-widest bg-white"
+                >
+                    <option value="Carte">Virement / Carte Bancaire</option>
+                    <option value="Airtel Money">Airtel Money (Recommandé)</option>
+                    <option value="M-Pesa">M-Pesa</option>
+                </select>
 
                 <button 
-                    type="submit" 
-                    disabled={loading}
-                    className="w-full bg-comfort-blue text-white text-lg font-bold py-4 rounded hover:bg-blue-900 transition-colors shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center"
+                    type="submit" disabled={loading}
+                    className="w-full bg-comfort-blue text-white py-6 font-bold uppercase tracking-[0.3em] hover:bg-comfort-gold transition-all duration-700 shadow-2xl disabled:opacity-50"
                 >
-                    {loading ? (
-                        <span>Traitement...</span>
-                    ) : (
-                        <span>{t('donate.button')} ${getFinalAmount() || '0'}</span>
-                    )}
+                    {loading ? "Transmission..." : `Confirmer l'acte de don : ${getFinalAmount() || '0'}$`}
                 </button>
                 
-                <p className="text-xs text-gray-400 mt-4 flex items-center justify-center">
-                    <Lock size={12} className="mr-1" /> {t('donate.secure')}
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] text-center flex items-center justify-center">
+                    <Lock size={12} className="mr-3 text-comfort-gold" /> Protocole de sécurité institutionnel actif
                 </p>
             </form>
           </div>
 
-          {/* Sidebar Info */}
-          <div className="md:col-span-1">
-             <div className="bg-blue-900 text-white p-6 rounded-lg shadow-lg mb-6 sticky top-24">
-               <h3 className="font-bold text-lg mb-4">{t('donate.why_give')}</h3>
-               <ul className="space-y-4 text-blue-100 text-sm">
+          {/* SIDEBAR IMPACT */}
+          <div className="lg:col-span-5">
+             <div className="bg-comfort-dark text-white p-12 shadow-2xl sticky top-32">
+               <ShieldCheck size={40} className="text-comfort-gold mb-8" />
+               <h3 className="text-2xl font-serif font-bold mb-8">Transparence & Garantie</h3>
+               <ul className="space-y-8 text-gray-300 font-light text-sm">
                  <li className="flex items-start">
-                   <span className="mr-2 text-yellow-400 font-bold">•</span> $25 fournit des kits scolaires pour 5 enfants déplacés.
+                   <span className="w-2 h-2 bg-comfort-gold rounded-full mt-1.5 mr-4 flex-shrink-0"></span>
+                   100% de votre contribution est allouée aux programmes de terrain.
                  </li>
                  <li className="flex items-start">
-                   <span className="mr-2 text-yellow-400 font-bold">•</span> $100 finance des soins médicaux d'urgence pour une famille.
+                   <span className="w-2 h-2 bg-comfort-gold rounded-full mt-1.5 mr-4 flex-shrink-0"></span>
+                   Chaque don est suivi d'un rapport d'impact annuel détaillé.
                  </li>
                  <li className="flex items-start">
-                   <span className="mr-2 text-yellow-400 font-bold">•</span> $500 contribue à la construction d'un puits communautaire.
+                   <span className="w-2 h-2 bg-comfort-gold rounded-full mt-1.5 mr-4 flex-shrink-0"></span>
+                   Votre anonymat ou votre visibilité institutionnelle est respectée selon votre choix.
                  </li>
                </ul>
-               <div className="mt-6 pt-6 border-t border-blue-800">
-                   <h3 className="font-bold text-white mb-2">{t('donate.help')}</h3>
-                   <p className="text-sm text-blue-200 mb-2">Une question sur les méthodes de paiement ?</p>
-                   <a href="mailto:donations@comfortasbl.org" className="text-yellow-400 text-sm font-semibold hover:underline block mb-1">donations@comfortasbl.org</a>
-                   <a href="tel:+243994280037" className="text-yellow-400 text-sm font-semibold hover:underline block">+243 994 280 037</a>
+               <div className="mt-12 pt-12 border-t border-white/10">
+                   <p className="text-xs uppercase tracking-widest text-gray-500 mb-4">Assistance Donateur</p>
+                   <a href="mailto:donations@comfortasbl.org" className="text-comfort-gold font-bold hover:underline block text-lg mb-2">donations@comfortasbl.org</a>
+                   <p className="text-sm text-gray-400">+243 994 280 037</p>
                </div>
              </div>
           </div>
