@@ -178,7 +178,7 @@ export const api = {
 
   getRawActions: () => fetchData<ApiAction[]>('actions.php').then(d => d || []),
   createAction: (data: any) => sendData('actions.php', 'POST', data),
-  updateAction: (id: string, data: any) => sendData(`actions.php?id=${id}`, 'PUT', data),
+  updateAction: (id: string, data: any) => sendData(`users.php?id=${id}`, 'PUT', data),
   deleteAction: (id: string) => sendData(`actions.php?id=${id}`, 'DELETE'),
 
   getRawArticles: () => fetchData<ApiArticle[]>('articles.php').then(d => d || []),
@@ -191,15 +191,7 @@ export const api = {
   updatePartner: (id: string, data: any) => sendData(`partners.php?id=${id}`, 'PUT', data),
   deletePartner: (id: string) => sendData(`partners.php?id=${id}`, 'DELETE'),
 
-  getSettings: () => fetchData<SiteSettings>('settings.php').then(d => d || {
-    logoUrl: getAbsoluteUrl('assets/images/logo1.png'), 
-    faviconUrl: getAbsoluteUrl('assets/images/favicon.ico'),
-    siteName: 'COMFORT Asbl',
-    contactEmail: 'contact@comfortasbl.org',
-    contactPhone: '+243 994 280 037',
-    contactAddress: 'Katindo Beni 108, Goma, RDC',
-    socialLinks: { facebook: 'https://facebook.com', twitter: 'https://x.com' }
-  }),
+  getSettings: () => fetchData<SiteSettings>('settings.php'),
   getTeam: () => fetchData<TeamMember[]>('team.php').then(d => d || []),
   getTestimonials: () => fetchData<Testimonial[]>('testimonials.php').then(d => d || []),
 };

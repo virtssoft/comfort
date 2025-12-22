@@ -28,7 +28,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const loadData = async () => {
     setLoading(true);
     try {
-      // Execute all fetches in parallel
+      // On fetch tout en parallèle sans fallback local. Si ça échoue, on a des tableaux vides.
       const [
         fetchedSettings,
         fetchedProjects,
@@ -46,15 +46,16 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       ]);
 
       setSettings(fetchedSettings);
-      setProjects(fetchedProjects);
-      setBlogPosts(fetchedPosts);
-      setPartners(fetchedPartners);
-      setTeamMembers(fetchedTeam);
-      setTestimonials(fetchedTestimonials);
+      setProjects(fetchedProjects || []);
+      setBlogPosts(fetchedPosts || []);
+      setPartners(fetchedPartners || []);
+      setTeamMembers(fetchedTeam || []);
+      setTestimonials(fetchedTestimonials || []);
     } catch (error) {
-      console.error("Failed to load data, using fallbacks where possible", error);
+      console.error("Erreur critique de chargement API");
     } finally {
-      setLoading(false);
+      // On laisse un léger délai pour que le Splash Screen soit visible et pro
+      setTimeout(() => setLoading(false), 800);
     }
   };
 
