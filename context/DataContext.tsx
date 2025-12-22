@@ -28,15 +28,9 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const loadData = async () => {
     setLoading(true);
     try {
-      // On fetch tout en parallèle sans fallback local. Si ça échoue, on a des tableaux vides.
-      const [
-        fetchedSettings,
-        fetchedProjects,
-        fetchedPosts,
-        fetchedPartners,
-        fetchedTeam,
-        fetchedTestimonials
-      ] = await Promise.all([
+      // On utilise allSettled pour ne pas bloquer si UNE seule requête échoue, 
+      // mais on attend que TOUTES aient tenté de charger.
+      const results = await Promise.allSettled([
         api.getSettings(),
         api.getProjects(),
         api.getBlogPosts(),
@@ -45,17 +39,20 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         api.getTestimonials()
       ]);
 
-      setSettings(fetchedSettings);
-      setProjects(fetchedProjects || []);
-      setBlogPosts(fetchedPosts || []);
-      setPartners(fetchedPartners || []);
-      setTeamMembers(fetchedTeam || []);
-      setTestimonials(fetchedTestimonials || []);
+      // Extraction des résultats
+      if (results[0].status === 'fulfilled') setSettings(results[0].value);
+      if (results[1].status === 'fulfilled') setProjects(results[1].value || []);
+      if (results[2].status === 'fulfilled') setBlogPosts(results[2].value || []);
+      if (results[3].status === 'fulfilled') setPartners(results[3].value || []);
+      if (results[4].status === 'fulfilled') setTeamMembers(results[4].value || []);
+      if (results[5].status === 'fulfilled') setTestimonials(results[5].value || []);
+
     } catch (error) {
       console.error("Erreur critique de chargement API");
     } finally {
-      // On laisse un léger délai pour que le Splash Screen soit visible et pro
-      setTimeout(() => setLoading(false), 800);
+      // On garantit un temps minimum de loader pour que les squelettes se stabilisent 
+      // et que les premières images commencent à être mises en cache par le navigateur.
+      setTimeout(() => setLoading(false), 1500);
     }
   };
 

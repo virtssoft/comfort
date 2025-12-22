@@ -18,7 +18,6 @@ import { DataProvider, useData } from './context/DataContext';
 import { AuthProvider } from './context/AuthContext';
 import { ArrowLeft, Calendar, User } from 'lucide-react';
 
-/* --- SCROLL TO TOP COMPONENT --- */
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -27,56 +26,39 @@ const ScrollToTop = () => {
   return null;
 };
 
-/* --- Inline Components --- */
-
 const ProjectDetails = () => {
   const { id } = useParams<{id: string}>();
   const { t } = useLanguage();
-  const { projects, loading } = useData(); 
+  const { projects } = useData(); 
   const project = projects.find(p => String(p.id) === id);
 
-  if (loading) return <div className="py-40 container mx-auto px-6 bg-gray-50 animate-pulse h-screen rounded-xl"></div>;
-
-  if (!project) return (
-    <div className="py-20 text-center">
-       <h1 className="text-2xl font-bold">{t('project_details.not_found')}</h1>
-       <p>{t('project_details.not_found_text')}</p>
-    </div>
-  );
-
-  const getDescParts = (text: string) => {
-      if (!text) return { intro: '', body: '' };
-      const match = text.match(/^(.+?[\.!\?])(?:\s+(.*))?$/s);
-      if (match) return { intro: match[1], body: match[2] || '' };
-      return { intro: text, body: '' };
-  };
-
-  const { intro, body } = getDescParts(project.description);
+  if (!project) return <div className="py-40 text-center font-bold text-gray-400">Chargement du projet...</div>;
 
   return (
-    <div className="py-20 bg-white">
+    <div className="py-20 bg-white animate-in fade-in duration-500">
        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
-         <div className="rounded-2xl overflow-hidden shadow-2xl mb-10 bg-gray-100">
-            <img src={project.image} alt={project.title} className="w-full h-[400px] md:h-[500px] object-cover" />
+         <div className="rounded-2xl overflow-hidden shadow-2xl mb-10 bg-gray-100 aspect-video">
+            <img 
+              src={project.image} 
+              alt={project.title} 
+              className="w-full h-full object-cover" 
+              loading="lazy"
+            />
          </div>
          <div className="flex items-center justify-between mb-6">
             <span className="bg-blue-50 text-comfort-blue px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wide border border-blue-100">{project.category}</span>
             <div className="flex items-center text-gray-500 text-sm font-medium">
                <Calendar size={16} className="mr-2" />
-               {project.date} 
-               {project.endDate && ` - ${project.endDate}`}
+               {project.date}
             </div>
          </div>
          <h1 className="text-3xl md:text-5xl font-serif font-bold text-comfort-blue mb-8 leading-tight">{project.title}</h1>
-         
-         <div className="prose prose-lg text-gray-700 max-w-none mb-16 leading-relaxed">
-           <p className="text-xl font-light text-gray-800 mb-6 border-l-4 border-comfort-blue pl-6 italic">{intro}</p>
-           {body && <div className="whitespace-pre-line">{body}</div>}
+         <div className="prose prose-lg text-gray-700 max-w-none mb-16 whitespace-pre-line leading-relaxed">
+           {project.description}
          </div>
-         
          <div className="bg-blue-50 p-10 rounded-2xl border border-blue-100 text-center shadow-sm">
             <h3 className="text-2xl font-bold mb-6 text-gray-900">{t('project_details.support_title')}</h3>
-            <Link to="/donate" className="inline-block bg-comfort-blue text-white font-bold py-4 px-10 rounded-sm hover:bg-blue-900 transition-all uppercase tracking-widest shadow-lg hover:-translate-y-1">
+            <Link to="/donate" className="inline-block bg-comfort-blue text-white font-bold py-4 px-10 rounded-sm hover:bg-blue-900 transition-all uppercase tracking-widest shadow-lg">
               {t('project_details.donate_button')}
             </Link>
          </div>
@@ -88,14 +70,13 @@ const ProjectDetails = () => {
 const BlogPostDetails = () => {
     const { id } = useParams<{id: string}>();
     const navigate = useNavigate();
-    const { blogPosts, loading } = useData(); 
+    const { blogPosts } = useData(); 
     const post = blogPosts.find(p => String(p.id) === id);
 
-    if (loading) return <div className="py-40 container mx-auto px-6 bg-gray-50 animate-pulse h-screen rounded-xl"></div>;
-    if (!post) return <div className="p-20 text-center">Article non trouvé</div>;
+    if (!post) return <div className="p-40 text-center text-gray-400">Chargement de l'article...</div>;
 
     return (
-        <div className="py-20 bg-white font-sans">
+        <div className="py-20 bg-white font-sans animate-in fade-in duration-500">
             <div className="container mx-auto px-4 md:px-6 max-w-3xl">
                 <button onClick={() => navigate(-1)} className="flex items-center text-gray-500 hover:text-comfort-blue mb-8 transition-colors font-medium">
                     <ArrowLeft size={20} className="mr-2" /> Retour
@@ -108,11 +89,10 @@ const BlogPostDetails = () => {
                         <span className="flex items-center"><User size={16} className="mr-2"/> {post.author}</span>
                     </div>
                 </div>
-                <div className="rounded-xl overflow-hidden mb-10 shadow-lg bg-gray-100">
-                    <img src={post.image} alt={post.title} className="w-full h-auto object-cover" />
+                <div className="rounded-xl overflow-hidden mb-10 shadow-lg bg-gray-100 aspect-video">
+                    <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
                 </div>
                 <div className="prose prose-lg text-gray-700 leading-relaxed max-w-none">
-                    <p className="font-bold text-xl text-gray-900 mb-6">{post.excerpt}</p>
                     <div className="whitespace-pre-wrap">{post.excerpt}</div>
                 </div>
             </div>
@@ -122,32 +102,34 @@ const BlogPostDetails = () => {
 
 const AppContent = () => {
     const { settings, loading } = useData();
-    const { pathname } = useLocation();
 
-    // Mise à jour favicon et titre
+    // Mise à jour favicon et titre dès que l'API répond
     useEffect(() => {
-        const faviconUrl = settings?.faviconUrl || "https://api.comfortasbl.org/assets/images/logo1.png";
-        const siteName = settings?.siteName || "COMFORT Asbl";
+        if (!settings) return;
+        
+        const siteName = settings.siteName || "COMFORT Asbl";
+        const faviconUrl = settings.faviconUrl || "https://api.comfortasbl.org/assets/images/logo1.png";
 
-        // Update favicon link
+        document.title = siteName;
+        
+        // Force l'update du favicon dans le DOM
         let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
         if (!link) {
             link = document.createElement('link');
             link.rel = 'icon';
             document.head.appendChild(link);
         }
-        link.href = faviconUrl;
+        link.href = `${faviconUrl}?v=${new Date().getTime()}`; // Cache busting pour forcer le refresh
         link.type = 'image/png';
-
-        // Update title
-        document.title = siteName;
     }, [settings]);
 
     return (
         <>
             {loading && <LoadingOverlay />}
             <ScrollToTop />
-            <div className={`transition-opacity duration-500 ${loading ? 'opacity-0' : 'opacity-100'}`}>
+            
+            {/* L'UI est rendue mais invisible (opacity-0) pendant le loading pour permettre au navigateur de pré-charger les squelettes */}
+            <div className={`transition-opacity duration-1000 ${loading ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
                 <Routes>
                     <Route path="/" element={<><Header /><Home /><Footer /></>} />
                     <Route path="/about" element={<><Header /><About /><Footer /></>} />
@@ -163,6 +145,10 @@ const AppContent = () => {
                     <Route path="*" element={<><Header /><Home /><Footer /></>} />
                 </Routes>
             </div>
+            
+            {/* Si on est en train de charger, on peut aussi afficher un squelette global si nécessaire, 
+                mais le LoadingOverlay + l'opacity-0 des routes gère déjà l'attente propre. */}
+            
             <ScrollToTopButton />
         </>
     )

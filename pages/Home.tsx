@@ -12,6 +12,7 @@ const Home: React.FC = () => {
   const { projects, testimonials, partners, loading, settings } = useData();
   
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
+  const [heroImageLoaded, setHeroImageLoaded] = useState(false);
 
   useEffect(() => {
     if (testimonials.length > 0) {
@@ -21,6 +22,16 @@ const Home: React.FC = () => {
       return () => clearInterval(timer);
     }
   }, [testimonials]);
+
+  // Pré-chargement de l'image Hero
+  useEffect(() => {
+    if (!loading) {
+        const img = new Image();
+        img.src = "https://api.comfortasbl.org/assets/images/hero-bg.jpg";
+        img.onload = () => setHeroImageLoaded(true);
+        img.onerror = () => setHeroImageLoaded(true); // On débloque quand même si erreur
+    }
+  }, [loading]);
 
   const getIcon = (iconName: string, size = 24, className = "") => {
     switch (iconName) {
@@ -33,6 +44,7 @@ const Home: React.FC = () => {
     }
   };
 
+  // Si l'application globale est en loading, on affiche les squelettes
   if (loading) {
     return (
       <div className="bg-white">
@@ -49,7 +61,6 @@ const Home: React.FC = () => {
     );
   }
 
-  // L'image Hero doit venir de l'API ou être un fond de couleur si absente
   const heroImage = "https://api.comfortasbl.org/assets/images/hero-bg.jpg";
 
   return (
@@ -57,14 +68,16 @@ const Home: React.FC = () => {
       {/* 🟦 1. SECTION HERO */}
       <section className="relative h-[650px] md:h-[800px] flex items-center overflow-hidden bg-comfort-blue">
         <div className="absolute inset-0 z-0">
+            {/* L'image n'apparaît que lorsqu'elle est totalement chargée pour un effet lisse */}
             <img 
                 src={heroImage}
                 alt="Humanitarian Action" 
-                className="absolute inset-0 w-full h-full object-cover opacity-50" 
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${heroImageLoaded ? 'opacity-60' : 'opacity-0'}`} 
                 onError={(e) => {
                     e.currentTarget.style.display = 'none';
                 }}
             />
+            {!heroImageLoaded && <div className="absolute inset-0 bg-comfort-blue animate-pulse"></div>}
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent z-1"></div>
 
@@ -125,11 +138,11 @@ const Home: React.FC = () => {
                         {t('about_section.button')}
                     </Link>
                 </div>
-                <div className="relative bg-gray-100 rounded-lg min-h-[400px]">
+                <div className="relative bg-gray-100 rounded-lg aspect-square lg:aspect-auto lg:h-[500px] overflow-hidden">
                     <img 
                         src="https://api.comfortasbl.org/assets/images/about-hero.jpg"
                         alt="COMFORT Impact" 
-                        className="rounded-lg shadow-2xl w-full object-cover h-[500px]"
+                        className="w-full h-full object-cover shadow-2xl transition-opacity duration-1000"
                         loading="lazy"
                         onError={(e) => {
                             e.currentTarget.style.display = 'none';
@@ -178,7 +191,7 @@ const Home: React.FC = () => {
               {projects.slice(0, 3).map((project) => (
                 <div key={project.id} className="group">
                    <div className="h-64 overflow-hidden rounded-lg mb-6 bg-gray-100">
-                      <img src={project.image} alt={project.title} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
+                      <img src={project.image} alt={project.title} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" loading="lazy" />
                    </div>
                    <span className="text-comfort-blue text-xs font-bold uppercase tracking-widest mb-2 block">{project.category}</span>
                    <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-comfort-blue transition-colors">{project.title}</h3>
@@ -203,7 +216,7 @@ const Home: React.FC = () => {
               </p>
               <div className="flex flex-col items-center">
                  <div className="w-20 h-20 rounded-full border-2 border-white/30 mb-4 bg-gray-800 overflow-hidden">
-                    <img src={testimonials[currentTestimonial].image} alt={testimonials[currentTestimonial].name} className="w-full h-full object-cover" />
+                    <img src={testimonials[currentTestimonial].image} alt={testimonials[currentTestimonial].name} className="w-full h-full object-cover" loading="lazy" />
                  </div>
                  <h4 className="font-bold text-xl">{testimonials[currentTestimonial].name}</h4>
                  <span className="text-sm text-blue-200 uppercase tracking-widest font-medium">{testimonials[currentTestimonial].role}</span>
@@ -220,7 +233,7 @@ const Home: React.FC = () => {
             <div className="flex w-max animate-marquee items-center gap-16 px-4">
                 {partners.concat(partners).map((partner, idx) => (
                     <div key={`${partner.id}-${idx}`} className="w-40 flex items-center justify-center">
-                        <img src={partner.logo} alt={partner.name} className="max-h-12 w-auto object-contain grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all" />
+                        <img src={partner.logo} alt={partner.name} className="max-h-12 w-auto object-contain grayscale opacity-60 hover:opacity-100 hover:grayscale-0 transition-all" loading="lazy" />
                     </div>
                 ))}
             </div>
