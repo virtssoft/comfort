@@ -32,8 +32,10 @@ const ScrollToTop = () => {
 const ProjectDetails = () => {
   const { id } = useParams<{id: string}>();
   const { t } = useLanguage();
-  const { projects } = useData(); 
+  const { projects, loading } = useData(); 
   const project = projects.find(p => String(p.id) === id);
+
+  if (loading) return <div className="py-40 container mx-auto px-6 bg-gray-50 animate-pulse h-screen rounded-xl"></div>;
 
   if (!project) return (
     <div className="py-20 text-center">
@@ -54,7 +56,7 @@ const ProjectDetails = () => {
   return (
     <div className="py-20 bg-white">
        <div className="container mx-auto px-4 md:px-6 max-w-4xl">
-         <div className="rounded-2xl overflow-hidden shadow-2xl mb-10">
+         <div className="rounded-2xl overflow-hidden shadow-2xl mb-10 bg-gray-100">
             <img src={project.image} alt={project.title} className="w-full h-[400px] md:h-[500px] object-cover" />
          </div>
          <div className="flex items-center justify-between mb-6">
@@ -86,9 +88,10 @@ const ProjectDetails = () => {
 const BlogPostDetails = () => {
     const { id } = useParams<{id: string}>();
     const navigate = useNavigate();
-    const { blogPosts } = useData(); 
+    const { blogPosts, loading } = useData(); 
     const post = blogPosts.find(p => String(p.id) === id);
 
+    if (loading) return <div className="py-40 container mx-auto px-6 bg-gray-50 animate-pulse h-screen rounded-xl"></div>;
     if (!post) return <div className="p-20 text-center">Article non trouvé</div>;
 
     return (
@@ -105,12 +108,12 @@ const BlogPostDetails = () => {
                         <span className="flex items-center"><User size={16} className="mr-2"/> {post.author}</span>
                     </div>
                 </div>
-                <div className="rounded-xl overflow-hidden mb-10 shadow-lg">
+                <div className="rounded-xl overflow-hidden mb-10 shadow-lg bg-gray-100">
                     <img src={post.image} alt={post.title} className="w-full h-auto object-cover" />
                 </div>
                 <div className="prose prose-lg text-gray-700 leading-relaxed max-w-none">
                     <p className="font-bold text-xl text-gray-900 mb-6">{post.excerpt}</p>
-                    <p className="whitespace-pre-wrap">{post.excerpt} {post.excerpt}</p>
+                    <div className="whitespace-pre-wrap">{post.excerpt}</div>
                 </div>
             </div>
         </div>
@@ -119,39 +122,47 @@ const BlogPostDetails = () => {
 
 const AppContent = () => {
     const { settings, loading } = useData();
+    const { pathname } = useLocation();
 
+    // Mise à jour favicon et titre
     useEffect(() => {
-        if (settings?.faviconUrl) {
-            const link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
-            if (link) link.href = settings.faviconUrl;
-            else {
-                const newLink = document.createElement('link');
-                newLink.rel = 'icon';
-                newLink.href = settings.faviconUrl;
-                document.head.appendChild(newLink);
-            }
+        const faviconUrl = settings?.faviconUrl || "https://api.comfortasbl.org/assets/images/logo1.png";
+        const siteName = settings?.siteName || "COMFORT Asbl";
+
+        // Update favicon link
+        let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
+        if (!link) {
+            link = document.createElement('link');
+            link.rel = 'icon';
+            document.head.appendChild(link);
         }
-        if (settings?.siteName) document.title = settings.siteName;
+        link.href = faviconUrl;
+        link.type = 'image/png';
+
+        // Update title
+        document.title = siteName;
     }, [settings]);
 
     return (
         <>
             {loading && <LoadingOverlay />}
             <ScrollToTop />
-            <Routes>
-                <Route path="/" element={<><Header /><Home /><Footer /></>} />
-                <Route path="/about" element={<><Header /><About /><Footer /></>} />
-                <Route path="/projects" element={<><Header /><Projects /><Footer /></>} />
-                <Route path="/projects/:id" element={<><Header /><ProjectDetails /><Footer /></>} />
-                <Route path="/blog" element={<><Header /><Blog /><Footer /></>} />
-                <Route path="/blog/:id" element={<><Header /><BlogPostDetails /><Footer /></>} />
-                <Route path="/donate" element={<><Header /><Donate /><Footer /></>} />
-                <Route path="/account" element={<><Header /><Account /><Footer /></>} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/privacy" element={<><Header /><GenericPage title="Confidentialité">Politique en cours...</GenericPage><Footer /></>} />
-                <Route path="/terms" element={<><Header /><GenericPage title="Mentions Légales">Mentions en cours...</GenericPage><Footer /></>} />
-                <Route path="*" element={<><Header /><Home /><Footer /></>} />
-            </Routes>
+            <div className={`transition-opacity duration-500 ${loading ? 'opacity-0' : 'opacity-100'}`}>
+                <Routes>
+                    <Route path="/" element={<><Header /><Home /><Footer /></>} />
+                    <Route path="/about" element={<><Header /><About /><Footer /></>} />
+                    <Route path="/projects" element={<><Header /><Projects /><Footer /></>} />
+                    <Route path="/projects/:id" element={<><Header /><ProjectDetails /><Footer /></>} />
+                    <Route path="/blog" element={<><Header /><Blog /><Footer /></>} />
+                    <Route path="/blog/:id" element={<><Header /><BlogPostDetails /><Footer /></>} />
+                    <Route path="/donate" element={<><Header /><Donate /><Footer /></>} />
+                    <Route path="/account" element={<><Header /><Account /><Footer /></>} />
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/privacy" element={<><Header /><GenericPage title="Confidentialité">Politique en cours...</GenericPage><Footer /></>} />
+                    <Route path="/terms" element={<><Header /><GenericPage title="Mentions Légales">Mentions en cours...</GenericPage><Footer /></>} />
+                    <Route path="*" element={<><Header /><Home /><Footer /></>} />
+                </Routes>
+            </div>
             <ScrollToTopButton />
         </>
     )

@@ -49,37 +49,41 @@ const Home: React.FC = () => {
     );
   }
 
+  // L'image Hero doit venir de l'API ou être un fond de couleur si absente
+  const heroImage = "https://api.comfortasbl.org/assets/images/hero-bg.jpg";
+
   return (
     <div className="flex flex-col min-h-screen font-sans animate-in fade-in duration-700">
       {/* 🟦 1. SECTION HERO */}
-      <section className="relative h-[650px] md:h-[800px] flex items-center overflow-hidden bg-gray-900">
+      <section className="relative h-[650px] md:h-[800px] flex items-center overflow-hidden bg-comfort-blue">
         <div className="absolute inset-0 z-0">
-           {settings?.logoUrl ? (
-                <img 
-                    src="https://api.comfortasbl.org/assets/images/hero-bg.jpg"
-                    alt="Hero Background" 
-                    className="absolute inset-0 w-full h-full object-cover opacity-60" 
-                />
-           ) : <div className="absolute inset-0 bg-comfort-blue/20"></div>}
+            <img 
+                src={heroImage}
+                alt="Humanitarian Action" 
+                className="absolute inset-0 w-full h-full object-cover opacity-50" 
+                onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                }}
+            />
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent z-1"></div>
 
         <div className="container relative z-10 mx-auto px-4 md:px-6">
           <div className="max-w-3xl animate-in slide-in-from-left duration-1000">
-            <span className="inline-block bg-comfort-blue text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-6 shadow-xl">
+            <span className="inline-block bg-comfort-blue text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-6 shadow-xl border border-white/20">
               {t('hero.badge')}
             </span>
-            <h1 className="text-5xl md:text-7xl font-serif font-bold text-white leading-tight mb-8">
+            <h1 className="text-5xl md:text-7xl font-serif font-bold text-white leading-tight mb-8 drop-shadow-lg">
               {t('hero.title')}
             </h1>
             <p className="text-xl md:text-2xl text-gray-200 mb-10 font-light max-w-2xl leading-relaxed">
               {t('hero.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-               <Link to="/projects" className="bg-comfort-blue text-white px-10 py-4 rounded-sm font-bold tracking-wide uppercase hover:bg-blue-900 transition-all text-center">
+               <Link to="/projects" className="bg-comfort-blue text-white px-10 py-4 rounded-sm font-bold tracking-wide uppercase hover:bg-blue-900 transition-all text-center shadow-lg border border-comfort-blue">
                  {t('hero.discover')}
                </Link>
-               <Link to="/donate" className="bg-white text-comfort-blue px-10 py-4 rounded-sm font-bold tracking-wide uppercase hover:bg-gray-100 transition-all text-center">
+               <Link to="/donate" className="bg-white text-comfort-blue px-10 py-4 rounded-sm font-bold tracking-wide uppercase hover:bg-gray-100 transition-all text-center shadow-lg">
                  {t('hero.donate')}
                </Link>
             </div>
@@ -121,12 +125,15 @@ const Home: React.FC = () => {
                         {t('about_section.button')}
                     </Link>
                 </div>
-                <div className="relative">
+                <div className="relative bg-gray-100 rounded-lg min-h-[400px]">
                     <img 
                         src="https://api.comfortasbl.org/assets/images/about-hero.jpg"
-                        alt="A propos de nous" 
-                        className="rounded-lg shadow-2xl w-full object-cover h-[500px] bg-gray-200"
+                        alt="COMFORT Impact" 
+                        className="rounded-lg shadow-2xl w-full object-cover h-[500px]"
                         loading="lazy"
+                        onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                        }}
                     />
                 </div>
             </div>
@@ -195,7 +202,9 @@ const Home: React.FC = () => {
                 "{testimonials[currentTestimonial].content}"
               </p>
               <div className="flex flex-col items-center">
-                 <img src={testimonials[currentTestimonial].image} alt={testimonials[currentTestimonial].name} className="w-20 h-20 rounded-full border-2 border-white/30 object-cover mb-4 bg-gray-800" />
+                 <div className="w-20 h-20 rounded-full border-2 border-white/30 mb-4 bg-gray-800 overflow-hidden">
+                    <img src={testimonials[currentTestimonial].image} alt={testimonials[currentTestimonial].name} className="w-full h-full object-cover" />
+                 </div>
                  <h4 className="font-bold text-xl">{testimonials[currentTestimonial].name}</h4>
                  <span className="text-sm text-blue-200 uppercase tracking-widest font-medium">{testimonials[currentTestimonial].role}</span>
               </div>

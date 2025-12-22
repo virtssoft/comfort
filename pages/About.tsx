@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
@@ -6,9 +7,8 @@ import { Heart, BookOpen, HandCoins, Wheat, Palette, Shield, Activity, TrendingU
 
 const About: React.FC = () => {
   const { t } = useLanguage();
-  const { partners, settings } = useData();
+  const { partners, settings, loading } = useData();
 
-  // Use dynamic settings if available, fallback to constants
   const contactEmail = settings?.contactEmail || CONTACT_INFO.email;
   const contactPhone = settings?.contactPhone || CONTACT_INFO.phone;
   const contactAddress = settings?.contactAddress || CONTACT_INFO.address;
@@ -24,17 +24,19 @@ const About: React.FC = () => {
     }
   };
 
+  if (loading) return <div className="py-40 bg-gray-50 min-h-screen animate-pulse"></div>;
+
   return (
     <div className="flex flex-col min-h-screen font-sans">
       
       {/* 🟦 1. HERO SECTION */}
-      <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-comfort-blue">
         <div className="absolute inset-0">
           <img 
             src="https://api.comfortasbl.org/assets/images/about-hero.jpg"
-            onError={(e) => e.currentTarget.src = "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=2070&auto=format&fit=crop"}
             alt="Humanitarian Work" 
             className="w-full h-full object-cover"
+            onError={(e) => e.currentTarget.style.display = 'none'}
           />
           <div className="absolute inset-0 bg-comfort-blue/70 mix-blend-multiply"></div>
           <div className="absolute inset-0 bg-black/30"></div>
@@ -59,13 +61,13 @@ const About: React.FC = () => {
                 {t('about_page.who_text')}
               </p>
             </div>
-            <div className="relative group">
+            <div className="relative group bg-gray-50 rounded-2xl min-h-[400px]">
               <div className="absolute -inset-4 bg-gray-100 rounded-2xl transform rotate-2 group-hover:rotate-1 transition-all duration-500"></div>
               <img 
                 src="https://api.comfortasbl.org/assets/images/about-who.jpg"
-                onError={(e) => e.currentTarget.src = "https://images.unsplash.com/photo-1559027615-cd4628902d4a?q=80&w=2074&auto=format&fit=crop"}
                 alt="Community Support" 
                 className="relative z-10 rounded-2xl shadow-xl w-full object-cover h-[500px] transform group-hover:scale-[1.01] transition-transform duration-500"
+                onError={(e) => e.currentTarget.style.display = 'none'}
               />
             </div>
           </div>
@@ -104,25 +106,21 @@ const About: React.FC = () => {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-             {/* Card 1 */}
              <div className="bg-white p-8 rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
                 <Shield className="text-comfort-blue mb-6 group-hover:scale-110 transition-transform" size={40} strokeWidth={1.5} />
                 <h3 className="text-xl font-bold text-gray-900 mb-3">{t('about_page.obj_1_title')}</h3>
                 <p className="text-gray-500 text-sm leading-relaxed">{t('about_page.obj_1_text')}</p>
              </div>
-             {/* Card 2 */}
              <div className="bg-white p-8 rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
                 <Heart className="text-comfort-blue mb-6 group-hover:scale-110 transition-transform" size={40} strokeWidth={1.5} />
                 <h3 className="text-xl font-bold text-gray-900 mb-3">{t('about_page.obj_2_title')}</h3>
                 <p className="text-gray-500 text-sm leading-relaxed">{t('about_page.obj_2_text')}</p>
              </div>
-             {/* Card 3 */}
              <div className="bg-white p-8 rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
                 <TrendingUp className="text-comfort-blue mb-6 group-hover:scale-110 transition-transform" size={40} strokeWidth={1.5} />
                 <h3 className="text-xl font-bold text-gray-900 mb-3">{t('about_page.obj_3_title')}</h3>
                 <p className="text-gray-500 text-sm leading-relaxed">{t('about_page.obj_3_text')}</p>
              </div>
-             {/* Card 4 */}
              <div className="bg-white p-8 rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
                 <Users className="text-comfort-blue mb-6 group-hover:scale-110 transition-transform" size={40} strokeWidth={1.5} />
                 <h3 className="text-xl font-bold text-gray-900 mb-3">{t('about_page.obj_4_title')}</h3>
@@ -165,12 +163,14 @@ const About: React.FC = () => {
               <p className="text-lg text-gray-700 leading-relaxed mb-8">
                  {t('about_page.approach_text')}
               </p>
-              <img 
-                  src="https://api.comfortasbl.org/assets/images/about-approach.jpg"
-                  onError={(e) => e.currentTarget.src = "https://images.unsplash.com/photo-1573164574572-cb89e39749b4?q=80&w=2069&auto=format&fit=crop"}
-                  alt="Approach" 
-                  className="rounded-xl shadow-lg w-full" 
-              />
+              <div className="rounded-xl shadow-lg w-full bg-gray-100 overflow-hidden min-h-[300px]">
+                <img 
+                    src="https://api.comfortasbl.org/assets/images/about-approach.jpg"
+                    alt="Approach" 
+                    className="w-full" 
+                    onError={(e) => e.currentTarget.style.display = 'none'}
+                />
+              </div>
             </div>
 
             <div className="space-y-0 relative pl-8 border-l-2 border-comfort-blue/20">
@@ -199,7 +199,7 @@ const About: React.FC = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
             {TEAM_MEMBERS.map((member) => (
               <div key={member.id} className="flex flex-col items-center text-center group">
-                <div className="w-48 h-48 rounded-full overflow-hidden mb-6 border-4 border-gray-50 group-hover:border-comfort-blue transition-colors shadow-lg">
+                <div className="w-48 h-48 rounded-full overflow-hidden mb-6 border-4 border-gray-50 group-hover:border-comfort-blue transition-colors shadow-lg bg-gray-100">
                   <img src={member.image} alt={member.name} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
@@ -213,7 +213,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* 🟧 9. PARTENAIRES (SCROLLING MARQUEE - MATCH HOME) */}
+      {/* 🟧 9. PARTENAIRES */}
       <section className="py-16 bg-white border-t border-gray-100 overflow-hidden relative group">
          <div className="container mx-auto px-4 mb-8 text-center">
              <h3 className="text-lg font-serif font-bold text-gray-400 uppercase tracking-widest">{t('about_page.partners_title')}</h3>
@@ -257,18 +257,15 @@ const About: React.FC = () => {
          `}</style>
       </section>
 
-      {/* 🟩 10. SECTION CONTACT (Integrated) */}
+      {/* 🟩 10. SECTION CONTACT */}
       <section className="py-24 bg-white" id="contact-section">
         <div className="container mx-auto px-4 md:px-6">
            <div className="grid lg:grid-cols-2 gap-16">
-              
-              {/* Colonne Gauche - Info */}
               <div>
                  <h2 className="text-3xl font-serif font-bold text-comfort-blue mb-6">{t('contact.title')}</h2>
                  <p className="text-gray-600 mb-10 text-lg">
                    {t('contact.desc')}
                  </p>
-                 
                  <div className="space-y-8">
                     <div className="flex items-start">
                        <MapPin className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
@@ -277,7 +274,6 @@ const About: React.FC = () => {
                           <p className="text-gray-600">{contactAddress}</p>
                        </div>
                     </div>
-                    
                     <div className="flex items-start">
                        <Mail className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
                        <div>
@@ -285,7 +281,6 @@ const About: React.FC = () => {
                           <p className="text-gray-600">{contactEmail}</p>
                        </div>
                     </div>
-
                     <div className="flex items-start">
                        <Phone className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
                        <div>
@@ -293,60 +288,23 @@ const About: React.FC = () => {
                           <p className="text-gray-600">{contactPhone}</p>
                        </div>
                     </div>
-
-                    <div className="flex items-start">
-                       <Clock className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
-                       <div>
-                          <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.hours')}</h4>
-                          <p className="text-gray-600">{CONTACT_INFO.hours}</p>
-                       </div>
-                    </div>
-                 </div>
-
-                 {/* Google Maps Integrated */}
-                 <div className="mt-10 h-64 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 relative">
-                    <iframe 
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.1161023288914!2d29.208470799999997!3d-1.6737250000000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x19dd0f26ed024195%3A0x41de59a10eb8289!2sHibaigle%20SAS!5e0!3m2!1sfr!2scd!4v1765191811649!5m2!1sfr!2scd" 
-                      width="100%" 
-                      height="100%" 
-                      style={{ border: 0 }} 
-                      allowFullScreen 
-                      loading="lazy" 
-                      referrerPolicy="no-referrer-when-downgrade"
-                      title="Google Map"
-                    ></iframe>
                  </div>
               </div>
 
-              {/* Colonne Droite - Direct Contact Replacement */}
               <div className="bg-gray-50 p-8 md:p-12 rounded-lg border border-gray-100 shadow-sm flex flex-col justify-center text-center">
-                  <h3 className="text-2xl font-bold mb-6 text-gray-900">Préférez-vous un contact direct ?</h3>
-                  <p className="text-gray-600 mb-8">
-                      Nous n'utilisons pas de formulaires pour garantir une réponse plus rapide et personnelle. Écrivez-nous ou appelez-nous directement.
-                  </p>
+                  <h3 className="text-2xl font-bold mb-6 text-gray-900">Contact Direct</h3>
                   <div className="space-y-4">
                       <a href={`mailto:${contactEmail}`} className="block w-full bg-comfort-blue text-white font-bold py-4 rounded-sm uppercase tracking-wider hover:bg-[#001860] transition-colors shadow-lg flex items-center justify-center">
-                          <Mail className="mr-2" size={20} />
-                          Envoyer un Email
+                          <Mail className="mr-2" size={20} /> Envoyer un Email
                       </a>
                       <a href={`tel:${contactPhone}`} className="block w-full bg-white text-comfort-blue border-2 border-comfort-blue font-bold py-4 rounded-sm uppercase tracking-wider hover:bg-blue-50 transition-colors shadow-sm flex items-center justify-center">
-                          <Phone className="mr-2" size={20} />
-                          Appeler : {contactPhone}
+                          <Phone className="mr-2" size={20} /> Appeler : {contactPhone}
                       </a>
                   </div>
-                  <div className="mt-8 pt-8 border-t border-gray-200">
-                      <p className="text-sm text-gray-500 mb-4">Suivez nos actions au quotidien</p>
-                      <div className="flex justify-center space-x-6">
-                           <a href="https://x.com/AsblComfor44668" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-comfort-blue"><span className="sr-only">X</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-                           <a href="https://www.facebook.com/photo/?fbid=122103347780826664&set=a.122103344876826664" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-comfort-blue"><Facebook size={24} /></a>
-                      </div>
-                  </div>
               </div>
-
            </div>
         </div>
       </section>
-
     </div>
   );
 };
