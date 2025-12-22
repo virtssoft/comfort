@@ -11,31 +11,28 @@ import Blog from './pages/Blog';
 import Account from './pages/Account'; 
 import AdminDashboard from './pages/AdminDashboard'; 
 import GenericPage from './pages/GenericPage';
-import ScrollToTopButton from './components/ScrollToTopButton'; // Import du bouton
+import ScrollToTopButton from './components/ScrollToTopButton';
+import LoadingOverlay from './components/LoadingOverlay';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { DataProvider, useData } from './context/DataContext';
 import { AuthProvider } from './context/AuthContext';
-import { ArrowLeft, Calendar, User, Shield, Lock, Code, Globe, Lightbulb, Leaf, Target, Award } from 'lucide-react';
+import { ArrowLeft, Calendar, User } from 'lucide-react';
 
-/* --- SCROLL TO TOP COMPONENT (Route Change) --- */
+/* --- SCROLL TO TOP COMPONENT --- */
 const ScrollToTop = () => {
   const { pathname } = useLocation();
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
-
   return null;
 };
 
-/* --- Inline Components for simpler pages --- */
+/* --- Inline Components --- */
 
 const ProjectDetails = () => {
   const { id } = useParams<{id: string}>();
   const { t } = useLanguage();
   const { projects } = useData(); 
-  
-  // FIX: Ensure comparison handles string/number mismatch
   const project = projects.find(p => String(p.id) === id);
 
   if (!project) return (
@@ -48,9 +45,7 @@ const ProjectDetails = () => {
   const getDescParts = (text: string) => {
       if (!text) return { intro: '', body: '' };
       const match = text.match(/^(.+?[\.!\?])(?:\s+(.*))?$/s);
-      if (match) {
-          return { intro: match[1], body: match[2] || '' };
-      }
+      if (match) return { intro: match[1], body: match[2] || '' };
       return { intro: text, body: '' };
   };
 
@@ -74,11 +69,7 @@ const ProjectDetails = () => {
          
          <div className="prose prose-lg text-gray-700 max-w-none mb-16 leading-relaxed">
            <p className="text-xl font-light text-gray-800 mb-6 border-l-4 border-comfort-blue pl-6 italic">{intro}</p>
-           {body && (
-               <div className="whitespace-pre-line">
-                   {body}
-               </div>
-           )}
+           {body && <div className="whitespace-pre-line">{body}</div>}
          </div>
          
          <div className="bg-blue-50 p-10 rounded-2xl border border-blue-100 text-center shadow-sm">
@@ -96,8 +87,6 @@ const BlogPostDetails = () => {
     const { id } = useParams<{id: string}>();
     const navigate = useNavigate();
     const { blogPosts } = useData(); 
-    
-    // FIX: Ensure comparison handles string/number mismatch
     const post = blogPosts.find(p => String(p.id) === id);
 
     if (!post) return <div className="p-20 text-center">Article non trouvé</div>;
@@ -108,7 +97,6 @@ const BlogPostDetails = () => {
                 <button onClick={() => navigate(-1)} className="flex items-center text-gray-500 hover:text-comfort-blue mb-8 transition-colors font-medium">
                     <ArrowLeft size={20} className="mr-2" /> Retour
                 </button>
-
                 <div className="mb-8">
                     <span className="bg-blue-50 text-comfort-blue px-3 py-1 rounded text-xs font-bold uppercase tracking-wider mb-4 inline-block">{post.category}</span>
                     <h1 className="text-3xl md:text-5xl font-serif font-bold text-gray-900 mb-6 leading-tight">{post.title}</h1>
@@ -117,11 +105,9 @@ const BlogPostDetails = () => {
                         <span className="flex items-center"><User size={16} className="mr-2"/> {post.author}</span>
                     </div>
                 </div>
-
                 <div className="rounded-xl overflow-hidden mb-10 shadow-lg">
                     <img src={post.image} alt={post.title} className="w-full h-auto object-cover" />
                 </div>
-
                 <div className="prose prose-lg text-gray-700 leading-relaxed max-w-none">
                     <p className="font-bold text-xl text-gray-900 mb-6">{post.excerpt}</p>
                     <p className="whitespace-pre-wrap">{post.excerpt} {post.excerpt}</p>
@@ -131,152 +117,27 @@ const BlogPostDetails = () => {
     );
 };
 
-
-const NotFound = () => {
-  const { t } = useLanguage();
-  return (
-    <div className="flex items-center justify-center h-[70vh] text-center px-4 bg-gray-50">
-      <div>
-        <h1 className="text-9xl font-bold text-gray-200 mb-4 font-serif">{t('not_found.title')}</h1>
-        <h2 className="text-3xl font-bold text-gray-800 mb-4">{t('not_found.subtitle')}</h2>
-        <p className="text-gray-500 mb-8 text-lg">{t('not_found.text')}</p>
-        <a href="/" className="inline-block bg-comfort-blue text-white px-8 py-3 rounded font-bold uppercase tracking-wide hover:bg-blue-900 transition-colors">
-          {t('not_found.back_home')}
-        </a>
-      </div>
-    </div>
-  );
-};
-
-const SearchResults = () => {
-  const { t } = useLanguage();
-  return (
-    <GenericPage title={t('search.title')}>
-      <p className="text-xl text-gray-600 mb-4">{t('search.placeholder')}</p>
-      <div className="mt-4 p-6 bg-gray-100 rounded-lg border border-gray-200">
-        <p className="text-gray-500 italic">{t('search.hint')}</p>
-      </div>
-    </GenericPage>
-  );
-};
-
-/* --- LEGAL PAGES CONTENT --- */
-const PrivacyPolicy = () => {
-    const { t } = useLanguage();
-    return (
-    <GenericPage title={t('legal.privacy_title')}>
-        <div className="space-y-8 text-gray-700 leading-relaxed">
-             <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.privacy_1_title')}</h3>
-                <p>{t('legal.privacy_1_text')}</p>
-             </section>
-             <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.privacy_2_title')}</h3>
-                <p>{t('legal.privacy_2_intro')}</p>
-                <ul className="list-disc pl-5 space-y-2 mt-2">
-                    <li>{t('legal.privacy_2_list1')}</li>
-                    <li>{t('legal.privacy_2_list2')}</li>
-                    <li>{t('legal.privacy_2_list3')}</li>
-                    <li>{t('legal.privacy_2_list4')}</li>
-                    <li>{t('legal.privacy_2_list5')}</li>
-                </ul>
-             </section>
-             <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.privacy_3_title')}</h3>
-                <p>{t('legal.privacy_3_text')}</p>
-             </section>
-             <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.privacy_4_title')}</h3>
-                <p>{t('legal.privacy_4_text')}</p>
-             </section>
-             <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.privacy_5_title')}</h3>
-                <p>
-                    {t('legal.privacy_5_text_1')} <strong><a href="https://virtssoft.com" target="_blank" rel="noopener noreferrer" className="text-comfort-blue hover:underline font-semibold">Virtssoft Technologies</a></strong>{t('legal.privacy_5_text_2')}
-                </p>
-             </section>
-             <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.privacy_6_title')}</h3>
-                <p>{t('legal.privacy_6_text')}</p>
-             </section>
-        </div>
-    </GenericPage>
-    );
-};
-
-const LegalTerms = () => {
-    const { t } = useLanguage();
-    return (
-    <GenericPage title={t('legal.terms_title')}>
-        <div className="space-y-10 text-gray-700 leading-relaxed">
-             <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.terms_1_title')}</h3>
-                <p>
-                    {t('legal.terms_1_text_1')} <strong>COMFORT Asbl</strong>.
-                </p>
-                <ul className="mt-4 space-y-1">
-                    <li><strong>{t('contact.address')} :</strong> Katindo Beni 108, Goma, RDC</li>
-                    <li><strong>{t('contact.phone')} :</strong> +243 994 280 037</li>
-                    <li><strong>{t('contact.email')} :</strong> contact@comfort-asbl.org</li>
-                    <li><strong>Statut :</strong> ASBL.</li>
-                </ul>
-             </section>
-             <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.terms_2_title')}</h3>
-                <p>
-                    {t('legal.terms_2_text_1')} <strong><a href="https://virtssoft.com" target="_blank" rel="noopener noreferrer" className="text-comfort-blue hover:underline font-semibold">Virtssoft Technologies</a></strong>.
-                </p>
-                <p className="mt-4">
-                    {t('legal.terms_2_text_2')}
-                </p>
-                <p className="mt-2">
-                    {t('legal.terms_2_text_3')}
-                </p>
-                <p className="mt-2">
-                    {t('legal.terms_2_text_4')}
-                </p>
-             </section>
-             <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.terms_3_title')}</h3>
-                <p>{t('legal.terms_3_text')}</p>
-             </section>
-             <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.terms_4_title')}</h3>
-                <p>{t('legal.terms_4_text')}</p>
-             </section>
-             <section>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{t('legal.terms_5_title')}</h3>
-                <p>{t('legal.terms_5_text')}</p>
-             </section>
-        </div>
-    </GenericPage>
-    );
-};
-
-
 const AppContent = () => {
-    const { settings } = useData();
+    const { settings, loading } = useData();
 
     useEffect(() => {
         if (settings?.faviconUrl) {
             const link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
-            if (link) {
-                link.href = settings.faviconUrl;
-            } else {
+            if (link) link.href = settings.faviconUrl;
+            else {
                 const newLink = document.createElement('link');
                 newLink.rel = 'icon';
                 newLink.href = settings.faviconUrl;
                 document.head.appendChild(newLink);
             }
         }
-        if (settings?.siteName) {
-            document.title = settings.siteName;
-        }
+        if (settings?.siteName) document.title = settings.siteName;
     }, [settings]);
 
     return (
         <>
-            <ScrollToTop /> {/* Reset Scroll on Route Change */}
+            {loading && <LoadingOverlay />}
+            <ScrollToTop />
             <Routes>
                 <Route path="/" element={<><Header /><Home /><Footer /></>} />
                 <Route path="/about" element={<><Header /><About /><Footer /></>} />
@@ -286,14 +147,10 @@ const AppContent = () => {
                 <Route path="/blog/:id" element={<><Header /><BlogPostDetails /><Footer /></>} />
                 <Route path="/donate" element={<><Header /><Donate /><Footer /></>} />
                 <Route path="/account" element={<><Header /><Account /><Footer /></>} />
-                
-                {/* Admin Route */}
                 <Route path="/admin" element={<AdminDashboard />} />
-
-                <Route path="/privacy" element={<><Header /><PrivacyPolicy /><Footer /></>} />
-                <Route path="/terms" element={<><Header /><LegalTerms /><Footer /></>} />
-                <Route path="/search" element={<><Header /><SearchResults /><Footer /></>} />
-                <Route path="*" element={<><Header /><NotFound /><Footer /></>} />
+                <Route path="/privacy" element={<><Header /><GenericPage title="Confidentialité">Politique en cours...</GenericPage><Footer /></>} />
+                <Route path="/terms" element={<><Header /><GenericPage title="Mentions Légales">Mentions en cours...</GenericPage><Footer /></>} />
+                <Route path="*" element={<><Header /><Home /><Footer /></>} />
             </Routes>
             <ScrollToTopButton />
         </>

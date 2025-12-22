@@ -1,6 +1,5 @@
 
 import { Project, BlogPost, Partner, TeamMember, Testimonial, SiteSettings } from '../types';
-import { PROJECTS, BLOG_POSTS, PARTNERS, TEAM_MEMBERS, TESTIMONIALS } from '../pages/constants';
 
 // --- CONFIGURATION ---
 export const API_BASE_URL = 'https://api.comfortasbl.org'; 
@@ -71,26 +70,20 @@ export interface ApiDonation {
 }
 
 // --- HELPER FETCH SIMPLE ---
-async function fetchData<T>(endpoint: string, fallback: T): Promise<T> {
+async function fetchData<T>(endpoint: string): Promise<T | null> {
   try {
     const response = await fetch(`${API_BASE_URL}/${endpoint}`);
-    if (!response.ok) {
-        return fallback;
-    }
-    const data = await response.json();
-    return data;
+    if (!response.ok) return null;
+    return await response.json();
   } catch (error) {
-    // En cas d'erreur (serveur éteint, pas d'internet), on retourne les données locales sans bloquer
-    return fallback;
+    return null;
   }
 }
 
 async function sendData(endpoint: string, method: 'POST' | 'PUT' | 'DELETE', data?: any) {
     const options: RequestInit = {
         method: method,
-        headers: { 
-            'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
     };
     if (data) options.body = JSON.stringify(data);
 
@@ -108,18 +101,14 @@ async function sendData(endpoint: string, method: 'POST' | 'PUT' | 'DELETE', dat
 }
 
 export const api = {
-  
-  // --- AUTHENTIFICATION ---
   login: async (loginInput: string, passwordInput: string) => {
     return sendData('login.php', 'POST', { login: loginInput, password: passwordInput });
   },
 
-  // --- UPLOAD FICHIER ---
   uploadFile: async (file: File, folder: string = 'uploads') => {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', folder); 
-
       try {
           const response = await fetch(`${API_BASE_URL}/upload.php`, {
               method: 'POST',
@@ -131,11 +120,9 @@ export const api = {
       }
   },
 
-  // --- PUBLIC GETTERS ---
-
   getProjects: async (): Promise<Project[]> => {
-    const actions = await fetchData<ApiAction[]>('actions.php', []);
-    if (!Array.isArray(actions) || actions.length === 0) return PROJECTS;
+    const actions = await fetchData<ApiAction[]>('actions.php');
+    if (!actions || !Array.isArray(actions)) return [];
     
     return actions.map(a => ({
       id: String(a.id),
@@ -151,8 +138,8 @@ export const api = {
   },
 
   getBlogPosts: async (): Promise<BlogPost[]> => {
-    const articles = await fetchData<ApiArticle[]>('articles.php', []);
-    if (!Array.isArray(articles) || articles.length === 0) return BLOG_POSTS;
+    const articles = await fetchData<ApiArticle[]>('articles.php');
+    if (!articles || !Array.isArray(articles)) return [];
 
     return articles.map(a => ({
       id: String(a.id),
@@ -166,8 +153,8 @@ export const api = {
   },
 
   getPartners: async (): Promise<Partner[]> => {
-    const partners = await fetchData<ApiPartner[]>('partners.php', []);
-    if (!Array.isArray(partners) || partners.length === 0) return PARTNERS;
+    const partners = await fetchData<ApiPartner[]>('partners.php');
+    if (!partners || !Array.isArray(partners)) return [];
 
     return partners.map(p => ({
       id: String(p.id),
@@ -178,41 +165,33 @@ export const api = {
     }));
   },
 
-  // --- ADMIN CRUD ---
-
-  // Users
-  getUsers: () => fetchData<ApiUser[]>('users.php', []),
+  getUsers: () => fetchData<ApiUser[]>('users.php').then(d => d || []),
   createUser: (data: any) => sendData('users.php', 'POST', data),
   updateUser: (id: string, data: any) => sendData(`users.php?id=${id}`, 'PUT', data),
   deleteUser: (id: string) => sendData(`users.php?id=${id}`, 'DELETE'),
   register: (data: any) => sendData('users.php', 'POST', data),
 
-  // Donations
-  getDonations: () => fetchData<ApiDonation[]>('donations.php', []),
+  getDonations: () => fetchData<ApiDonation[]>('donations.php').then(d => d || []),
   sendDonation: (data: any) => sendData('donations.php', 'POST', data),
   updateDonationStatus: (id: string, status: string) => sendData(`donations.php?id=${id}`, 'PUT', { status }),
   deleteDonation: (id: string) => sendData(`donations.php?id=${id}`, 'DELETE'),
 
-  // Actions (Projets)
-  getRawActions: () => fetchData<ApiAction[]>('actions.php', []),
+  getRawActions: () => fetchData<ApiAction[]>('actions.php').then(d => d || []),
   createAction: (data: any) => sendData('actions.php', 'POST', data),
   updateAction: (id: string, data: any) => sendData(`actions.php?id=${id}`, 'PUT', data),
   deleteAction: (id: string) => sendData(`actions.php?id=${id}`, 'DELETE'),
 
-  // Articles (Blog)
-  getRawArticles: () => fetchData<ApiArticle[]>('articles.php', []),
+  getRawArticles: () => fetchData<ApiArticle[]>('articles.php').then(d => d || []),
   createArticle: (data: any) => sendData('articles.php', 'POST', data),
   updateArticle: (id: string, data: any) => sendData(`articles.php?id=${id}`, 'PUT', data),
   deleteArticle: (id: string) => sendData(`articles.php?id=${id}`, 'DELETE'),
 
-  // Partners
-  getRawPartners: () => fetchData<ApiPartner[]>('partners.php', []),
+  getRawPartners: () => fetchData<ApiPartner[]>('partners.php').then(d => d || []),
   createPartner: (data: any) => sendData('partners.php', 'POST', data),
   updatePartner: (id: string, data: any) => sendData(`partners.php?id=${id}`, 'PUT', data),
   deletePartner: (id: string) => sendData(`partners.php?id=${id}`, 'DELETE'),
 
-  // Settings & Team (Keep for compatibility if used internally, even if not in doc provided)
-  getSettings: () => fetchData<SiteSettings>('settings.php', {
+  getSettings: () => fetchData<SiteSettings>('settings.php').then(d => d || {
     logoUrl: getAbsoluteUrl('assets/images/logo1.png'), 
     faviconUrl: getAbsoluteUrl('assets/images/favicon.ico'),
     siteName: 'COMFORT Asbl',
@@ -221,6 +200,6 @@ export const api = {
     contactAddress: 'Katindo Beni 108, Goma, RDC',
     socialLinks: { facebook: 'https://facebook.com', twitter: 'https://x.com' }
   }),
-  getTeam: () => fetchData<TeamMember[]>('team.php', TEAM_MEMBERS),
-  getTestimonials: () => fetchData<Testimonial[]>('testimonials.php', TESTIMONIALS),
+  getTeam: () => fetchData<TeamMember[]>('team.php').then(d => d || []),
+  getTestimonials: () => fetchData<Testimonial[]>('testimonials.php').then(d => d || []),
 };
