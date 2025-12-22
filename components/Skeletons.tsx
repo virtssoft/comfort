@@ -20,22 +20,22 @@ export const CardSkeleton = () => (
 );
 
 export const HeroSkeleton = () => (
-  <div className="relative h-[650px] md:h-[850px] w-full bg-comfort-dark animate-pulse flex items-center overflow-hidden">
+  <div className="relative h-[85vh] md:h-[90vh] w-full bg-comfort-dark animate-pulse flex items-center overflow-hidden">
     <div className="absolute inset-0 bg-gray-800 opacity-50"></div>
     <div className="container mx-auto px-6 relative z-10 space-y-8">
       <div className="h-8 w-48 bg-gray-700 rounded-sm"></div>
       <div className="space-y-4">
-          <div className="h-16 w-3/4 bg-gray-600 rounded"></div>
-          <div className="h-16 w-1/2 bg-gray-600 rounded"></div>
+          <div className="h-10 md:h-16 w-3/4 bg-gray-600 rounded"></div>
+          <div className="h-10 md:h-16 w-1/2 bg-gray-600 rounded"></div>
       </div>
-      <div className="h-24 w-2/3 bg-gray-700 rounded"></div>
-      <div className="flex space-x-4">
-        <div className="h-14 w-56 bg-comfort-blue rounded-sm opacity-60"></div>
-        <div className="h-14 w-56 bg-gray-700 rounded-sm"></div>
+      <div className="h-20 md:h-24 w-2/3 bg-gray-700 rounded"></div>
+      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+        <div className="h-12 md:h-14 w-full sm:w-56 bg-comfort-blue rounded-sm opacity-60"></div>
+        <div className="h-12 md:h-14 w-full sm:w-56 bg-gray-700 rounded-sm"></div>
       </div>
     </div>
-    <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex space-x-3">
-        {[1,2,3,4,5].map(i => <div key={i} className="h-1.5 w-8 bg-gray-700 rounded-full"></div>)}
+    <div className="absolute bottom-6 md:bottom-12 right-6 md:right-12 flex space-x-3">
+        {[1,2,3].map(i => <div key={i} className="h-8 w-8 md:h-12 md:w-12 bg-gray-700 rounded-full"></div>)}
     </div>
   </div>
 );

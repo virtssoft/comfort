@@ -30,6 +30,7 @@
             animation: {
               'ken-burns': 'kenburns 20s ease infinite alternate',
               'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+              'marquee': 'marquee 40s linear infinite',
             },
             keyframes: {
               kenburns: {
@@ -39,6 +40,10 @@
               fadeInUp: {
                 '0%': { opacity: '0', transform: 'translateY(20px)' },
                 '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              marquee: {
+                '0%': { transform: 'translateX(0%)' },
+                '100%': { transform: 'translateX(-50%)' },
               }
             }
           }
@@ -48,6 +53,8 @@
     <style>
       .text-balance { text-wrap: balance; }
       .glass-morphism { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
   <script type="importmap">
 {
