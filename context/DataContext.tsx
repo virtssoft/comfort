@@ -25,11 +25,20 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
 
+  const preloadImages = (urls: string[]) => {
+    return Promise.all(urls.map(url => {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.src = url;
+        img.onload = resolve;
+        img.onerror = resolve; // On résout quand même pour ne pas bloquer indéfiniment
+      });
+    }));
+  };
+
   const loadData = async () => {
     setLoading(true);
     try {
-      // On utilise allSettled pour ne pas bloquer si UNE seule requête échoue, 
-      // mais on attend que TOUTES aient tenté de charger.
       const results = await Promise.allSettled([
         api.getSettings(),
         api.getProjects(),
@@ -39,20 +48,30 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         api.getTestimonials()
       ]);
 
-      // Extraction des résultats
       if (results[0].status === 'fulfilled') setSettings(results[0].value);
       if (results[1].status === 'fulfilled') setProjects(results[1].value || []);
-      if (results[2].status === 'fulfilled') setBlogPosts(results[2].value || []);
+      
+      let fetchedPosts: BlogPost[] = [];
+      if (results[2].status === 'fulfilled') {
+          fetchedPosts = results[2].value || [];
+          setBlogPosts(fetchedPosts);
+      }
+      
       if (results[3].status === 'fulfilled') setPartners(results[3].value || []);
-      if (results[4].status === 'fulfilled') setTeamMembers(results[4].value || []);
+      if (results[4].status === 'fulfilled') setTeamMembers(results[5].status === 'fulfilled' ? results[4].value : []);
       if (results[5].status === 'fulfilled') setTestimonials(results[5].value || []);
 
+      // Pré-chargement des images du Hero (les 3 premières actualités)
+      const heroImages = fetchedPosts.slice(0, 3).map(p => p.image).filter(img => !!img);
+      if (heroImages.length > 0) {
+          await preloadImages(heroImages);
+      }
+
     } catch (error) {
-      console.error("Erreur critique de chargement API");
+      console.error("Erreur critique API:", error);
     } finally {
-      // On garantit un temps minimum de loader pour que les squelettes se stabilisent 
-      // et que les premières images commencent à être mises en cache par le navigateur.
-      setTimeout(() => setLoading(false), 1500);
+      // Délai de confort pour stabiliser l'UI
+      setTimeout(() => setLoading(false), 1000);
     }
   };
 

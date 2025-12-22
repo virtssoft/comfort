@@ -32,7 +32,7 @@ const ProjectDetails = () => {
   const { projects } = useData(); 
   const project = projects.find(p => String(p.id) === id);
 
-  if (!project) return <div className="py-40 text-center font-bold text-gray-400">Chargement du projet...</div>;
+  if (!project) return <div className="py-40 text-center font-bold text-gray-400">Projet non trouvé...</div>;
 
   return (
     <div className="py-20 bg-white animate-in fade-in duration-500">
@@ -73,7 +73,7 @@ const BlogPostDetails = () => {
     const { blogPosts } = useData(); 
     const post = blogPosts.find(p => String(p.id) === id);
 
-    if (!post) return <div className="p-40 text-center text-gray-400">Chargement de l'article...</div>;
+    if (!post) return <div className="p-40 text-center text-gray-400">Article non trouvé...</div>;
 
     return (
         <div className="py-20 bg-white font-sans animate-in fade-in duration-500">
@@ -103,7 +103,7 @@ const BlogPostDetails = () => {
 const AppContent = () => {
     const { settings, loading } = useData();
 
-    // Mise à jour favicon et titre dès que l'API répond
+    // Sync site metadata with API settings
     useEffect(() => {
         if (!settings) return;
         
@@ -112,14 +112,15 @@ const AppContent = () => {
 
         document.title = siteName;
         
-        // Force l'update du favicon dans le DOM
+        // Force favicon update to fix browser persistence issues
         let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
         if (!link) {
             link = document.createElement('link');
             link.rel = 'icon';
             document.head.appendChild(link);
         }
-        link.href = `${faviconUrl}?v=${new Date().getTime()}`; // Cache busting pour forcer le refresh
+        // Cache busting to ensure immediate update
+        link.href = `${faviconUrl}?v=${Date.now()}`;
         link.type = 'image/png';
     }, [settings]);
 
@@ -128,7 +129,6 @@ const AppContent = () => {
             {loading && <LoadingOverlay />}
             <ScrollToTop />
             
-            {/* L'UI est rendue mais invisible (opacity-0) pendant le loading pour permettre au navigateur de pré-charger les squelettes */}
             <div className={`transition-opacity duration-1000 ${loading ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
                 <Routes>
                     <Route path="/" element={<><Header /><Home /><Footer /></>} />
@@ -145,9 +145,6 @@ const AppContent = () => {
                     <Route path="*" element={<><Header /><Home /><Footer /></>} />
                 </Routes>
             </div>
-            
-            {/* Si on est en train de charger, on peut aussi afficher un squelette global si nécessaire, 
-                mais le LoadingOverlay + l'opacity-0 des routes gère déjà l'attente propre. */}
             
             <ScrollToTopButton />
         </>
