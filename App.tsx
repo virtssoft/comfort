@@ -12,6 +12,7 @@ import Account from './pages/Account';
 import AdminDashboard from './pages/AdminDashboard'; 
 import GenericPage from './pages/GenericPage';
 import PartnersPage from './pages/Partners';
+import VirtssoftImpact from './pages/VirtssoftImpact';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import LoadingOverlay from './components/LoadingOverlay';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
@@ -27,6 +28,80 @@ const ScrollToTop = () => {
   return null;
 };
 
+// COMPONENT POUR LA PAGE PRIVACY SÉCURISÉE
+const PrivacyPage = () => {
+    const { t } = useLanguage();
+    return (
+        <GenericPage title={t('legal.privacy_title')}>
+            <h3>{t('legal.privacy_1_title')}</h3>
+            <p>{t('legal.privacy_1_text')}</p>
+            
+            <h3>{t('legal.privacy_2_title')}</h3>
+            <p>{t('legal.privacy_2_intro')}</p>
+            <ul className="list-disc pl-6 space-y-2">
+                <li>{t('legal.privacy_2_list1')}</li>
+                <li>{t('legal.privacy_2_list2')}</li>
+                <li>{t('legal.privacy_2_list3')}</li>
+                <li>{t('legal.privacy_2_list4')}</li>
+                <li>{t('legal.privacy_2_list5')}</li>
+            </ul>
+
+            <h3>{t('legal.privacy_3_title')}</h3>
+            <p>{t('legal.privacy_3_text')}</p>
+
+            <h3>{t('legal.privacy_4_title')}</h3>
+            <p>{t('legal.privacy_4_text')}</p>
+
+            <h3>{t('legal.privacy_5_title')}</h3>
+            <p className="bg-comfort-light p-6 border-l-4 border-comfort-gold">
+                {t('legal.privacy_5_text_1')}{' '}
+                <Link to="/virtssoft-impact" className="text-comfort-blue font-bold hover:text-comfort-gold transition-colors">Virtssoft Technologies & Projet Impact</Link>
+                {t('legal.privacy_5_text_2')}
+            </p>
+
+            <h3>{t('legal.privacy_6_title')}</h3>
+            <p>{t('legal.privacy_6_text')}</p>
+        </GenericPage>
+    );
+};
+
+// COMPONENT POUR LA PAGE MENTIONS LÉGALES
+const TermsPage = () => {
+    const { t } = useLanguage();
+    return (
+        <GenericPage title={t('legal.terms_title')}>
+            <h3>{t('legal.terms_1_title')}</h3>
+            <div className="bg-comfort-light p-8 rounded-sm mb-12">
+                <p>
+                    {t('legal.terms_1_text_1')} <strong>COMFORT Asbl</strong>.<br/>
+                    {t('legal.terms_1_text_2')}<br/>
+                    {t('legal.terms_1_text_3')}<br/>
+                    {t('legal.terms_1_text_4')}<br/>
+                    {t('legal.terms_1_text_5')}
+                </p>
+            </div>
+
+            <h3>{t('legal.terms_2_title')}</h3>
+            <p>
+                {t('legal.terms_2_text_1')}{' '}
+                <Link to="/virtssoft-impact" className="text-comfort-blue font-bold hover:text-comfort-gold transition-colors">Virtssoft Technologies</Link>.<br/>
+                {t('legal.terms_2_text_2')}
+            </p>
+            <p>{t('legal.terms_2_text_3')}</p>
+            <p>{t('legal.terms_2_text_4')}</p>
+
+            <h3>{t('legal.terms_3_title')}</h3>
+            <p>{t('legal.terms_3_text')}</p>
+
+            <h3>{t('legal.terms_4_title')}</h3>
+            <p>{t('legal.terms_4_text')}</p>
+
+            <h3>{t('legal.terms_5_title')}</h3>
+            <p>{t('legal.terms_5_text')}</p>
+        </GenericPage>
+    );
+};
+
 const ProjectDetails = () => {
   const { id } = useParams<{id: string}>();
   const { t } = useLanguage();
@@ -37,7 +112,6 @@ const ProjectDetails = () => {
 
   return (
     <div className="bg-white min-h-screen font-sans animate-in fade-in duration-1000">
-       {/* HERO DETAILS */}
        <div className="relative h-[60vh] overflow-hidden bg-comfort-dark">
           <img src={project.image} alt={project.title} className="w-full h-full object-cover opacity-60 grayscale" />
           <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent"></div>
@@ -55,7 +129,6 @@ const ProjectDetails = () => {
 
        <div className="container mx-auto px-6 py-20">
          <div className="grid lg:grid-cols-12 gap-20">
-            {/* CONTENT */}
             <div className="lg:col-span-8">
                <div className="flex items-center space-x-12 mb-12 border-y border-gray-100 py-6">
                   <div className="flex items-center text-gray-400 text-xs font-bold uppercase tracking-widest">
@@ -71,7 +144,6 @@ const ProjectDetails = () => {
                </div>
             </div>
 
-            {/* SIDEBAR CTA */}
             <div className="lg:col-span-4">
                <div className="sticky top-32 bg-comfort-light p-12 border border-gray-100 shadow-xl rounded-sm text-center">
                   <Bookmark className="mx-auto text-comfort-gold mb-8" size={32} strokeWidth={1} />
@@ -171,8 +243,9 @@ const AppContent = () => {
                     <Route path="/donate" element={<><Header /><Donate /><Footer /></>} />
                     <Route path="/account" element={<><Header /><Account /><Footer /></>} />
                     <Route path="/admin" element={<AdminDashboard />} />
-                    <Route path="/privacy" element={<><Header /><GenericPage title="Confidentialité">Politique de confidentialité institutionnelle.</GenericPage><Footer /></>} />
-                    <Route path="/terms" element={<><Header /><GenericPage title="Mentions Légales">Charte légale COMFORT.</GenericPage><Footer /></>} />
+                    <Route path="/virtssoft-impact" element={<><Header /><VirtssoftImpact /><Footer /></>} />
+                    <Route path="/privacy" element={<><Header /><PrivacyPage /><Footer /></>} />
+                    <Route path="/terms" element={<><Header /><TermsPage /><Footer /></>} />
                     <Route path="*" element={<><Header /><Home /><Footer /></>} />
                 </Routes>
             </div>

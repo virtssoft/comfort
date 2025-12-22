@@ -70,7 +70,6 @@ const Footer: React.FC = () => {
           <div>
              <h3 className="text-xl font-serif font-bold mb-6 text-white pl-4">{t('footer.follow_title')}</h3>
              <div className="flex space-x-4 pl-4 mb-8">
-               {/* REMOVED TARGET BLANK FROM LINKS BELOW */}
                <a href="https://www.facebook.com/photo/?fbid=122103347780826664&set=a.122103344876826664" className="bg-gray-800 p-3 rounded-full hover:bg-comfort-blue hover:text-white transition-all text-gray-400"><Facebook size={18} /></a>
                <a href="https://x.com/AsblComfor44668" className="bg-gray-800 p-3 rounded-full hover:bg-comfort-blue hover:text-white transition-all text-gray-400"><XIcon size={18} /></a>
                <a href="#" className="bg-gray-800 p-3 rounded-full hover:bg-comfort-blue hover:text-white transition-all text-gray-400"><Linkedin size={18} /></a>
@@ -91,7 +90,9 @@ const Footer: React.FC = () => {
              <Link to="/privacy" className="hover:text-gray-400 transition-colors">{t('footer.privacy')}</Link>
              <Link to="/terms" className="hover:text-gray-400 transition-colors">{t('footer.terms')}</Link>
              <span className="text-gray-700">|</span>
-             <a href="https://virtssoft.com" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors font-medium">{t('footer.powered')}</a>
+             <Link to="/virtssoft-impact" className="text-gray-500 hover:text-white transition-colors font-medium">
+               {t('footer.powered')}
+             </Link>
           </div>
         </div>
       </div>
