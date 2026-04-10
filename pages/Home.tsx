@@ -17,7 +17,7 @@ const Home: React.FC = () => {
   const heroItems = blogPosts.slice(0, 5);
 
   // Calcul dynamique
-  const foundationYear = 2004;
+  const foundationYear = 2020;
   const currentYear = new Date().getFullYear();
   const yearsOfExistence = currentYear - foundationYear;
 
@@ -95,7 +95,7 @@ const Home: React.FC = () => {
                    <span className="h-[2px] w-6 md:w-12 bg-comfort-gold"></span>
                    <span className="text-comfort-gold font-bold tracking-[0.2em] md:tracking-[0.4em] uppercase text-[10px] md:text-xs">{post.category}</span>
                 </div>
-                <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-serif font-bold text-white leading-[1.2] md:leading-[1.1] mb-6 md:mb-8 text-balance">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white leading-[1.2] md:leading-[1.1] mb-6 md:mb-8 text-balance">
                   {post.title}
                 </h1>
                 <p className="text-sm md:text-lg lg:text-xl text-gray-300 mb-8 md:mb-10 font-light leading-relaxed max-w-2xl border-l-2 border-white/20 pl-4 md:pl-6 line-clamp-3 md:line-clamp-none">
