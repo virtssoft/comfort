@@ -75,9 +75,6 @@ const Home: React.FC = () => {
   return (
     
     <div className="flex flex-col min-h-screen bg-white font-sans overflow-x-hidden">
-      <div style={{ background: "red", color: "white", padding: "20px" }}>
-          TEST DEBUG
-      </div>
       
       {/* 🏛️ SECTION 1: ARTISTIC HERO CAROUSEL - RESPONSIVE OPTIMIZED */}
       <section className="relative h-[85vh] md:h-[90vh] bg-comfort-dark overflow-hidden">
