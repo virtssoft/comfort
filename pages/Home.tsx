@@ -69,7 +69,7 @@ const Home: React.FC = () => {
       default: return <Heart {...props} />;
     }
   };
-
+  console.log(post.title);
   return (
     <div className="flex flex-col min-h-screen bg-white font-sans overflow-x-hidden">
       
