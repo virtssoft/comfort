@@ -21,6 +21,8 @@ const Home: React.FC = () => {
   const currentYear = new Date().getFullYear();
   const yearsOfExistence = currentYear - foundationYear;
 
+  console.log("FOUNDATION YEAR:", foundationYear);
+  console.log("YEARS:", yearsOfExistence);
   const nextHero = useCallback(() => {
     if (heroItems.length === 0) return;
     setCurrentHero(prev => (prev + 1) % heroItems.length);
