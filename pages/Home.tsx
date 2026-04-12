@@ -73,6 +73,9 @@ const Home: React.FC = () => {
   };
   console.log(post.title);
   return (
+    <div style={{ background: "red", color: "white", padding: "20px" }}>
+    TEST DEBUG
+  </div>
     <div className="flex flex-col min-h-screen bg-white font-sans overflow-x-hidden">
       
       {/* 🏛️ SECTION 1: ARTISTIC HERO CAROUSEL - RESPONSIVE OPTIMIZED */}
