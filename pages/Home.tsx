@@ -90,7 +90,7 @@ const Home: React.FC = () => {
             </div>
 
             <div className="container relative z-20 mx-auto h-full flex items-center px-6 lg:px-12">
-              <div className="max-w-4xl animate-fade-in-up mt-8 md:mt-0">
+              <div className="max-w-2xl animate-fade-in-up mt-8 md:mt-0">
                 <div className="flex items-center space-x-3 mb-4 md:mb-6">
                    <span className="h-[2px] w-6 md:w-12 bg-comfort-gold"></span>
                    <span className="text-comfort-gold font-bold tracking-[0.2em] md:tracking-[0.4em] uppercase text-[10px] md:text-xs">{post.category}</span>
