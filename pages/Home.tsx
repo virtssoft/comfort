@@ -1,8 +1,11 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Heart, BookOpen, HandCoins, Wheat, Palette, ChevronLeft, ChevronRight } from 'lucide-react';
-import { DOMAINS } from './constants';
+import { 
+  ArrowRight, Heart, BookOpen, HandCoins, Wheat, Palette, 
+  ChevronLeft, ChevronRight, Calendar, User, MapPin, Mail, 
+  Phone, Clock, Facebook 
+} from 'lucide-react';
+import { DOMAINS, CONTACT_INFO } from './constants'; // Assurez-vous que CONTACT_INFO est exporté de constants
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { HeroSkeleton, CardSkeleton } from '../components/Skeletons';
@@ -12,17 +15,17 @@ const Home: React.FC = () => {
   const { projects, testimonials, partners, blogPosts, loading } = useData();
   
   const [currentHero, setCurrentHero] = useState(0);
-  const [currentTesti, setCurrentTesti] = useState(0);
+
+  // Variables de contact (fallback si non définies dans CONTACT_INFO)
+  const contactAddress = CONTACT_INFO?.address || "Goma, Nord-Kivu, RDC";
+  const contactEmail = CONTACT_INFO?.email || "contact@comfortasbl.org";
+  const contactPhone = CONTACT_INFO?.phone || "+243 000 000 000";
 
   const heroItems = blogPosts.slice(0, 5);
-
-  // Calcul dynamique
   const foundationYear = 2019;
   const currentYear = new Date().getFullYear();
   const yearsOfExistence = currentYear - foundationYear;
 
-  console.log("FOUNDATION YEAR:", foundationYear);
-  console.log("YEARS:", yearsOfExistence);
   const nextHero = useCallback(() => {
     if (heroItems.length === 0) return;
     setCurrentHero(prev => (prev + 1) % heroItems.length);
@@ -33,21 +36,16 @@ const Home: React.FC = () => {
     setCurrentHero(prev => (prev - 1 + heroItems.length) % heroItems.length);
   }, [heroItems.length]);
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    e.currentTarget.src = "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop";
+  };
+
   useEffect(() => {
     if (heroItems.length > 1) {
       const timer = setInterval(nextHero, 10000);
       return () => clearInterval(timer);
     }
   }, [heroItems.length, nextHero]);
-
-  useEffect(() => {
-    if (testimonials.length > 0) {
-      const timer = setInterval(() => {
-        setCurrentTesti(prev => (prev + 1) % testimonials.length);
-      }, 7000);
-      return () => clearInterval(timer);
-    }
-  }, [testimonials.length]);
 
   if (loading) {
     return (
@@ -73,10 +71,9 @@ const Home: React.FC = () => {
   };
   
   return (
-    
     <div className="flex flex-col min-h-screen bg-white font-sans overflow-x-hidden">
       
-      {/* 🏛️ SECTION 1: ARTISTIC HERO CAROUSEL - RESPONSIVE OPTIMIZED */}
+      {/* 🏛️ SECTION 1: HERO CAROUSEL */}
       <section className="relative h-[85vh] md:h-[90vh] bg-comfort-dark overflow-hidden">
         {heroItems.map((post, idx) => (
           <div 
@@ -116,24 +113,22 @@ const Home: React.FC = () => {
             </div>
           </div>
         ))}
-
-        {/* Carousel Nav Controls */}
         <div className="absolute bottom-6 right-6 md:bottom-12 md:right-12 z-30 flex items-center space-x-4 md:space-x-6">
-           <button onClick={prevHero} className="text-white/50 hover:text-white transition-colors border border-white/20 p-2 md:p-4 rounded-full">
-             <ChevronLeft size={18} className="md:w-6 md:h-6" />
-           </button>
-           <div className="flex space-x-1.5 md:space-x-2">
-             {heroItems.map((_, i) => (
-               <button key={i} onClick={() => setCurrentHero(i)} className={`h-1 transition-all duration-500 rounded-full ${i === currentHero ? 'w-8 md:w-12 bg-comfort-gold' : 'w-2 md:w-4 bg-white/20'}`}></button>
-             ))}
-           </div>
-           <button onClick={nextHero} className="text-white/50 hover:text-white transition-colors border border-white/20 p-2 md:p-4 rounded-full">
-             <ChevronRight size={18} className="md:w-6 md:h-6" />
-           </button>
+            <button onClick={prevHero} className="text-white/50 hover:text-white transition-colors border border-white/20 p-2 md:p-4 rounded-full">
+              <ChevronLeft size={18} className="md:w-6 md:h-6" />
+            </button>
+            <div className="flex space-x-1.5 md:space-x-2">
+              {heroItems.map((_, i) => (
+                <button key={i} onClick={() => setCurrentHero(i)} className={`h-1 transition-all duration-500 rounded-full ${i === currentHero ? 'w-8 md:w-12 bg-comfort-gold' : 'w-2 md:w-4 bg-white/20'}`}></button>
+              ))}
+            </div>
+            <button onClick={nextHero} className="text-white/50 hover:text-white transition-colors border border-white/20 p-2 md:p-4 rounded-full">
+              <ChevronRight size={18} className="md:w-6 md:h-6" />
+            </button>
         </div>
       </section>
 
-      {/* 🏛️ SECTION 2: INSTITUTIONAL MISSION - DYNAMIC STATS */}
+      {/* 🏛️ SECTION 2: INSTITUTIONAL MISSION */}
       <section className="py-20 md:py-32 bg-white relative">
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 md:gap-24 items-center">
@@ -182,9 +177,7 @@ const Home: React.FC = () => {
                  <h2 className="text-3xl md:text-4xl font-serif font-bold text-comfort-blue mb-4 md:mb-6">Piliers d'Intervention</h2>
                  <p className="text-gray-500 font-light text-base md:text-lg">Nous intervenons là où les besoins sont les plus critiques, avec une méthodologie rigoureuse et un profond respect des cultures locales.</p>
               </div>
-              <div className="h-[2px] flex-1 bg-gray-200/30 mx-12 mb-4 hidden md:block"></div>
            </div>
-
            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-0 border border-gray-100 shadow-sm">
               {DOMAINS.map((domain) => (
                 <div key={domain.id} className="group p-8 md:p-12 bg-white border-r border-b border-gray-100 hover:bg-comfort-blue transition-all duration-700 relative overflow-hidden">
@@ -202,83 +195,190 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 🏛️ SECTION 4: PARTNERS (Infinite Marquee) */}
-      {partners.length > 0 && (
-      <section className="py-20 md:py-24 bg-white overflow-hidden relative border-b border-gray-50">
-        <div className="container mx-auto px-6 mb-12 text-center">
-           <span className="text-comfort-gold font-bold uppercase tracking-[0.5em] text-[10px]">Notre réseau de confiance</span>
-        </div>
-        
-        <div className="relative flex overflow-hidden group">
-          <div className="flex animate-marquee space-x-12 md:space-x-24 items-center whitespace-nowrap py-4">
-             {[...partners, ...partners, ...partners, ...partners].map((p, i) => (
-                <div key={`${p.id}-${i}`} className="flex-shrink-0 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-700 px-4">
-                  <img 
-                    src={p.logo} 
-                    alt={p.name} 
-                    className="h-10 md:h-14 w-auto object-contain" 
-                  />
+      {/* 🟦 7. SECTION - ACTUALITÉS */}
+      {blogPosts.length > 0 && (
+      <section className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4 md:px-6">
+            <div className="flex flex-col md:flex-row justify-between items-end mb-12">
+                <div>
+                    <h2 className="text-3xl font-serif font-bold text-comfort-blue mb-4">{t('news.title')}</h2>
+                    <p className="text-gray-600">{t('news.subtitle')}</p>
                 </div>
-             ))}
-          </div>
-          
-          <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white to-transparent pointer-events-none z-10"></div>
-          <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white to-transparent pointer-events-none z-10"></div>
+                <Link to="/blog" className="text-comfort-blue font-bold tracking-wide uppercase hover:underline flex items-center mt-4 md:mt-0">
+                    {t('news.all')} <ArrowRight size={16} className="ml-2" />
+                </Link>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {blogPosts.slice(0, 3).map((post) => (
+                    <div key={post.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group">
+                        <div className="relative h-48 overflow-hidden">
+                            <img 
+                                src={post.image} 
+                                alt={post.title} 
+                                onError={handleImageError}
+                                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" 
+                            />
+                            <div className="absolute top-4 left-4 bg-white/90 px-3 py-1 rounded text-xs font-bold text-comfort-blue uppercase">
+                                {post.category}
+                            </div>
+                        </div>
+                        <div className="p-6">
+                            <div className="flex items-center text-xs text-gray-500 mb-3 space-x-4">
+                                <span className="flex items-center"><Calendar size={12} className="mr-1"/> {post.date}</span>
+                                <span className="flex items-center"><User size={12} className="mr-1"/> {post.author}</span>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-3 leading-snug group-hover:text-comfort-blue transition-colors">
+                                <Link to={`/blog/${post.id}`}>{post.title}</Link>
+                            </h3>
+                            <p className="text-gray-600 text-sm mb-4 line-clamp-2">{post.excerpt}</p>
+                            <Link to={`/blog/${post.id}`} className="text-comfort-blue font-bold text-sm uppercase flex items-center hover:underline">
+                                {t('news.read')} <ArrowRight size={14} className="ml-2" />
+                            </Link>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
       </section>
       )}
 
-      {/* 🏛️ SECTION 5: PROJECTS */}
-      <section className="py-20 md:py-32 bg-white">
-        <div className="container mx-auto px-6">
-          <div className="flex items-center justify-between mb-16 md:mb-20">
-             <h2 className="text-3xl md:text-4xl font-serif font-bold text-comfort-blue">Derniers Rapports d'Action</h2>
-             <Link to="/projects" className="text-comfort-gold font-bold uppercase text-[10px] md:text-xs tracking-[0.3em] hover:text-comfort-blue transition-colors">Tout voir</Link>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-16">
-            {projects.slice(0, 3).map((project) => (
-              <div key={project.id} className="group border-b border-gray-50 pb-12 transition-all">
-                 <div className="aspect-[16/10] relative overflow-hidden mb-8 shadow-sm group-hover:shadow-2xl transition-all duration-700">
-                    <img src={project.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.5s]" alt={project.title} />
-                    <div className="absolute top-4 left-4 px-3 py-1.5 bg-white/90 backdrop-blur-md text-comfort-blue font-bold text-[9px] uppercase tracking-widest shadow-lg">
-                      {project.status === 'Ongoing' ? 'En Cours' : 'Achevé'}
-                    </div>
-                 </div>
-                 <div className="space-y-4">
-                    <span className="text-comfort-gold font-bold text-[10px] uppercase tracking-widest">{project.category}</span>
-                    <h3 className="text-xl md:text-2xl font-serif font-bold text-comfort-dark leading-tight group-hover:text-comfort-blue transition-colors">
-                      <Link to={`/projects/${project.id}`}>{project.title}</Link>
-                    </h3>
-                    <p className="text-gray-500 text-sm font-light leading-relaxed line-clamp-3">
-                       {project.description}
-                    </p>
-                    <Link to={`/projects/${project.id}`} className="inline-flex items-center text-comfort-blue font-bold text-[10px] uppercase tracking-widest hover:text-comfort-gold transition-colors">
-                       Consulter l'impact &rarr;
-                    </Link>
-                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* ⬛ 7.5 SECTION - PARTENAIRES (SCROLLING MARQUEE) */}
+      <section className="py-16 bg-white border-t border-gray-100 overflow-hidden relative group">
+         <div className="container mx-auto px-4 mb-8 text-center">
+             <h3 className="text-lg font-serif font-bold text-gray-400 uppercase tracking-widest">{t('partners.title')}</h3>
+         </div>
+         {partners.length > 0 && (
+         <div className="w-full relative overflow-hidden">
+            <div className="flex w-max animate-marquee hover:[animation-play-state:paused] items-center">
+              {/* Double loop pour défilement infini fluide */}
+              {[...partners, ...partners].map((partner, idx) => (
+                  <div key={`partner-${idx}`} className="w-32 md:w-48 flex items-center justify-center shrink-0 mx-8 md:mx-12">
+                      <img 
+                          src={partner.logo} 
+                          alt={partner.name}
+                          onError={handleImageError} 
+                          className="max-h-12 md:max-h-16 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-500 opacity-60 hover:opacity-100 cursor-pointer transform hover:scale-110"
+                      />
+                  </div>
+              ))}
+            </div>
+         </div>
+         )}
+         <style>{`
+            @keyframes marquee {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            .animate-marquee {
+              animation: marquee 30s linear infinite;
+            }
+         `}</style>
       </section>
 
-      {/* 🏛️ SECTION 6: CALL TO ACTION */}
-      <section className="py-20 md:py-32 bg-white">
-        <div className="container mx-auto px-6">
-           <div className="bg-comfort-blue rounded-sm p-10 md:p-24 relative overflow-hidden shadow-2xl">
-              <div className="absolute top-0 right-0 w-1/3 h-full bg-comfort-gold/10 skew-x-12 translate-x-1/2"></div>
-              <div className="relative z-10 max-w-3xl">
-                 <h2 className="text-3xl md:text-6xl font-serif font-bold text-white mb-6 md:mb-8 leading-tight">Devenez acteur de ce <span className="italic">changement</span>.</h2>
-                 <p className="text-base md:text-xl text-blue-100 font-light mb-8 md:mb-12 leading-relaxed">Chaque don, chaque adhésion renforce notre capacité à protéger les plus vulnérables. Votre contribution est l'étincelle de notre prochain impact.</p>
-                 <Link to="/donate" className="inline-block bg-white text-comfort-blue px-8 md:px-12 py-4 md:py-5 font-bold uppercase tracking-widest hover:bg-comfort-gold hover:text-white transition-all shadow-2xl text-[10px] md:text-xs">
-                    Initier un acte de don
-                 </Link>
+      {/* 🟩 8. SECTION - CTA Premium */}
+      <section className="py-32 relative flex items-center justify-center">
+         <img 
+            src="/assets/images/cta-bg.jpg"
+            onError={(e) => e.currentTarget.src = "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=2070&auto=format&fit=crop"}
+            alt="Community" 
+            className="absolute inset-0 w-full h-full object-cover"
+         />
+         <div className="absolute inset-0 bg-comfort-blue/80 mix-blend-multiply"></div>
+         
+         <div className="container relative z-10 mx-auto px-4 text-center text-white">
+            <h2 className="text-4xl md:text-6xl font-serif font-bold mb-8 whitespace-pre-line">{t('cta.title')}</h2>
+            <Link 
+              to="/donate" 
+              className="inline-block bg-white text-comfort-blue px-10 py-5 rounded-sm text-lg font-bold uppercase tracking-widest hover:bg-gray-100 transition-transform hover:scale-105 shadow-2xl"
+            >
+              {t('cta.button')}
+            </Link>
+         </div>
+      </section>
+
+      {/* 🟦 9. SECTION CONTACT */}
+      <section className="py-24 bg-white" id="contact-section">
+        <div className="container mx-auto px-4 md:px-6">
+           <div className="grid lg:grid-cols-2 gap-16">
+              <div>
+                 <h2 className="text-3xl font-serif font-bold text-comfort-blue mb-6">{t('contact.title')}</h2>
+                 <p className="text-gray-600 mb-10 text-lg">{t('contact.desc')}</p>
+                 
+                 <div className="space-y-8">
+                    <div className="flex items-start">
+                       <MapPin className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
+                       <div>
+                          <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.address')}</h4>
+                          <p className="text-gray-600">{contactAddress}</p>
+                       </div>
+                    </div>
+                    <div className="flex items-start">
+                       <Mail className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
+                       <div>
+                          <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.email')}</h4>
+                          <p className="text-gray-600">{contactEmail}</p>
+                       </div>
+                    </div>
+                    <div className="flex items-start">
+                       <Phone className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
+                       <div>
+                          <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.phone')}</h4>
+                          <p className="text-gray-600">{contactPhone}</p>
+                       </div>
+                    </div>
+                    <div className="flex items-start">
+                       <Clock className="text-comfort-blue mt-1 mr-6" size={28} strokeWidth={1.5} />
+                       <div>
+                          <h4 className="font-bold text-gray-900 uppercase tracking-wide text-sm mb-1">{t('contact.hours')}</h4>
+                          <p className="text-gray-600">{CONTACT_INFO?.hours || "Lun - Ven: 08h - 17h"}</p>
+                       </div>
+                    </div>
+                 </div>
+
+                 <div className="mt-10 h-64 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                    <iframe 
+                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127641.51705646199!2d29.15545293674683!3d-1.658604928230554!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x19dd0f339890a8fb%3A0x633513364f9c636f!2sGoma!5e0!3m2!1sfr!2scd!4v1700000000000" 
+                      width="100%" 
+                      height="100%" 
+                      style={{ border: 0 }} 
+                      allowFullScreen 
+                      loading="lazy" 
+                      title="Google Map"
+                    ></iframe>
+                 </div>
+              </div>
+
+              <div className="bg-gray-50 p-8 md:p-12 rounded-lg border border-gray-100 shadow-sm flex flex-col justify-center text-center">
+                  <h3 className="text-2xl font-bold mb-6 text-gray-900">Préférez-vous un contact direct ?</h3>
+                  <p className="text-gray-600 mb-8">
+                      Nous n'utilisons pas de formulaires pour garantir une réponse plus rapide et personnelle. Écrivez-nous ou appelez-nous directement.
+                  </p>
+                  <div className="space-y-4">
+                      <a href={`mailto:${contactEmail}`} className="block w-full bg-comfort-blue text-white font-bold py-4 rounded-sm uppercase tracking-wider hover:bg-comfort-dark transition-colors shadow-lg flex items-center justify-center">
+                          <Mail className="mr-2" size={20} />
+                          Envoyer un Email
+                      </a>
+                      <a href={`tel:${contactPhone}`} className="block w-full bg-white text-comfort-blue border-2 border-comfort-blue font-bold py-4 rounded-sm uppercase tracking-wider hover:bg-blue-50 transition-colors shadow-sm flex items-center justify-center">
+                          <Phone className="mr-2" size={20} />
+                          Appeler : {contactPhone}
+                      </a>
+                  </div>
+                  <div className="mt-8 pt-8 border-t border-gray-200">
+                      <p className="text-sm text-gray-500 mb-4">Suivez nos actions au quotidien</p>
+                      <div className="flex justify-center space-x-6">
+                           <a href="https://x.com/AsblComfor44668" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-comfort-blue transition-colors">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                           </a>
+                           <a href="https://facebook.com/comfortasbl" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-comfort-blue transition-colors">
+                              <Facebook size={24} />
+                           </a>
+                      </div>
+                  </div>
               </div>
            </div>
         </div>
       </section>
-
     </div>
   );
 };
