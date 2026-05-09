@@ -1,41 +1,54 @@
-
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
-import { DOMAINS, TEAM_MEMBERS, CONTACT_INFO } from './constants';
-import { Heart, BookOpen, HandCoins, Wheat, Palette, Shield, Activity, TrendingUp, Users, MapPin, Mail, Phone, ArrowRight } from 'lucide-react';
+import { DOMAINS, CONTACT_INFO } from './constants';
+import { 
+  Heart, 
+  BookOpen, 
+  HandCoins, 
+  Wheat, 
+  Shield, 
+  TrendingUp, 
+  Users, 
+  MapPin, 
+  Mail, 
+  Phone 
+} from 'lucide-react';
 
 const About: React.FC = () => {
   const { t } = useLanguage();
-  const { partners, settings, loading } = useData();
+  const { settings, loading, team } = useData();
 
+  // Extraction des informations de contact dynamiques ou repli sur les constantes
   const contactEmail = settings?.contactEmail || CONTACT_INFO.email;
   const contactPhone = settings?.contactPhone || CONTACT_INFO.phone;
   const contactAddress = settings?.contactAddress || CONTACT_INFO.address;
 
-  const getIcon = (iconName: string, size = 32) => {
-    const props = { size, strokeWidth: 1.5, className: "text-comfort-gold" };
-    switch (iconName) {
-      case 'Heart': return <Heart {...props} />;
-      case 'BookOpen': return <BookOpen {...props} />;
-      case 'HandCoins': return <HandCoins {...props} />;
-      case 'Wheat': return <Wheat {...props} />;
-      case 'Palette': return <Palette {...props} />;
-      default: return <Heart {...props} />;
-    }
+  /**
+   * Formate l'URL de l'image pour s'assurer qu'elle pointe vers l'API
+   * gère les chemins relatifs et absolus.
+   */
+  const formatImageUrl = (path: string) => {
+    if (!path) return 'https://api.comfortasbl.org/assets/images/default-avatar.jpg';
+    if (path.startsWith('http')) return path;
+    return `https://api.comfortasbl.org${path.startsWith('/') ? '' : '/'}${path}`;
   };
 
-  if (loading) return <div className="py-40 bg-white min-h-screen animate-pulse"></div>;
+  if (loading) return (
+    <div className="py-40 bg-white min-h-screen flex items-center justify-center">
+      <div className="w-12 h-12 border-4 border-comfort-gold border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  );
 
   return (
     <div className="flex flex-col min-h-screen font-sans bg-white overflow-x-hidden">
       
-      {/* 🏛️ HERO - Style Fondation */}
+      {/* 🏛️ HERO - Identité Visuelle */}
       <section className="relative h-[50vh] flex items-center overflow-hidden bg-comfort-dark">
         <div className="absolute inset-0">
           <img 
             src="https://api.comfortasbl.org/assets/images/about-hero.jpg"
-            alt="Humanitarian Impact" 
+            alt="Impact Humanitaire" 
             className="w-full h-full object-cover opacity-40 grayscale"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-comfort-dark/80 to-comfort-dark"></div>
@@ -51,7 +64,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* 🏛️ HISTOIRE - Layout Asymétrique */}
+      {/* 🏛️ HISTOIRE & MISSION */}
       <section className="py-32">
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-12 gap-16 items-start">
@@ -65,7 +78,7 @@ const About: React.FC = () => {
             </div>
             <div className="lg:col-span-5 relative">
               <div className="aspect-[4/5] bg-gray-100 overflow-hidden shadow-2xl rounded-sm">
-                <img src="https://api.comfortasbl.org/assets/images/about-who.jpg" className="w-full h-full object-cover" alt="COMFORT in action" />
+                <img src="https://api.comfortasbl.org/assets/images/about-who.jpg" className="w-full h-full object-cover" alt="COMFORT en action" />
               </div>
               <div className="absolute -bottom-10 -left-10 bg-comfort-gold p-10 text-white shadow-xl hidden md:block">
                  <p className="font-serif italic text-2xl">"Agir avec intégrité pour chaque vie impactée."</p>
@@ -75,7 +88,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* 🏛️ VISION & MISSION - Diptyque */}
+      {/* 🏛️ VISION & VALEURS */}
       <section className="py-32 bg-comfort-light border-y border-gray-100">
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-0 border border-gray-100 shadow-sm">
@@ -93,7 +106,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* 🏛️ OBJECTIFS - Grille Institutionnelle */}
+      {/* 🏛️ OBJECTIFS STRATÉGIQUES */}
       <section className="py-32">
         <div className="container mx-auto px-6">
           <div className="text-center mb-24">
@@ -121,7 +134,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* 🏛️ EQUIPE - Portraits Raffinés */}
+      {/* 🏛️ EQUIPE - Portraits Dynamiques de l'API */}
       <section className="py-32 bg-comfort-dark text-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-24">
@@ -130,19 +143,32 @@ const About: React.FC = () => {
           </div>
 
           <div className="grid md:grid-cols-4 gap-12">
-            {TEAM_MEMBERS.map((member) => (
-              <div key={member.id} className="group">
-                <div className="aspect-square bg-gray-800 overflow-hidden mb-8 relative">
-                  <img src={member.image} alt={member.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
-                  <div className="absolute inset-0 border-[10px] border-white/0 group-hover:border-white/10 transition-all duration-500"></div>
+            {team && team.length > 0 ? (
+              team.map((member: any) => (
+                <div key={member.id} className="group">
+                  <div className="aspect-square bg-gray-800 overflow-hidden mb-8 relative">
+                    <img 
+                      src={formatImageUrl(member.photo_url)} 
+                      alt={member.nom_complet} 
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
+                    />
+                    <div className="absolute inset-0 border-[10px] border-white/0 group-hover:border-white/10 transition-all duration-500"></div>
+                  </div>
+                  <h3 className="text-xl font-serif font-bold mb-1">{member.nom_complet}</h3>
+                  <span className="text-comfort-gold text-xs font-bold uppercase tracking-widest block mb-4">{member.role}</span>
+                  {/* Bio optionnelle si présente dans la DB */}
+                  {member.description && (
+                    <p className="text-sm text-gray-400 font-light leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      {member.description}
+                    </p>
+                  )}
                 </div>
-                <h3 className="text-xl font-serif font-bold mb-1">{member.name}</h3>
-                <span className="text-comfort-gold text-xs font-bold uppercase tracking-widest block mb-4">{member.role}</span>
-                <p className="text-sm text-gray-400 font-light leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  {member.bio}
-                </p>
+              ))
+            ) : (
+              <div className="col-span-full py-10 text-center text-gray-500 italic">
+                Aucun membre de l'équipe n'a été trouvé.
               </div>
-            ))}
+            )}
           </div>
         </div>
       </section>
