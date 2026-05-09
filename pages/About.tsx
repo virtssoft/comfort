@@ -17,18 +17,19 @@ import {
 
 const About: React.FC = () => {
   const { t } = useLanguage();
-  const { settings, loading, team } = useData();
+  // Utilisation de teamMembers tel que défini dans ton DataContext
+  const { settings, loading, teamMembers } = useData();
 
-  // Extraction des informations de contact dynamiques ou repli sur les constantes
+  // Extraction des informations de contact dynamiques depuis settings ou repli sur les constantes
   const contactEmail = settings?.contactEmail || CONTACT_INFO.email;
   const contactPhone = settings?.contactPhone || CONTACT_INFO.phone;
   const contactAddress = settings?.contactAddress || CONTACT_INFO.address;
 
   /**
-   * Formate l'URL de l'image pour s'assurer qu'elle pointe vers l'API
-   * gère les chemins relatifs et absolus.
+   * Formate l'URL de l'image pour s'assurer qu'elle pointe vers l'API.
+   * Si l'image est absente, retourne un avatar par défaut.
    */
-  const formatImageUrl = (path: string) => {
+  const formatImageUrl = (path: string | undefined) => {
     if (!path) return 'https://api.comfortasbl.org/assets/images/default-avatar.jpg';
     if (path.startsWith('http')) return path;
     return `https://api.comfortasbl.org${path.startsWith('/') ? '' : '/'}${path}`;
@@ -43,7 +44,7 @@ const About: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen font-sans bg-white overflow-x-hidden">
       
-      {/* 🏛️ HERO - Identité Visuelle */}
+      {/* 🏛️ SECTION HERO */}
       <section className="relative h-[50vh] flex items-center overflow-hidden bg-comfort-dark">
         <div className="absolute inset-0">
           <img 
@@ -78,7 +79,7 @@ const About: React.FC = () => {
             </div>
             <div className="lg:col-span-5 relative">
               <div className="aspect-[4/5] bg-gray-100 overflow-hidden shadow-2xl rounded-sm">
-                <img src="https://api.comfortasbl.org/assets/images/about-who.jpg" className="w-full h-full object-cover" alt="COMFORT en action" />
+                <img src="https://api.comfortasbl.org/assets/images/about-who.jpg" className="w-full h-full object-cover" alt="Action humanitaire" />
               </div>
               <div className="absolute -bottom-10 -left-10 bg-comfort-gold p-10 text-white shadow-xl hidden md:block">
                  <p className="font-serif italic text-2xl">"Agir avec intégrité pour chaque vie impactée."</p>
@@ -88,7 +89,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* 🏛️ VISION & VALEURS */}
+      {/* 🏛️ VISION & MISSION (Cartes) */}
       <section className="py-32 bg-comfort-light border-y border-gray-100">
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-0 border border-gray-100 shadow-sm">
@@ -134,7 +135,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* 🏛️ EQUIPE - Portraits Dynamiques de l'API */}
+      {/* 🏛️ EQUIPE - PORTRAITS DYNAMIQUES */}
       <section className="py-32 bg-comfort-dark text-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-24">
@@ -143,37 +144,38 @@ const About: React.FC = () => {
           </div>
 
           <div className="grid md:grid-cols-4 gap-12">
-            {team && team.length > 0 ? (
-              team.map((member: any) => (
+            {teamMembers && teamMembers.length > 0 ? (
+              teamMembers.map((member) => (
                 <div key={member.id} className="group">
                   <div className="aspect-square bg-gray-800 overflow-hidden mb-8 relative">
                     <img 
-                      src={formatImageUrl(member.photo_url)} 
-                      alt={member.nom_complet} 
+                      src={formatImageUrl(member.photo)} 
+                      alt={member.name} 
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
                     />
                     <div className="absolute inset-0 border-[10px] border-white/0 group-hover:border-white/10 transition-all duration-500"></div>
                   </div>
-                  <h3 className="text-xl font-serif font-bold mb-1">{member.nom_complet}</h3>
-                  <span className="text-comfort-gold text-xs font-bold uppercase tracking-widest block mb-4">{member.role}</span>
-                  {/* Bio optionnelle si présente dans la DB */}
-                  {member.description && (
+                  <h3 className="text-xl font-serif font-bold mb-1">{member.name}</h3>
+                  <span className="text-comfort-gold text-xs font-bold uppercase tracking-widest block mb-4">
+                    {member.role}
+                  </span>
+                  {member.bio && (
                     <p className="text-sm text-gray-400 font-light leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      {member.description}
+                      {member.bio}
                     </p>
                   )}
                 </div>
               ))
             ) : (
-              <div className="col-span-full py-10 text-center text-gray-500 italic">
-                Aucun membre de l'équipe n'a été trouvé.
+              <div className="col-span-full py-10 text-center text-gray-500 italic font-light">
+                Aucun membre de l'équipe n'est répertorié pour le moment.
               </div>
             )}
           </div>
         </div>
       </section>
 
-      {/* 🏛️ CONTACT - Style Institutionnel */}
+      {/* 🏛️ CONTACT & ACTION */}
       <section className="py-32">
         <div className="container mx-auto px-6">
           <div className="bg-white border border-gray-100 shadow-2xl p-12 md:p-24 flex flex-col md:flex-row items-center gap-16">
@@ -195,7 +197,10 @@ const About: React.FC = () => {
                </div>
             </div>
             <div className="w-full md:w-auto">
-               <a href={`mailto:${contactEmail}`} className="inline-block bg-comfort-blue text-white px-12 py-5 font-bold uppercase tracking-widest hover:bg-comfort-gold transition-all duration-500 shadow-xl">
+               <a 
+                 href={`mailto:${contactEmail}`} 
+                 className="inline-block bg-comfort-blue text-white px-12 py-5 font-bold uppercase tracking-widest hover:bg-comfort-gold transition-all duration-500 shadow-xl"
+               >
                   Initier une conversation
                </a>
             </div>
