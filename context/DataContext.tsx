@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { api } from '../services/api';
 import { Project, BlogPost, Partner, TeamMember, Testimonial, SiteSettings } from '../types';
@@ -8,7 +7,7 @@ interface DataContextType {
   projects: Project[];
   blogPosts: BlogPost[];
   partners: Partner[];
-  teamMembers: TeamMember[];
+  teamMembers: TeamMember[]; // Utilisé pour l'équipe
   testimonials: Testimonial[];
   loading: boolean;
   refreshData: () => void;
@@ -30,7 +29,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const img = new Image();
       img.src = url;
       img.onload = () => resolve();
-      img.onerror = () => resolve(); // Ne bloque pas si une image est cassée
+      img.onerror = () => resolve(); 
     });
   };
 
@@ -42,7 +41,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         api.getProjects(),
         api.getBlogPosts(),
         api.getPartners(),
-        api.getTeam(),
+        api.getTeam(), // Appelle team.php via ton service api
         api.getTestimonials()
       ]);
 
@@ -56,17 +55,22 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       
       if (results[3].status === 'fulfilled') setPartners(results[3].value || []);
-      if (results[4].status === 'fulfilled') setTeamMembers(results[4].value || []);
+      
+      // Mise à jour des membres de l'équipe
+      if (results[4].status === 'fulfilled') {
+        setTeamMembers(results[4].value || []);
+      }
+      
       if (results[5].status === 'fulfilled') setTestimonials(results[5].value || []);
 
-      // CRITIQUE : Pré-charger les images des 3 premières actualités pour le carrousel
+      // Pré-chargement des images critiques
       const topImages = posts.slice(0, 3).map(p => p.image).filter(i => !!i);
       await Promise.all(topImages.map(url => preloadImage(url)));
 
     } catch (error) {
-      console.error("Erreur Data Loading", error);
+      console.error("Erreur globale lors du chargement des données", error);
     } finally {
-      // Un délai pour assurer que les squelettes ont été rendus derrière le loader
+      // Le délai de 2s permet d'éviter les flashs visuels si l'API répond trop vite
       setTimeout(() => setLoading(false), 2000);
     }
   };
@@ -81,10 +85,10 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       projects,
       blogPosts,
       partners,
-      teamMembers,
-      testimonials,
+      teamMembers, // On exporte teamMembers
       loading,
-      refreshData: loadData
+      refreshData: loadData,
+      testimonials
     }}>
       {children}
     </DataContext.Provider>
