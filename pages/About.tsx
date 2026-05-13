@@ -1,12 +1,9 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
-import { DOMAINS, CONTACT_INFO } from './constants';
+import { CONTACT_INFO } from './constants';
 import { 
   Heart, 
-  BookOpen, 
-  HandCoins, 
-  Wheat, 
   Shield, 
   TrendingUp, 
   Users, 
@@ -17,22 +14,22 @@ import {
 
 const About: React.FC = () => {
   const { t } = useLanguage();
-  // Utilisation de teamMembers tel que défini dans ton DataContext
   const { settings, loading, teamMembers } = useData();
 
-  // Extraction des informations de contact dynamiques depuis settings ou repli sur les constantes
+  // Données dynamiques depuis la base ou repli sur les constantes
   const contactEmail = settings?.contactEmail || CONTACT_INFO.email;
   const contactPhone = settings?.contactPhone || CONTACT_INFO.phone;
   const contactAddress = settings?.contactAddress || CONTACT_INFO.address;
 
   /**
-   * Formate l'URL de l'image pour s'assurer qu'elle pointe vers l'API.
-   * Si l'image est absente, retourne un avatar par défaut.
+   * Formate l'URL pour pointer vers ton API PHP.
+   * Gère le cas où le chemin commence déjà par un "/"
    */
   const formatImageUrl = (path: string | undefined) => {
     if (!path) return 'https://api.comfortasbl.org/assets/images/default-avatar.jpg';
     if (path.startsWith('http')) return path;
-    return `https://api.comfortasbl.org${path.startsWith('/') ? '' : '/'}${path}`;
+    // Concaténation directe puisque ton API stocke "/assets/images/team/..."
+    return `https://api.comfortasbl.org${path}`;
   };
 
   if (loading) return (
@@ -89,7 +86,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* 🏛️ VISION & MISSION (Cartes) */}
+      {/* 🏛️ VISION & MISSION */}
       <section className="py-32 bg-comfort-light border-y border-gray-100">
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-0 border border-gray-100 shadow-sm">
@@ -149,21 +146,17 @@ const About: React.FC = () => {
                 <div key={member.id} className="group">
                   <div className="aspect-square bg-gray-800 overflow-hidden mb-8 relative">
                     <img 
-                      src={formatImageUrl(member.photo)} 
-                      alt={member.name} 
+                      src={formatImageUrl(member.photo_url)} 
+                      alt={member.nom_complet} 
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
                     />
                     <div className="absolute inset-0 border-[10px] border-white/0 group-hover:border-white/10 transition-all duration-500"></div>
                   </div>
-                  <h3 className="text-xl font-serif font-bold mb-1">{member.name}</h3>
+                  {/* Correction : nom_complet au lieu de name */}
+                  <h3 className="text-xl font-serif font-bold mb-1">{member.nom_complet}</h3>
                   <span className="text-comfort-gold text-xs font-bold uppercase tracking-widest block mb-4">
                     {member.role}
                   </span>
-                  {member.bio && (
-                    <p className="text-sm text-gray-400 font-light leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                      {member.bio}
-                    </p>
-                  )}
                 </div>
               ))
             ) : (
